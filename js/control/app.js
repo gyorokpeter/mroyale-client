@@ -3,6 +3,16 @@
 
 /* App for control binding page */
 
+(function() {
+  if (typeof NodeList.prototype.forEach === "undefined") {
+      NodeList.prototype.forEach = Array.prototype.forEach;
+  }
+
+  if (typeof HTMLCollection.prototype.forEach === "undefined") {
+      HTMLCollection.prototype.forEach = Array.prototype.forEach;
+  }
+})();
+
 var INPUTS = ["up","down","left","right","a","b"];
 var K_DEFAULT = [87, 83, 65, 68, 32, 16];
 var G_DEFAULT = [0, 1, 2, 3, 4, 5];

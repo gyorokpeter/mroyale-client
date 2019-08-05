@@ -45,7 +45,7 @@
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@realMarioRoyale" />
 
-        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.0.0'>
+        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.2.0'>
         <link rel='stylesheet' type='text/css' href='css/spinner.css?v=2.1.6'>
         <link rel='stylesheet' type='text/css' href='css/link.css?v=2.1.6'>
         <script>
@@ -66,19 +66,19 @@
       <div id='link'>
         <div class="link-r">
               <div class="rtfpn3"></div>
-          <div class="link-git" onclick="window.open('https://github.com/Igoorx/PyRoyale')"></div>
+          <div class="link-git" onclick="window.open('https://github.com/mroyale/mroyale-client')"></div>
           <div class="link-disc" onclick="window.open('https://discordapp.com/invite/uYh4uRv')"></div>
         </div>
         <div class="link-l">
           <div class="rtfpn2"></div>
-          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.0.0')" style="display:none;">v3.0.0 Patch Notes</div>
+          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.2.0')" style="display:none;">v3.2.0 Patch Notes</div>
         </div>
         <div class="link-w">
           <div id='win' class="win" style="display:none;"></div>
         </div>
         <div class="link-b">
           <div class="rtfpn"></div>
-          <div class="link-con" onclick="window.open('./control.html?v=2.1.6')"></div>
+          <div class="link-con" onclick="window.open('./control.html?v=3.2.0')"></div>
         </div>
           <div class="link-s">
           <div class="rtfpn4"></div>
@@ -111,15 +111,15 @@
       <!-- Main Menu -->
       <div id='main' class='container-center'>
         <div class='title'>Mario Royale</div>
-        <div class='container-launch'>
-          <span id ='main-launch' class='launch'>Guest</span>
+        <div class='container-launch' style='margin-bottom: 20px'>
+          <span id='main-launch' class='launch'>Play Now!</span>
           <span class='players'><span id='main-number' class='player-number' style="display:none;">?</span> Online</span>
         </div>
         <div class="container-launch">
-          <span id ='main-login' class='launch'>Login</span>
+          <span id='main-login' class='launch'>Login</span>
         </div>
         <div class="container-launch">
-          <span id ='main-register' class='launch'>Register</span>
+          <span id='main-register' class='launch'>Register</span>
         </div>
       </div>
       
@@ -127,14 +127,28 @@
       <div id='mainAsMember' class='container-center' style='display: none;'>
         <div class='title'>Mario Royale</div>
         <div class='container-launch'>
-          <span id ='mainAsMember-private' class='private'>[ ]Private Room</span>
-          <span id ='mainAsMember-launch' class='launch'>Play Now</span>
+          <span class='players'><span id='mainAsMember-number' class='player-number'>?</span> Online</span>
+          <div style='display:inline-block'>
+            <span id='mainAsMember-launch' class='launch'>Play Now!</span>
+            <div id='mainAsMember-gm-change' class="gm-change tooltip" style='margin-left: 10px'>
+              <span class="tooltiptext">Change the current game mode</span>
+            </div>
+            <div id='mainAsMember-char-music-toggle' class='char-music-toggle tooltip' style='margin-left: 10px'>
+              <span class="tooltiptext">Toggle character unique music</span>
+            </div>
+            <div id='mainAsMember-private-toggle' class='private-toggle tooltip' style='margin-left: 10px'>
+              <span class="tooltiptext">Toggle private room</span>
+            </div>
+          </div>
         </div>
         <div class="container-launch">
-          <span id ='mainAsMember-profile' class='launch'>Profile</span>
+          <span id='mainAsMember-profile' class='launch'>Profile</span>
         </div>
         <div class="container-launch">
-          <span id ='mainAsMember-logout' class='launch'>Logout</span>
+          <span id='mainAsMember-pwd' class='launch'>Change Password</span>
+        </div>
+        <div class="container-launch">
+          <span id='mainAsMember-logout' class='launch'>Logout</span>
         </div>
       </div>
 
@@ -144,11 +158,25 @@
         <div class='team'><input id='profile-team' type='text' class='team-input' maxlength="3" placeholder='Squad Code'/></div>
         <div id='profile-skin-select' class="skin-select">
         </div>
-        <div class='container-bottom' style='margin-top:80px'>
+        <div class='container-bottom' style='margin-top:90px'>
           <div class='container-go'>
-            <span id ='profile-save' class='launch'>Save</span>
+            <span id='profile-save' class='launch'>Save</span>
           </div>
         </div>
+      </div>
+
+      <!-- Password change -->
+      <div id='pwd' class='container-center' style='display: none;'>
+        <div class='name'><input id='pwd-password-input' type='password' class='name-input' placeholder='New password'/></div>
+        <div class='name'><input id='pwd-password2-input' type='password' class='name-input' placeholder='New password again'/></div>
+        <div class='container-bottom'>
+          <div class='container-go'>
+            <span id='pwd-save' class='launch'>Save</span>
+            |
+            <span id='pwd-back' class='launch'>Cancel</span>
+          </div>
+        </div>
+        <div id="pwdResult" class="login-result">&nbsp;</div>
       </div>
 
       <!-- Guest mode -->
@@ -157,8 +185,20 @@
         <div class='team'><input id='team-input' type='text' class='team-input' maxlength="3" placeholder='Squad Code'/></div>
         <div class='container-bottom'>
           <div class='container-go'>
-            <span id ='name-private' class='private'>[ ]Private Room</span>
-            <span id ='name-launch' class='launch'>Go!</span>
+            <div style='display:inline-block'>
+              <span id='name-launch' class='launch'>Go!</span>
+              <div id='name-gm-change' class="gm-change tooltip" style='margin-left: 10px'>
+                <span class="tooltiptext">Change the current game mode</span>
+              </div>
+              <div id='char-music-toggle' class="char-music-toggle tooltip" style='margin-left: 10px'>
+                <span class="tooltiptext">Toggle character unique music</span>
+              </div>
+              <div id='name-private-toggle' class='private-toggle tooltip' style='margin-left: 10px'>
+                <span class="tooltiptext">Toggle private room</span>
+              </div>
+            </div>
+            |
+            <span id='name-back' class='launch'>Cancel</span>
           </div>
         </div>
         <div id='skin-select' class="skin-select">
@@ -167,13 +207,15 @@
 
       <!-- Login -->
       <div id='login' class='container-center' style='display: none;'>
-        <form action="#login">
+        <form id='login-form' action="#login">
             <div class='name'><input id='login-username-input' type='text' class='name-input' placeholder='UserName' maxlength="20"/></div>
             <div class='name'><input id='login-password-input' type='password' class='name-input' placeholder='Password'/></div>
             <div class='container-bottom'>
-                <input id ='login-do' type="submit" class='launchStrong' value="Login"></input>
-                |
-                <span id ='login-back' class='launch'>Cancel</span>
+                <div class="container-launch">
+                  <input id='login-do' type="submit" class='launchStrong' value="Login"></input>
+                  |
+                  <span id='login-back' class='launch'>Cancel</span>
+                </div>
             </div>
             <div id="loginResult" class="login-result">&nbsp;</div>
         </form>
@@ -181,18 +223,20 @@
 
       <!-- Register -->
       <div id='register' class='container-center' style='display: none;'>
-        <form action="#register">
+        <form id='register-form' action="#register">
             <div class='name'><input id='register-username-input' type='text' class='name-input' placeholder='UserName' maxlength='20'/></div>
             <div class='name'><input id='register-password-input' type='password' class='name-input' placeholder='Password'/></div>
             <div class='name'><input id='register-password2-input' type='password' class='name-input' placeholder='Password again'/></div>
             <div class='name'>
               <img id='register-captcha' alt='Captcha' />
-              <input id='register-captcha-input' type='text' class='name-input' placeholder='Captcha' maxlength='5' style='width: 480px'/>
+              <input id='register-captcha-input' type='text' class='captcha-input' placeholder='Captcha' maxlength='5'/>
             </div>
             <div class='container-bottom'>
-                <input id ='register-do' type="submit" class='launchStrong' value="Register"></input>
-                |
-                <span id ='register-back' class='launch'>Cancel</span>
+                <div class="container-launch">
+                  <input id='register-do' type="submit" class='launchStrong' value="Register"></input>
+                  |
+                  <span id='register-back' class='launch'>Cancel</span>
+                </div>
             </div>
             <div id="registerResult" class="login-result">&nbsp;</div>
         </form>
@@ -226,6 +270,6 @@
       <script src='js/lib/cookie/js.cookie.min.js'></script>
       
       <!-- Core -->
-      <script src='js/core.js?v=3.0.0'></script>
+      <script src='js/core.js?v=3.2.0'></script>
     </body>
 </html>
