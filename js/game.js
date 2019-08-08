@@ -1,5 +1,5 @@
 var GAMEMODES = ["vanilla", "pvp", "hell"];
-var SKINCOUNT=176;
+var SKINCOUNT=268;
 var DEV_SKINS = [52];
 var DEFAULT_PLAYER_NAME="INFRINGIO";
 var levelSelectors = [
@@ -402,490 +402,490 @@ td32.GEN_FUNC.BREAK = function(game, pid, td, level, zone, x, y, type) {
 };
 
 td32.TILE_PROPERTIES = {
-	/* Nothing */
-	0x00: {
-		NAME: "AIR",
-		COLLIDE: false,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
-	},
-	/* Solid Standard */
-	0x01: {
-		NAME: "SOLID STANDARD",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
-	},
-	/* Solid Bumpable */
-	0x02: {
-		NAME: "SOLID BUMPABLE",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-			}
-		}
-	},
-	/* Solid Breakable Normal */
-	0x03: {
-		NAME: "SOLID BREAKABLE NORMAL",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					td32.GEN_FUNC.BREAK(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-			}
-		}
+    /* Nothing */
+    0x00: {
+        NAME: "AIR",
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
+    /* Solid Standard */
+    0x01: {
+        NAME: "SOLID STANDARD",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
+    /* Solid Bumpable */
+    0x02: {
+        NAME: "SOLID BUMPABLE",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+            }
+        }
+    },
+    /* Solid Breakable Normal */
+    0x03: {
+        NAME: "SOLID BREAKABLE NORMAL",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BREAK(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+            }
+        }
     },
     /* Solid Damage */
-	0x04: {
-		NAME: "SOLID DAMAGE",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Touch */
-				case 0x00 : {
-					if(game.pid === pid) {
-						game.getPlayer().damage();
-					}
-				}
-			}
-		}
+    0x04: {
+        NAME: "SOLID DAMAGE",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Touch */
+                case 0x00 : {
+                    if(game.pid === pid) {
+                        game.getPlayer().damage();
+                    }
+                }
+            }
+        }
     },
     /* Semisolid */
-	0x05: {
-		NAME: "SEMISOLID",
+    0x05: {
+        NAME: "SEMISOLID",
         COLLIDE: true,
         PLATFORM: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
-	},
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
     /* Semisolid Weak */
-	0x06: {
-		NAME: "SEMISOLID WEAK",
+    0x06: {
+        NAME: "SEMISOLID WEAK",
         COLLIDE: true,
         PLATFORM: "WEAK",
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
-	},
-	/* Item Block Normal */
-	0x11: {
-		NAME: "ITEM BLOCK STANDARD",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
+    /* Item Block Normal */
+    0x11: {
+        NAME: "ITEM BLOCK STANDARD",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-					break;
-				}
-			}
-		}
-	},
-	/* Coin Block Normal */
-	0x12: {
-		NAME: "COIN BLOCK STANDARD",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.world.getZone(level, zone).coin(x,y+1);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.world.getZone(level, zone).coin(x,y+1);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-			}
-		}
-	},
-	/* Coin Block Multi */
-	0x13: {
-		NAME: "COIN BLOCK MULTI",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					if(td.data > 0) {
-						var raw = game.world.getZone(level, zone).tile(x,y);
-						var rep = td32.data(raw, td.data-1);											// Replacement td32 data for tile.
-						game.world.getZone(level, zone).replace(x,y,rep);
-						game.world.getZone(level, zone).coin(x,y+1);
-						td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					}
-					else {
-						var rep = 98331; // Replacement td32 data for tile.
-						game.world.getZone(level, zone).replace(x,y,rep);
-						game.world.getZone(level, zone).coin(x,y+1);
-						td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					}
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					if(td.data > 0) {
-						var raw = game.world.getZone(level, zone).tile(x,y);
-						var rep = td32.data(raw, td.data-1);											// Replacement td32 data for tile.
-						game.world.getZone(level, zone).replace(x,y,rep);
-						game.world.getZone(level, zone).coin(x,y+1);
-						td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					}
-					else {
-						var rep = 98331; // Replacement td32 data for tile.
-						game.world.getZone(level, zone).replace(x,y,rep);
-						game.world.getZone(level, zone).coin(x,y+1);
-						td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					}
-					break;
-				}
-			}
-		}
-	},
-	/* Vine Block */
-	0x18: {
-		NAME: "VINE BLOCK",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.world.getZone(level, zone).grow(x,y+1,vin);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.world.getZone(level, zone).grow(x,y+1,vin);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
-					break;
-				}
-			}
-		}
-	},
-	/* Item Block Invisible */
-	0x15: {
-		NAME: "ITEM BLOCK INVISIBLE",
-		COLLIDE: true,
-		HIDDEN: true,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    break;
+                }
+            }
+        }
+    },
+    /* Coin Block Normal */
+    0x12: {
+        NAME: "COIN BLOCK STANDARD",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).coin(x,y+1);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).coin(x,y+1);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+            }
+        }
+    },
+    /* Coin Block Multi */
+    0x13: {
+        NAME: "COIN BLOCK MULTI",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if(td.data > 0) {
+                        var raw = game.world.getZone(level, zone).tile(x,y);
+                        var rep = td32.data(raw, td.data-1);                                            // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
+                    else {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if(td.data > 0) {
+                        var raw = game.world.getZone(level, zone).tile(x,y);
+                        var rep = td32.data(raw, td.data-1);                                            // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
+                    else {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
+                    break;
+                }
+            }
+        }
+    },
+    /* Vine Block */
+    0x18: {
+        NAME: "VINE BLOCK",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).grow(x,y+1,vin);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).grow(x,y+1,vin);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
+                    break;
+                }
+            }
+        }
+    },
+    /* Item Block Invisible */
+    0x15: {
+        NAME: "ITEM BLOCK INVISIBLE",
+        COLLIDE: true,
+        HIDDEN: true,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-					break;
-				}
-			}
-		}
-	},
-	/* Coin Block INVISIBLE */
-	0x16: {
-		NAME: "COIN BLOCK INVISIBLE",
-		COLLIDE: true,
-		HIDDEN: true,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.world.getZone(level, zone).coin(x,y+1);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.world.getZone(level, zone).coin(x,y+1);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-			}
-		}
-	},
-	/* Warp Tile */
-	0x51: {
-		NAME: "WARP TILE",
-		COLLIDE: false,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Touch */
-				case 0x00 : {
-					if(game.pid === pid) {
-						game.getPlayer().warp(td.data);
-					}
-				}
-			}
-		}
-	},
-	/* Warp Pipe */
-	0x52: {
-		NAME: "WARP PIPE SLOW",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Down */
-				case 0x01 : {
-					if(game.pid === pid) {
-						var ply = game.getPlayer();
-						var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
-						var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
-						
-						var cx;
-						if(l.definition === this) { cx = x; }
-						else if(r.definition === this) { cx = x+1; }
-						else { return; }
-						
-						if(Math.abs((ply.pos.x + (ply.dim.x*.5)) - cx) <= 0.45) { ply.pipe(2, td.data, 50); }
-					}
-				}
-			}
-		}
-	},
-	/* Warp Pipe Horiz */
-	0x53: {
-		NAME: "WARP PIPE RIGHT SLOW",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Push */
-				case 0x02 : {
-					if(game.pid === pid) {
-						game.getPlayer().pipe(4, td.data, 50);
-					}
-				}
-			}
-		}
-	},
-	/* Warp Pipe */
-	0x54: {
-		NAME: "WARP PIPE FAST",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Down */
-				case 0x01 : {
-					if(game.pid === pid) {
-						var ply = game.getPlayer();
-						var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
-						var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
-						
-						var cx;
-						if(l.definition === this) { cx = x; }
-						else if(r.definition === this) { cx = x+1; }
-						else { return; }
-						
-						if(Math.abs((ply.pos.x + (ply.dim.x*.5)) - cx) <= 0.45) { ply.pipe(2, td.data, 0); }
-					}
-				}
-			}
-		}
-	},
-	/* Warp Pipe Horiz */
-	0x55: {
-		NAME: "WARP PIPE RIGHT FAST",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Push */
-				case 0x02 : {
-					if(game.pid === pid) {
-						game.getPlayer().pipe(4, td.data, 0);
-					}
-				}
-			}
-		}
-	},
-	/* End of Level Warp */
-	0x56: {
-		NAME: "LEVEL END WARP",
-		COLLIDE: false,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Touch */
-				case 0x00 : {
-					if(game.pid === pid) {
-						game.levelWarp(td.data);
-					}
-				}
-			}
-		}
-	},
-	/* Flagpole */
-	0xA0: {
-		NAME: "FLAGPOLE",
-		COLLIDE: false,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Touch */
-				case 0x00 : {
-					if(game.pid === pid) {
-						var ply = game.getPlayer();
-						if(ply.pos.x >= x) { ply.pole(vec2.make(x,y)); }
-					}
-				}
-			}
-		}
-	},
-	/* Vine */
-	0xA5: {
-		NAME: "VINE",
-		COLLIDE: false,
-		HIDDEN: false,
-		ASYNC: true,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Touch */
-				case 0x00 : {
-					if(game.pid === pid) {
-						var ply = game.getPlayer();
-						if(ply.pos.x >= x && ply.pos.x <= x+1.) { ply.vine(vec2.make(x,y), td.data); }
-					}
-				}
-			}
-		}
-	},
-	/* Vote Block */
-	0xF0: {
-		NAME: "VOTE BLOCK",
-		COLLIDE: true,
-		HIDDEN: false,
-		ASYNC: false,
-		TRIGGER: function(game, pid, td, level, zone, x, y, type) {
-			switch(type) {
-				/* Small bump */
-				case 0x10 : {
-					if(game.pid === pid) { game.send({type: "g50"}); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-				/* Big bump */
-				case 0x11 : {
-					if(game.pid === pid) { game.send({type: "g50"}); }
-					var rep = 98331; // Replacement td32 data for tile.
-					game.world.getZone(level, zone).replace(x,y,rep);
-					game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
-					td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-					break;
-				}
-			}
-		}
-	}
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    break;
+                }
+            }
+        }
+    },
+    /* Coin Block INVISIBLE */
+    0x16: {
+        NAME: "COIN BLOCK INVISIBLE",
+        COLLIDE: true,
+        HIDDEN: true,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).coin(x,y+1);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).coin(x,y+1);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+            }
+        }
+    },
+    /* Warp Tile */
+    0x51: {
+        NAME: "WARP TILE",
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Touch */
+                case 0x00 : {
+                    if(game.pid === pid) {
+                        game.getPlayer().warp(td.data);
+                    }
+                }
+            }
+        }
+    },
+    /* Warp Pipe */
+    0x52: {
+        NAME: "WARP PIPE SLOW",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Down */
+                case 0x01 : {
+                    if(game.pid === pid) {
+                        var ply = game.getPlayer();
+                        var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
+                        var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
+                        
+                        var cx;
+                        if(l.definition === this) { cx = x; }
+                        else if(r.definition === this) { cx = x+1; }
+                        else { return; }
+                        
+                        if(Math.abs((ply.pos.x + (ply.dim.x*.5)) - cx) <= 0.45) { ply.pipe(2, td.data, 50); }
+                    }
+                }
+            }
+        }
+    },
+    /* Warp Pipe Horiz */
+    0x53: {
+        NAME: "WARP PIPE RIGHT SLOW",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Push */
+                case 0x02 : {
+                    if(game.pid === pid) {
+                        game.getPlayer().pipe(4, td.data, 50);
+                    }
+                }
+            }
+        }
+    },
+    /* Warp Pipe */
+    0x54: {
+        NAME: "WARP PIPE FAST",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Down */
+                case 0x01 : {
+                    if(game.pid === pid) {
+                        var ply = game.getPlayer();
+                        var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
+                        var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
+                        
+                        var cx;
+                        if(l.definition === this) { cx = x; }
+                        else if(r.definition === this) { cx = x+1; }
+                        else { return; }
+                        
+                        if(Math.abs((ply.pos.x + (ply.dim.x*.5)) - cx) <= 0.45) { ply.pipe(2, td.data, 0); }
+                    }
+                }
+            }
+        }
+    },
+    /* Warp Pipe Horiz */
+    0x55: {
+        NAME: "WARP PIPE RIGHT FAST",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Push */
+                case 0x02 : {
+                    if(game.pid === pid) {
+                        game.getPlayer().pipe(4, td.data, 0);
+                    }
+                }
+            }
+        }
+    },
+    /* End of Level Warp */
+    0x56: {
+        NAME: "LEVEL END WARP",
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Touch */
+                case 0x00 : {
+                    if(game.pid === pid) {
+                        game.levelWarp(td.data);
+                    }
+                }
+            }
+        }
+    },
+    /* Flagpole */
+    0xA0: {
+        NAME: "FLAGPOLE",
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Touch */
+                case 0x00 : {
+                    if(game.pid === pid) {
+                        var ply = game.getPlayer();
+                        if(ply.pos.x >= x) { ply.pole(vec2.make(x,y)); }
+                    }
+                }
+            }
+        }
+    },
+    /* Vine */
+    0xA5: {
+        NAME: "VINE",
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Touch */
+                case 0x00 : {
+                    if(game.pid === pid) {
+                        var ply = game.getPlayer();
+                        if(ply.pos.x >= x && ply.pos.x <= x+1.) { ply.vine(vec2.make(x,y), td.data); }
+                    }
+                }
+            }
+        }
+    },
+    /* Vote Block */
+    0xF0: {
+        NAME: "VOTE BLOCK",
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            switch(type) {
+                /* Small bump */
+                case 0x10 : {
+                    if(game.pid === pid) { game.send({type: "g50"}); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+                /* Big bump */
+                case 0x11 : {
+                    if(game.pid === pid) { game.send({type: "g50"}); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    break;
+                }
+            }
+        }
+    }
 };
 
 var NETX = {}; // Main
@@ -919,7 +919,7 @@ NET001.BYTES = 5;
 
 /* Server->Client */
 NET001.decode = function(/* NET001_SERV */ a) {
-	return {
+    return {
         designation: NET001.DESIGNATION,
         pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
         skin: (a[3] & 0x00FF) | ((a[2] << 8) & 0xFF00)
@@ -933,19 +933,19 @@ NET010.BYTES = 11;
 
 /* Client->Server */
 NET010.encode = function(/* byte */ levelID, /* byte */ zoneID, /* shor2 */ pos) {
-	return new Uint8Array([NET010.DESIGNATION, levelID, zoneID, (pos >> 24) & 0xFF, (pos >> 16) & 0xFF, (pos >> 8) & 0xFF, pos & 0xFF]);
+    return new Uint8Array([NET010.DESIGNATION, levelID, zoneID, (pos >> 24) & 0xFF, (pos >> 16) & 0xFF, (pos >> 8) & 0xFF, pos & 0xFF]);
 };
 
 /* Server->>>Client */
 NET010.decode = function(/* NET010_SERV */ a) {
-	return {
-		designation: NET010.DESIGNATION,
-		pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-		level: a[2],
-		zone: a[3],
+    return {
+        designation: NET010.DESIGNATION,
+        pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
+        level: a[2],
+        zone: a[3],
         pos: (a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000),
-        skin: (a[9] & 0xFF) | a[8]
-	};
+        skin: (a[9] & 0xFF) | (a[8] << 8)
+    };
 };
 
 var NET011 = {}; // KILL_PLAYER_OBJECT [0x11] // As Uint8Array
@@ -955,14 +955,14 @@ NET011.BYTES = 3;
 
 /* Client->Server */
 NET011.encode = function() {
-	return new Uint8Array([NET011.DESIGNATION]);
+    return new Uint8Array([NET011.DESIGNATION]);
 };
 
 /* Server->>>Client */
 NET011.decode = function(/* NET011_SERV */ a) {
-	return {
-		designation: NET011.DESIGNATION, pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00)
-	};
+    return {
+        designation: NET011.DESIGNATION, pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00)
+    };
 };
 
 var NET012 = {}; // UPDATE_PLAYER_OBJECT [0x12] // As Uint8Array
@@ -972,33 +972,33 @@ NET012.BYTES = 15;
 
 /* Client->Server */
 NET012.encode = function(/* byte */ levelID, /* byte */ zoneID, /* vec2 */ pos, /* byte */ spriteID, /* byte */ reverse) {
-	var farr = new Float32Array([pos.x, pos.y]);
-	var barr = new Uint8Array(farr.buffer);
-	return new Uint8Array([
-		NET012.DESIGNATION, levelID, zoneID,
-		barr[3], barr[2], barr[1], barr[0],
-		barr[7], barr[6], barr[5], barr[4],
-		spriteID,
-		reverse
-	]);
+    var farr = new Float32Array([pos.x, pos.y]);
+    var barr = new Uint8Array(farr.buffer);
+    return new Uint8Array([
+        NET012.DESIGNATION, levelID, zoneID,
+        barr[3], barr[2], barr[1], barr[0],
+        barr[7], barr[6], barr[5], barr[4],
+        spriteID,
+        reverse
+    ]);
 };
 
 /* Server->>Client */
 NET012.decode = function(/* NET012_SERV */ a) {
-	var b1 = new Uint8Array([a[4], a[5], a[6], a[7]]);
-	var b2 = new Uint8Array([a[8], a[9], a[10], a[11]]);
-	var v1 = new DataView(b1.buffer);
-	var v2 = new DataView(b2.buffer);
-	
-	return {
-		designation: NET012.DESIGNATION,
-		pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-		level: a[2],
-		zone: a[3],
-		pos: vec2.make(v1.getFloat32(0), v2.getFloat32(0)),
-		sprite: a[12],
-		reverse: a[13] !== 0
-	};
+    var b1 = new Uint8Array([a[4], a[5], a[6], a[7]]);
+    var b2 = new Uint8Array([a[8], a[9], a[10], a[11]]);
+    var v1 = new DataView(b1.buffer);
+    var v2 = new DataView(b2.buffer);
+    
+    return {
+        designation: NET012.DESIGNATION,
+        pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
+        level: a[2],
+        zone: a[3],
+        pos: vec2.make(v1.getFloat32(0), v2.getFloat32(0)),
+        sprite: a[12],
+        reverse: a[13] !== 0
+    };
 };
 
 var NET013 = {}; // PLAYER_OBJECT_EVENT [0x13] // As Uint8Array
@@ -1008,16 +1008,16 @@ NET013.BYTES = 4;
 
 /* Client->Server */
 NET013.encode = function(/* byte */ type) {
-	return new Uint8Array([NET013.DESIGNATION, type]);
+    return new Uint8Array([NET013.DESIGNATION, type]);
 };
 
 /* Server->>>Client */
 NET013.decode = function(/* NET013_SERV */ a) {
-	return {
-		designation: NET013.DESIGNATION,
-		pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-		type: a[2]
-	};
+    return {
+        designation: NET013.DESIGNATION,
+        pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
+        type: a[2]
+    };
 };
 
 var NET015 = {}; // PLAYER_INVALID_MOVE [0x15] // As Uint8Array
@@ -1027,7 +1027,7 @@ NET015.BYTES = 3;
 
 /* Client->Server */
 NET015.encode = function() {
-	return new Uint8Array([NET015.DESIGNATION]);
+    return new Uint8Array([NET015.DESIGNATION]);
 };
 
 var NET017 = {}; // PLAYER_KILL_EVENT [0x17] // As Uint8Array
@@ -1037,16 +1037,16 @@ NET017.BYTES = 5;
 
 /* Client->Server */
 NET017.encode = function(/* short */ killer) {
-	return new Uint8Array([NET017.DESIGNATION, killer >> 8 & 0xFF, killer & 0xFF]);
+    return new Uint8Array([NET017.DESIGNATION, killer >> 8 & 0xFF, killer & 0xFF]);
 };
 
 /* Server->Client */
 NET017.decode = function(/* NET017_SERV */ a) {
-	return {
-		designation: NET017.DESIGNATION,
-		pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-		killer: (a[3] & 0x00FF) | ((a[2] << 8) & 0xFF00)
-	};
+    return {
+        designation: NET017.DESIGNATION,
+        pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
+        killer: (a[3] & 0x00FF) | ((a[2] << 8) & 0xFF00)
+    };
 };
 
 var NET018 = {}; // PLAYER_RESULT_REQUEST [0x18] // As Uint8Array
@@ -1056,14 +1056,14 @@ NET018.BYTES = 5;
 
 /* Client->Server */
 NET018.encode = function() {
-	return new Uint8Array([NET018.DESIGNATION]);
+    return new Uint8Array([NET018.DESIGNATION]);
 };
 
 /* Server->>>Client */
 NET018.decode = function(/* NET011_SERV */ a) {
-	return {
-		designation: NET018.DESIGNATION, pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00), result: a[2], extra: a[3]
-	};
+    return {
+        designation: NET018.DESIGNATION, pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00), result: a[2], extra: a[3]
+    };
 };
 
 var NET019 = {}; // PLAYER_SNITCH [0x19] // As Uint8Array
@@ -1073,7 +1073,7 @@ NET019.BYTES = 3;
 
 /* Client->Server */
 NET019.encode = function() {
-	return new Uint8Array([NET019.DESIGNATION]);
+    return new Uint8Array([NET019.DESIGNATION]);
 };
 
 var NET020 = {}; // OBJECT_EVENT_TRIGGER [0x20] // As Uint8Array
@@ -1083,23 +1083,23 @@ NET020.BYTES = 10;
 
 /* Client->Server */
 NET020.encode = function(/* byte */ levelID, /* byte */ zoneID, /* int */ oid, /* byte */ type) {
-	return new Uint8Array([
-		NET020.DESIGNATION, levelID, zoneID,
-		(oid >> 24) & 0xFF, (oid >> 16) & 0xFF, (oid >> 8) & 0xFF, oid & 0xFF,
-		type
-	]);
+    return new Uint8Array([
+        NET020.DESIGNATION, levelID, zoneID,
+        (oid >> 24) & 0xFF, (oid >> 16) & 0xFF, (oid >> 8) & 0xFF, oid & 0xFF,
+        type
+    ]);
 };
 
 /* Server->>>Client */
 NET020.decode = function(/* NET020_SERV */ a) {
-	return {
-		designation: NET020.DESIGNATION,
-		pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-		level: a[2],
-		zone: a[3],
-		oid: (a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000),
-		type: a[8]
-	};
+    return {
+        designation: NET020.DESIGNATION,
+        pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
+        level: a[2],
+        zone: a[3],
+        oid: (a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000),
+        type: a[8]
+    };
 };
 
 var NET030 = {}; // TILE_EVENT_TRIGGER [0x30] // As Uint8Array
@@ -1109,34 +1109,34 @@ NET030.BYTES = 10;
 
 /* Client->Server */
 NET030.encode = function(/* byte */ levelID, /* byte */ zoneID, /* shor2 */ pos, /* byte */ type) {
-	return new Uint8Array([
-		NET030.DESIGNATION, levelID, zoneID,
-		(pos >> 24) & 0xFF, (pos >> 16) & 0xFF, (pos >> 8) & 0xFF, pos & 0xFF,
-		type
-	]);
+    return new Uint8Array([
+        NET030.DESIGNATION, levelID, zoneID,
+        (pos >> 24) & 0xFF, (pos >> 16) & 0xFF, (pos >> 8) & 0xFF, pos & 0xFF,
+        type
+    ]);
 };
 
 /* Server->/>Client */
 NET030.decode = function(/* NET030_SERV */ a) {
-	return {
-		designation: NET030.DESIGNATION,
-		pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-		level: a[2],
-		zone: a[3],
-		pos: shor2.decode((a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000)),
-		type: a[8]
-	};
+    return {
+        designation: NET030.DESIGNATION,
+        pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
+        level: a[2],
+        zone: a[3],
+        pos: shor2.decode((a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000)),
+        type: a[8]
+    };
 };
 
 /* Merges all Uint8Arrays into one */
 var MERGE_BYTE = function(/* Uint8Array[] */ a) {
-	var data = [];
-	for(var i=0;i<a.length;i++) {
-		for(var j=0;j<a[i].length;j++) {
-			data.push(a[i][j]);
-		}
-	}
-	return new Uint8Array(data);
+    var data = [];
+    for(var i=0;i<a.length;i++) {
+        for(var j=0;j<a[i].length;j++) {
+            data.push(a[i][j]);
+        }
+    }
+    return new Uint8Array(data);
 };
 "use strict";
 var squar = {};
@@ -7108,7 +7108,7 @@ Game.prototype.getGameTimer = function(compact) {
     var diff = now - this.startDelta; // diff in seconds between now and start
     var m = Math.floor(diff / 60000); // get minutes value
     var s = Math.floor(diff / 1000) % 60; // get seconds value
-	var ms = diff % 1000; // get milliseconds value
+    var ms = diff % 1000; // get milliseconds value
     if (m < 10) m = "0" + m; // add a leading zero if it's single digit
     if (s < 10) s = "0" + s; // add a leading zero if it's single digit
     if (ms < 10) ms = "00" + ms; // add two leadings zeros if it's single digit
