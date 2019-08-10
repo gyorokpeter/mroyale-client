@@ -1,0 +1,8 @@
+{
+    "skins":{
+        "count": 1,
+        "properties": [
+            {"id": 0,   "music": "audio/music/exampleSkinMusic.mp3"}
+       ]
+    }
+}
