@@ -13,7 +13,10 @@ var levelSelectors = [
                    {shortId: 'S', longId:'world-s' },
                    {shortId: 'M', longId:'world-m' },
                    {shortId: 'YI', longId:'world-yi' },
-                   {shortId: 'D', longId:'world-d' } // Really, we need to automate this
+                   {shortId: 'D', longId:'world-d' },
+                   {shortId: 'X', longId:'world-xexyz' },
+                   {shortId: 'F', longId:'world-fireman' },
+                   {shortId: 'MC', longId:'world-minecraft' }// Really, we need to automate this
                  ];
 var util = {},
     vec2 = {
@@ -1791,6 +1794,7 @@ NameScreen.prototype.onBack = function() {
 function ProfileScreen() {
     this.element = document.getElementById("profile");
     this.saveBtn = document.getElementById("profile-save");
+    this.resultLabel = document.getElementById("profileSaveResult");
     this.nicknameInput = document.getElementById("profile-nickname");
     this.squadInput = document.getElementById("profile-team");
     this.skinButtonPrefix = "profile-skin-select";
@@ -1810,6 +1814,7 @@ ProfileScreen.prototype.show = function(data) {
         $("#profile-skin-select").pagify(33, ".skin-select-button");
     }
     genSelectSkin(this, data["skin"]);
+    this.reportError("");
     this.element.style.display = "block";
 };
 ProfileScreen.prototype.hide = function() {
@@ -1822,12 +1827,15 @@ ProfileScreen.prototype.save = function() {
         "squad": this.squadInput.value,
         "skin": this.skin
     });
-    app.menu.mainAsMember.show({"nickname" : this.nicknameInput.value, "squad": this.squadInput.value, "skin": this.skin});
 }
 ProfileScreen.prototype.onBack = function() {
     this.save();
 };
-"use strict";
+ProfileScreen.prototype.reportError = function(message) {
+    this.resultLabel.style.display = message ? "block" : "none";
+    this.resultLabel.style.color = "red";
+    this.resultLabel.innerText = message;
+};
 
 function PwdChangeScreen() {
     this.element = document.getElementById("pwd");
@@ -2181,6 +2189,8 @@ InputState.prototype.handlePacket = function(data) {
             return this.handleLoginResult(data), !0x0;
         case "llo":
             return this.handleLogoutResult(data), !0x0;
+        case "lpr":
+            return this.handleUpdProfileResult(data), !0x0;
         default:
             return !0x1;
     }
@@ -2199,6 +2209,20 @@ InputState.prototype.handleLogoutResult = function(data) {
     Cookies.remove("session");
     Cookies.remove("go_to_lobby");
     location.reload();
+};
+InputState.prototype.handleUpdProfileResult = function(data) {
+    var nickname = app.menu.profile.nicknameInput.value;
+    var squad = app.menu.profile.squadInput.value;
+    var skin = app.menu.profile.skin;
+    var changes = data.changes;
+    if ("nickname" in changes) nickname = changes.nickname;
+    if ("squad" in changes) squad = changes.squad;
+    if ("skin" in changes) skin = changes.skin;
+    if (data.status) {
+        app.menu.mainAsMember.show({"nickname" : nickname, "squad": squad, "skin": skin});
+    } else {
+        app.menu.profile.reportError(data.msg);
+    }
 };
 InputState.prototype.handleLoginResult = function(data) {
     if (data.status) {
