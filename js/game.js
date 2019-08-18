@@ -191,7 +191,7 @@ util.intersection.pointRectangle = function(_0x1f2e5d, _0x4fb4f3, _0x195e9a) {
     return _0x4fb4f3.x <= _0x1f2e5d.x && _0x4fb4f3.x + _0x195e9a.x > _0x1f2e5d.x && _0x4fb4f3.y <= _0x1f2e5d.y && _0x4fb4f3.y + _0x195e9a.y > _0x1f2e5d.y;
 };
 util.intersection.pointPoly = function(_0x3050fe, _0x3fb4ac) {
-    var _0x315951, _0x3d41ed, _0x3833a5 = !0x1,
+    var _0x315951, _0x3d41ed, _0x3833a5 = false,
         _0x33ce75 = _0x3fb4ac.length;
     _0x315951 = 0x0;
     for (_0x3d41ed = _0x33ce75 - 0x1; _0x315951 < _0x33ce75; _0x3d41ed = _0x315951++) _0x3fb4ac[_0x315951].y > _0x3050fe.y !== _0x3fb4ac[_0x3d41ed].y > _0x3050fe.y && _0x3050fe.x < (_0x3fb4ac[_0x3d41ed].x - _0x3fb4ac[_0x315951].x) * (_0x3050fe.y - _0x3fb4ac[_0x315951].y) / (_0x3fb4ac[_0x3d41ed].y - _0x3fb4ac[_0x315951].y) + _0x3fb4ac[_0x315951].x && (_0x3833a5 = !_0x3833a5);
@@ -917,21 +917,22 @@ NETX.decode = function(/* Uint8Array */ data) {
 var NET001 = {}; // ASSIGN_PID [0x1] // As Uint8Array
 /* ======================================================================================== */
 NET001.DESIGNATION = 0x02;
-NET001.BYTES = 5;
+NET001.BYTES = 6;
 
 /* Server->Client */
 NET001.decode = function(/* NET001_SERV */ a) {
     return {
         designation: NET001.DESIGNATION,
         pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
-        skin: (a[3] & 0x00FF) | ((a[2] << 8) & 0xFF00)
+        skin: (a[3] & 0x00FF) | ((a[2] << 8) & 0xFF00),
+        isDev: a[4]
     };
 };
 
 var NET010 = {}; // CREATE_PLAYER_OBJECT [0x10] // As Uint8Array
 /* ======================================================================================== */
 NET010.DESIGNATION = 0x10;
-NET010.BYTES = 11;
+NET010.BYTES = 12;
 
 /* Client->Server */
 NET010.encode = function(/* byte */ levelID, /* byte */ zoneID, /* shor2 */ pos) {
@@ -946,7 +947,8 @@ NET010.decode = function(/* NET010_SERV */ a) {
         level: a[2],
         zone: a[3],
         pos: (a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000),
-        skin: (a[9] & 0xFF) | (a[8] << 8)
+        skin: (a[9] & 0xFF) | (a[8] << 8),
+        isDev: a[10]
     };
 };
 
@@ -1351,7 +1353,7 @@ MainScreen.prototype.showRegister = function() {
 MainScreen.prototype.startPad = function() {
     var _0x3c5a9a = this,
         _0x2568a6 = isNaN(parseInt(Cookies.get("g_a"))) ? 0x0 : parseInt(Cookies.get("g_a")),
-        _0x293832 = !0x1,
+        _0x293832 = false,
         _0x4736e8 = function() {
             var _0x7d296b;
             navigator && (_0x7d296b = navigator.getGamepads()[0x0]);
@@ -1487,6 +1489,10 @@ MainAsMemberScreen.prototype.show = function(data) {
 MainAsMemberScreen.prototype.hide = function() {
     this.linkElement.style.display = "none";
     this.element.style.display = "none";
+    if (app && app.statusUpdater) {
+        clearInterval(app.statusUpdater);
+        app.statusUpdater = null;
+    }
 };
 
 MainAsMemberScreen.prototype.launch = function() {
@@ -1743,7 +1749,7 @@ NameScreen.prototype.launch = function() {
 NameScreen.prototype.startPad = function() {
     var _0x3bcc0f = this,
         _0x87dd6d = isNaN(parseInt(Cookies.get("g_a"))) ? 0x0 : parseInt(Cookies.get("g_a")),
-        _0xfd3c5a = !0x1,
+        _0xfd3c5a = false,
         _0x4a0646 = function() {
             var _0x52b682;
             navigator && (_0x52b682 = navigator.getGamepads()[0x0]);
@@ -1785,6 +1791,10 @@ NameScreen.prototype.hide = function() {
     this.padLoop && clearTimeout(this.padLoop);
     this.linkElement.style.display = "none";
     this.element.style.display = "none";
+    if (app && app.statusUpdater) {
+        clearInterval(app.statusUpdater);
+        app.statusUpdater = null;
+    }
 };
 NameScreen.prototype.onBack = function() {
     app.menu.main.show();
@@ -2178,21 +2188,21 @@ function InputState(pendingArgs) {
 InputState.prototype.handlePacket = function(data) {
     switch (data.type) {
         case "l01":
-            return this.loggedIn(data), !0x0;
+            return this.loggedIn(data), true;
         case "llg":
-            return this.handleLoginResult(data), !0x0;
+            return this.handleLoginResult(data), true;
         case "lrc":
-            return this.handleRequestCaptcha(data), !0x0;
+            return this.handleRequestCaptcha(data), true;
         case "lrg":
-            return this.handleRegisterResult(data), !0x0;
+            return this.handleRegisterResult(data), true;
         case "lrs":
-            return this.handleLoginResult(data), !0x0;
+            return this.handleLoginResult(data), true;
         case "llo":
-            return this.handleLogoutResult(data), !0x0;
+            return this.handleLogoutResult(data), true;
         case "lpr":
-            return this.handleUpdProfileResult(data), !0x0;
+            return this.handleUpdProfileResult(data), true;
         default:
-            return !0x1;
+            return false;
     }
 };
 InputState.prototype.handleBinary = function(data) {
@@ -2261,22 +2271,22 @@ InputState.prototype.destroy = function() {};
 "use strict";
 
 function GameState() {
-    this.pingOut = !0x1;
+    this.pingOut = false;
     this.pingLast = 0x0;
     this.pingFrame = 0x5a;
 }
 GameState.prototype.handlePacket = function(data) {
     switch (data.type) {
         case "g01":
-            return this.load(data), !0x0;
+            return this.load(data), true;
         case "g06":
-            return this.globalWarn(data), !0x0;
+            return this.globalWarn(data), true;
         case "g21":
-            return this.recievePing(data), !0x0;
+            return this.recievePing(data), true;
         case "gsl":
-            return this.recieveLevelSelectResult(data), !0x0;
+            return this.recieveLevelSelectResult(data), true;
         default:
-            return app.ingame() ? app.game.handlePacket(data) : !0x1;
+            return app.ingame() ? app.game.handlePacket(data) : false;
     }
 };
 GameState.prototype.handleBinary = function(data) {
@@ -2320,12 +2330,12 @@ GameState.prototype.sendPing = function() {
     this.pingOut && 0x3e7 > this.pingLast - _0x1ac5e9 || (this.pingOut && (app.net.ping = 0x3e7), this.send({
         'type': "g21",
         'delta': _0x1ac5e9
-    }), this.pingOut = !0x0);
+    }), this.pingOut = true);
 };
 GameState.prototype.recievePing = function(_0x5bdfa8) {
     var _0x3162e8 = util.time.now();
     app.net.ping = _0x3162e8 - _0x5bdfa8.delta;
-    this.pingOut = !0x1;
+    this.pingOut = false;
 };
 GameState.prototype.recieveLevelSelectResult = function(data) {
     if(data.status == "error") {
@@ -2355,10 +2365,10 @@ function GameObject(game, level, zone, pos) {
     this.zone = zone;
     this.pos = pos;
     this.sprite = this.state = undefined;
-    this.garbage = this.dead = this.reverse = !0x1;
+    this.garbage = this.dead = this.reverse = false;
     this.sounds = [];
 }
-GameObject.ASYNC = !0x0;
+GameObject.ASYNC = true;
 GameObject.ID = 0x0;
 GameObject.prototype.update = function(_0x2f28f9) {};
 GameObject.prototype.step = function() {};
@@ -2369,11 +2379,11 @@ GameObject.prototype.sound = function() {
     }
 };
 GameObject.prototype.kill = function() {
-    this.dead = !0x0;
+    this.dead = true;
     this.destroy();
 };
 GameObject.prototype.destroy = function() {
-    this.garbage = this.dead = !0x0;
+    this.garbage = this.dead = true;
 };
 GameObject.prototype.isTangible = function() {
     return !this.dead && !this.disabled && this.dim;
@@ -2387,27 +2397,28 @@ GameObject.OBJECT_LIST = [];
 GameObject.REGISTER_OBJECT = function(_0x4058c1) {
     GameObject.OBJECT_LIST.push(_0x4058c1);
 };
-GameObject.OBJECT = function(_0x42193c) {
-    for (var _0x3e8d48 = 0x0; _0x3e8d48 < GameObject.OBJECT_LIST.length; _0x3e8d48++) {
-        var _0x2f6b43 = GameObject.OBJECT_LIST[_0x3e8d48];
-        if (_0x2f6b43.ID === _0x42193c) return _0x2f6b43;
+GameObject.OBJECT = function(classId) {
+    for (var i = 0x0; i < GameObject.OBJECT_LIST.length; i++) {
+        var obj = GameObject.OBJECT_LIST[i];
+        if (obj.ID === classId) return obj;
     }
     app.menu.warn.show("Invalid Object Class ID: " + _0x42193c);
 };
 "use strict";
 
-function PlayerObject(game, level, zone, pos, pid, skin) {
+function PlayerObject(game, level, zone, pos, pid, skin, isDev) {
     GameObject.call(this, game, level, zone, pos);
     this.pid = pid;
     this.skin = skin;
+    this.isDev = isDev;
     this.anim = 0x0;
-    this.reverse = !0x1;
+    this.reverse = false;
     this.deadTimer = this.deadFreezeTimer = this.arrowFade = 0x0;
     this.lastPos = this.pos;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
     this.jumping = -0x1;
-    this.grounded = this.isSpring = this.isBounce = !0x1;
+    this.grounded = this.isSpring = this.isBounce = false;
     this.name = undefined;
     this.starTimer = this.power = 0x0;
     this.starMusic = undefined;
@@ -2417,16 +2428,16 @@ function PlayerObject(game, level, zone, pos, pid, skin) {
     this.pipeTimer = 0x0;
     this.pipeExt = this.pipeDir = -0x1;
     this.poleTimer = this.pipeDelayLength = this.pipeDelay = 0x0;
-    this.poleSound = this.poleWait = !0x1;
+    this.poleSound = this.poleWait = false;
     this.vineWarp = undefined;
     this.attackCharge = PlayerObject.MAX_CHARGE;
     this.attackTimer = 0x0;
     this.autoTarget = undefined;
     this.btnD = [0x0, 0x0];
-    this.btnBde = this.btnBg = this.btnB = this.btnA = !0x1;
+    this.btnBde = this.btnBg = this.btnB = this.btnA = false;
     this.setState(PlayerObject.SNAME.STAND);
 }
-PlayerObject.ASYNC = !0x1;
+PlayerObject.ASYNC = false;
 PlayerObject.ID = 0x1;
 PlayerObject.NAME = "PLAYER";
 PlayerObject.ANIMATION_RATE = 0x3;
@@ -2483,6 +2494,7 @@ PlayerObject.ARROW_THRESHOLD_MAX = 0x6;
 PlayerObject.TEAM_OFFSET = vec2.make(0x0, 0x0);
 PlayerObject.TEAM_SIZE = 0.3;
 PlayerObject.TEAM_COLOR = "rgba(255,255,255,0.75)";
+PlayerObject.DEV_TEAM_COLOR = "rgba(255,255,0,1)";
 PlayerObject.SPRITE = {};
 PlayerObject.SPRITE_LIST = [{
     'NAME': "S_STAND",
@@ -2854,20 +2866,20 @@ PlayerObject.prototype.step = function() {
         if (this.isState(PlayerObject.SNAME.POLE))
             if (0x0 < this.poleTimer && !this.poleWait) this.poleTimer--;
             else {
-                this.poleSound || (this.poleSound = !0x0, this.play("sfx/flagpole.wav", 0x1, 0x0));
+                this.poleSound || (this.poleSound = true, this.play("sfx/flagpole.wav", 0x1, 0x0));
                 if (!this.poleWait)
                     if (0x0 >= this.poleTimer && this.autoTarget) this.setState(PlayerObject.SNAME.STAND);
                     else {
-                        for (var _0x4d4e5b = vec2.add(this.pos, vec2.make(0x0, -0.25)), _0x280236 = vec2.make(this.pos.x, this.pos.y - 0.25), _0x191ffc = vec2.make(this.dim.x, this.dim.y + 0.25), _0x280236 = this.game.world.getZone(this.level, this.zone).getTiles(_0x280236, _0x191ffc), _0x191ffc = vec2.make(0x1, 0x1), _0x1f539b = !0x1, _0x5a99db = 0x0; _0x5a99db < _0x280236.length; _0x5a99db++) {
+                        for (var _0x4d4e5b = vec2.add(this.pos, vec2.make(0x0, -0.25)), _0x280236 = vec2.make(this.pos.x, this.pos.y - 0.25), _0x191ffc = vec2.make(this.dim.x, this.dim.y + 0.25), _0x280236 = this.game.world.getZone(this.level, this.zone).getTiles(_0x280236, _0x191ffc), _0x191ffc = vec2.make(0x1, 0x1), _0x1f539b = false, _0x5a99db = 0x0; _0x5a99db < _0x280236.length; _0x5a99db++) {
                             var _0x4eb640 = _0x280236[_0x5a99db];
                             if (squar.intersection(_0x4eb640.pos, _0x191ffc, _0x4d4e5b, this.dim) && _0x4eb640.definition.COLLIDE) {
-                                _0x1f539b = !0x0;
+                                _0x1f539b = true;
                                 break;
                             }
                         }
-                        _0x1f539b ? (this.poleTimer = 0xf, this.autoTarget = vec2.add(_0x4d4e5b, PlayerObject.LEVEL_END_MOVE_OFF), this.poleWait = !0x0) : this.pos = _0x4d4e5b;
+                        _0x1f539b ? (this.poleTimer = 0xf, this.autoTarget = vec2.add(_0x4d4e5b, PlayerObject.LEVEL_END_MOVE_OFF), this.poleWait = true) : this.pos = _0x4d4e5b;
                     } _0x4d4e5b = this.game.getFlag(this.level, this.zone);
-                _0x4d4e5b.pos.y - 0.25 >= this.pos.y ? _0x4d4e5b.pos.y -= 0.25 : (_0x4d4e5b.pos.y = this.pos.y, this.poleWait = !0x1);
+                _0x4d4e5b.pos.y - 0.25 >= this.pos.y ? _0x4d4e5b.pos.y -= 0.25 : (_0x4d4e5b.pos.y = this.pos.y, this.poleWait = false);
             }
     else if (this.isState(PlayerObject.SNAME.RUN) ? this.anim += Math.max(0.5, Math.abs(0x5 * this.moveSpeed)) : this.anim++, this.sprite = this.state.SPRITE[parseInt(parseInt(this.anim) / PlayerObject.ANIMATION_RATE) % this.state.SPRITE.length], this.isState(PlayerObject.SNAME.CLIMB)) this.pos.y += PlayerObject.CLIMB_SPEED, this.pos.y >= this.game.world.getZone(this.level, this.zone).dimensions().y && (this.warp(this.vineWarp), this.setState(PlayerObject.SNAME.FALL));
     else if (this.isState(PlayerObject.SNAME.DEAD) || this.isState(PlayerObject.SNAME.DEADGHOST)) 0x0 < this.deadFreezeTimer ? this.deadFreezeTimer-- : 0x0 < this.deadTimer ? (this.deadTimer--, this.pos.y += this.fallSpeed, this.fallSpeed = Math.max(this.fallSpeed - 0.085, -0.45)) : this.destroy();
@@ -2938,7 +2950,7 @@ PlayerObject.prototype.input = function(_0x17fbef, _0x49fbc5, _0xb14c91) {
 };
 PlayerObject.prototype.autoMove = function() {
     this.btnD = [0x0, 0x0];
-    this.btnB = this.btnA = !0x1;
+    this.btnB = this.btnA = false;
     0.1 <= Math.abs(this.pos.x - this.autoTarget.x) ? this.btnD = [0x0 >= this.pos.x - this.autoTarget.x ? 0x1 : -0x1, 0x0] : 0.01 > Math.abs(this.moveSpeed) && (this.btnA = -0.5 > this.pos.y - this.autoTarget.y);
 };
 PlayerObject.prototype.control = function() {
@@ -2955,8 +2967,8 @@ PlayerObject.prototype.control = function() {
     }
 };
 PlayerObject.prototype.physics = function() {
-    -0x1 !== this.jumping ? (this.fallSpeed = 0.45 - 0.005 * this.jumping, this.jumping++, this.grounded = !0x1) : (this.isSpring = this.isBounce = !0x1, this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - 0.085, -0.45));
-    for (var _0x57b791 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), _0x513d1f = vec2.make(this.pos.x + Math.min(0x0, this.moveSpeed), this.pos.y + Math.min(0x0, this.fallSpeed)), _0x208a75 = vec2.make(this.dim.x + Math.max(0x0, this.moveSpeed), this.dim.y + Math.max(0x0, this.fallSpeed)), _0x513d1f = this.game.world.getZone(this.level, this.zone).getTiles(_0x513d1f, _0x208a75), _0x20e6e6 = this.game.getPlatforms(), _0x208a75 = vec2.make(0x1, 0x1), _0x58342b = !0x1, tilePlatform = [], tilePlatformColliding = [], _0x27521c = [], _0x27c16e = [], _0x346d1d = [], _0x50b7b9 = [], _0x535e81 = [], _0x3f505e, _0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) {
+    -0x1 !== this.jumping ? (this.fallSpeed = 0.45 - 0.005 * this.jumping, this.jumping++, this.grounded = false) : (this.isSpring = this.isBounce = false, this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - 0.085, -0.45));
+    for (var _0x57b791 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), _0x513d1f = vec2.make(this.pos.x + Math.min(0x0, this.moveSpeed), this.pos.y + Math.min(0x0, this.fallSpeed)), _0x208a75 = vec2.make(this.dim.x + Math.max(0x0, this.moveSpeed), this.dim.y + Math.max(0x0, this.fallSpeed)), _0x513d1f = this.game.world.getZone(this.level, this.zone).getTiles(_0x513d1f, _0x208a75), _0x20e6e6 = this.game.getPlatforms(), _0x208a75 = vec2.make(0x1, 0x1), _0x58342b = false, tilePlatform = [], tilePlatformColliding = [], _0x27521c = [], _0x27c16e = [], _0x346d1d = [], _0x50b7b9 = [], _0x535e81 = [], _0x3f505e, _0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) {
         var obj = _0x513d1f[_0x5b32b0];
         if (obj.definition.PLATFORM) tilePlatform.push(obj);
         else if (obj.definition.COLLIDE)
@@ -2990,7 +3002,7 @@ PlayerObject.prototype.physics = function() {
                 if (!obj.definition.HIDDEN) { 
                     _0x57b791.y = obj.pos.y + _0x208a75.y;
                     this.fallSpeed = 0x0;
-                    _0x58342b = !0x0;
+                    _0x58342b = true;
                 }
             } 
             else {
@@ -3002,7 +3014,7 @@ PlayerObject.prototype.physics = function() {
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x535e81.length; _0x5b32b0++)
         if (obj = _0x535e81[_0x5b32b0], this.pos.y >= _0x57b791.y && obj.pos.y + obj.dim.y - this.pos.y < PlayerObject.PLATFORM_SNAP_DIST) {
             _0x57b791.y = obj.pos.y + obj.dim.y;
-            _0x58342b = !0x0;
+            _0x58342b = true;
             _0x3f505e = obj;
             break;
         } 
@@ -3012,7 +3024,7 @@ PlayerObject.prototype.physics = function() {
             if (this.pos.y - (obj.definition.PLATFORM && obj.definition.PLATFORM === "WEAK" ? this.dim : _0x208a75).y >= obj.pos.y) {
                 _0x57b791.y = obj.pos.y + _0x208a75.y;
                 this.fallSpeed = 0x0;
-                _0x58342b = !0x0;
+                _0x58342b = true;
             }
         }
     }
@@ -3029,9 +3041,9 @@ PlayerObject.prototype.physics = function() {
 PlayerObject.prototype.collisionTest = function(_0x569425, _0x1323bb) {
     for (var _0x4dc291 = vec2.make(0x1, 0x1), _0x471838 = this.game.world.getZone(this.level, this.zone).getTiles(_0x569425, _0x1323bb), _0x426d64 = 0x0; _0x426d64 < _0x471838.length; _0x426d64++) {
         var _0x2faa4b = _0x471838[_0x426d64];
-        if (_0x2faa4b.definition.COLLIDE && squar.intersection(_0x2faa4b.pos, _0x4dc291, _0x569425, _0x1323bb)) return !0x0;
+        if (_0x2faa4b.definition.COLLIDE && squar.intersection(_0x2faa4b.pos, _0x4dc291, _0x569425, _0x1323bb)) return true;
     }
-    return !0x1;
+    return false;
 };
 PlayerObject.prototype.interaction = function() {
     for (var _0x588c5e = 0x0; _0x588c5e < this.game.objects.length; _0x588c5e++) {
@@ -3056,7 +3068,7 @@ PlayerObject.prototype.attack = function() {
 };
 PlayerObject.prototype.bounce = function() {
     this.jumping = 0x0;
-    this.isBounce = !0x0;
+    this.isBounce = true;
 };
 PlayerObject.prototype.damage = function(_0x782da0) {
     0x0 < this.damageTimer || 0x0 < this.starTimer || this.isState(PlayerObject.SNAME.TRANSFORM) || this.isState(PlayerObject.SNAME.CLIMB) || this.isState(PlayerObject.SNAME.POLE) || this.pipeWarp || 0x0 < this.pipeTimer || 0x0 < this.pipeDelay || this.autoTarget || (0x0 < this.power ? (this.tfm(0x0), this.damageTimer = PlayerObject.DAMAGE_TIME) : this.kill());
@@ -3075,7 +3087,7 @@ PlayerObject.prototype.axe = function(_0x5050d5) {
 PlayerObject.prototype.star = function() {
     this.starMusic && (this.starMusic.stop(), this.starMusic = undefined);
     this.starTimer = PlayerObject.STAR_LENGTH;
-    (this.starMusic = this.play("music/star.mp3", 0x1, 0.04)) && this.starMusic.loop(!0x0);
+    (this.starMusic = this.play("music/star.mp3", 0x1, 0.04)) && this.starMusic.loop(true);
 };
 PlayerObject.prototype.tfm = function(_0x538c99) {
     this.power < _0x538c99 ? this.play("sfx/powerup.wav", 0x1, 0.04) : this.play("sfx/pipe.wav", 0x1, 0.04);
@@ -3084,7 +3096,7 @@ PlayerObject.prototype.tfm = function(_0x538c99) {
     this.setState(PlayerObject.SNAME.TRANSFORM);
 };
 PlayerObject.prototype.warp = function(_0x3f75ed) {
-    if (_0x3f75ed = this.game.world.getLevel(this.level).getWarp(_0x3f75ed)) this.level = _0x3f75ed.level, this.zone = _0x3f75ed.zone, this.pos = _0x3f75ed.pos, this.autoTarget = undefined, this.grounded = !0x1;
+    if (_0x3f75ed = this.game.world.getLevel(this.level).getWarp(_0x3f75ed)) this.level = _0x3f75ed.level, this.zone = _0x3f75ed.zone, this.pos = _0x3f75ed.pos, this.autoTarget = undefined, this.grounded = false;
 };
 PlayerObject.prototype.pipe = function(_0x157842, _0x266382, _0x3f3ba4) {
     0x1 !== _0x157842 && 0x2 !== _0x157842 || this.setState(PlayerObject.SNAME.STAND);
@@ -3109,7 +3121,7 @@ PlayerObject.prototype.pole = function(_0x4a8021) {
     this.fallSpeed = this.moveSpeed = 0x0;
     this.pos.x = _0x4a8021.x;
     this.poleTimer = 0xf;
-    this.poleSound = !0x1;
+    this.poleSound = false;
 };
 PlayerObject.prototype.vine = function(_0x4cfee8, _0x16f983) {
     this.setState(PlayerObject.SNAME.CLIMB);
@@ -3126,7 +3138,7 @@ PlayerObject.prototype.show = function() {
 PlayerObject.prototype.kill = function() {
     this.starMusic && (this.starMusic.stop(), this.starMusic = undefined, this.starTimer = 0x0);
     this.isState(PlayerObject.SNAME.GHOST) ? this.setState(PlayerObject.SNAME.DEADGHOST) : this.setState(PlayerObject.SNAME.DEAD);
-    this.dead = !0x0;
+    this.dead = true;
     this.deadTimer = PlayerObject.DEAD_TIME;
     this.deadFreezeTimer = PlayerObject.DEAD_FREEZE_TIME;
     this.fallSpeed = PlayerObject.DEAD_UP_FORCE;
@@ -3193,7 +3205,7 @@ PlayerObject.prototype.draw = function(spriteList) {
         });
         0x0 < this.arrowFade && (_0x5c9425 = 0xa0 + parseInt(0x20 * this.arrowFade), spriteList.push({
             'pos': vec2.add(vec2.add(this.pos, vec2.make(0x0, this.dim.y)), PlayerObject.ARROW_OFFSET),
-            'reverse': !0x1,
+            'reverse': false,
             'index': PlayerObject.ARROW_SPRITE,
             'mode': _0x5c9425
         }));
@@ -3208,7 +3220,7 @@ PlayerObject.prototype.write = function(_0x239cf4) {
     }) : this.name && _0x239cf4.push({
         'pos': vec2.add(vec2.add(this.pos, vec2.make(0x0, this.sprite.INDEX instanceof Array ? 0x2 : 0x1)), PlayerObject.TEAM_OFFSET),
         'size': PlayerObject.TEAM_SIZE,
-        'color': PlayerObject.TEAM_COLOR,
+        'color': this.isDev ? PlayerObject.DEV_TEAM_COLOR : PlayerObject.TEAM_COLOR,
         'text': this.name
     });
 };
@@ -3224,13 +3236,13 @@ function _0x2040e7(_0x1e60b3, _0x4473d2, _0x446473, _0x318ba1, _0x37471f, _0xa2b
     this.bonkTimer = this.deadTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
-    this.disabled = this.grounded = !0x1;
+    this.disabled = this.grounded = false;
     this.disabledTimer = 0x0;
-    this.proxHit = !0x1;
-    this.dir = !0x0;
+    this.proxHit = false;
+    this.dir = true;
     this.disable();
 }
-_0x2040e7.ASYNC = !0x1;
+_0x2040e7.ASYNC = false;
 _0x2040e7.ID = 0x11;
 _0x2040e7.NAME = "GOOMBA";
 _0x2040e7.ANIMATION_RATE = 0x5;
@@ -3311,32 +3323,32 @@ _0x2040e7.prototype.physics = function() {
         _0x39b88d = vec2.make(this.dim.y + Math.abs(this.moveSpeed), this.dim.y + Math.abs(this.fallSpeed)),
         _0x44dd07 = this.game.world.getZone(this.level, this.zone).getTiles(_0x44dd07, _0x39b88d),
         _0x39b88d = vec2.make(0x1, 0x1),
-        _0x5c888e = !0x1;
-    this.grounded = !0x1;
+        _0x5c888e = false;
+    this.grounded = false;
     for (var _0x3c302a = 0x0; _0x3c302a < _0x44dd07.length; _0x3c302a++) {
         var _0x1a430b = _0x44dd07[_0x3c302a];
-        _0x1a430b.definition.COLLIDE && squar.intersection(_0x1a430b.pos, _0x39b88d, _0x482f3b, this.dim) && (this.pos.x <= _0x482f3b.x && _0x482f3b.x + this.dim.x > _0x1a430b.pos.x ? (_0x482f3b.x = _0x1a430b.pos.x - this.dim.x, _0x443a52.x = _0x482f3b.x, this.moveSpeed = 0x0, _0x5c888e = !0x0) : this.pos.x >= _0x482f3b.x && _0x482f3b.x < _0x1a430b.pos.x + _0x39b88d.x && (_0x482f3b.x = _0x1a430b.pos.x + _0x39b88d.x, _0x443a52.x = _0x482f3b.x, this.moveSpeed = 0x0, _0x5c888e = !0x0));
+        _0x1a430b.definition.COLLIDE && squar.intersection(_0x1a430b.pos, _0x39b88d, _0x482f3b, this.dim) && (this.pos.x <= _0x482f3b.x && _0x482f3b.x + this.dim.x > _0x1a430b.pos.x ? (_0x482f3b.x = _0x1a430b.pos.x - this.dim.x, _0x443a52.x = _0x482f3b.x, this.moveSpeed = 0x0, _0x5c888e = true) : this.pos.x >= _0x482f3b.x && _0x482f3b.x < _0x1a430b.pos.x + _0x39b88d.x && (_0x482f3b.x = _0x1a430b.pos.x + _0x39b88d.x, _0x443a52.x = _0x482f3b.x, this.moveSpeed = 0x0, _0x5c888e = true));
     }
-    for (_0x3c302a = 0x0; _0x3c302a < _0x44dd07.length; _0x3c302a++) _0x1a430b = _0x44dd07[_0x3c302a], _0x1a430b.definition.COLLIDE && squar.intersection(_0x1a430b.pos, _0x39b88d, _0x443a52, this.dim) && (this.pos.y >= _0x443a52.y && _0x443a52.y < _0x1a430b.pos.y + _0x39b88d.y ? (_0x443a52.y = _0x1a430b.pos.y + _0x39b88d.y, this.fallSpeed = 0x0, this.grounded = !0x0) : this.pos.y <= _0x443a52.y && _0x443a52.y + this.dim.y > _0x1a430b.pos.y && (_0x443a52.y = _0x1a430b.pos.y - this.dim.y, this.fallSpeed = 0x0));
+    for (_0x3c302a = 0x0; _0x3c302a < _0x44dd07.length; _0x3c302a++) _0x1a430b = _0x44dd07[_0x3c302a], _0x1a430b.definition.COLLIDE && squar.intersection(_0x1a430b.pos, _0x39b88d, _0x443a52, this.dim) && (this.pos.y >= _0x443a52.y && _0x443a52.y < _0x1a430b.pos.y + _0x39b88d.y ? (_0x443a52.y = _0x1a430b.pos.y + _0x39b88d.y, this.fallSpeed = 0x0, this.grounded = true) : this.pos.y <= _0x443a52.y && _0x443a52.y + this.dim.y > _0x1a430b.pos.y && (_0x443a52.y = _0x1a430b.pos.y - this.dim.y, this.fallSpeed = 0x0));
     this.pos = vec2.make(_0x482f3b.x, _0x443a52.y);
     _0x5c888e && (this.dir = !this.dir);
 };
 _0x2040e7.prototype.sound = GameObject.prototype.sound;
 _0x2040e7.prototype.proximity = function() {
     var _0xc67304 = this.game.getPlayer();
-    _0xc67304 && !_0xc67304.dead && _0xc67304.level === this.level && _0xc67304.zone === this.zone && !this.proxHit && vec2.distance(_0xc67304.pos, this.pos) < _0x2040e7.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = !0x0);
+    _0xc67304 && !_0xc67304.dead && _0xc67304.level === this.level && _0xc67304.zone === this.zone && !this.proxHit && vec2.distance(_0xc67304.pos, this.pos) < _0x2040e7.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
 };
 _0x2040e7.prototype.enable = function() {
-    this.disabled && (this.disabled = !0x1, this.disabledTimer = _0x2040e7.ENABLE_FADE_TIME);
+    this.disabled && (this.disabled = false, this.disabledTimer = _0x2040e7.ENABLE_FADE_TIME);
 };
 _0x2040e7.prototype.disable = function() {
-    this.disabled = !0x0;
+    this.disabled = true;
 };
 _0x2040e7.prototype.damage = function(_0x5b7e53) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0x2040e7.prototype.bonk = function() {
-    this.dead || (this.setState(_0x2040e7.STATE.BONK), this.moveSpeed = _0x2040e7.BONK_IMP.x, this.fallSpeed = _0x2040e7.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x2040e7.STATE.BONK), this.moveSpeed = _0x2040e7.BONK_IMP.x, this.fallSpeed = _0x2040e7.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0x2040e7.prototype.playerCollide = function(_0x5ee074) {
     this.dead || this.garbage || _0x5ee074.damage(this);
@@ -3348,7 +3360,7 @@ _0x2040e7.prototype.playerBump = function(_0x5e0adc) {
     this.dead || this.garbage || _0x5e0adc.damage(this);
 };
 _0x2040e7.prototype.kill = function() {
-    this.dead = !0x0;
+    this.dead = true;
     this.setState(_0x2040e7.STATE.DEAD);
     this.play("sfx/stomp.wav", 0x1, 0.04);
 };
@@ -3402,16 +3414,16 @@ function _0xafe583(_0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726, _0xe543eb, _0x547
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
-    this.grounded = !0x1;
+    this.grounded = false;
     this.jump = -0x1;
-    this.disabled = !0x1;
+    this.disabled = false;
     this.disabledTimer = 0x0;
-    this.proxHit = !0x1;
+    this.proxHit = false;
     this.immuneTimer = 0x0;
-    this.dir = !0x0;
+    this.dir = true;
     this.disable();
 }
-_0xafe583.ASYNC = !0x1;
+_0xafe583.ASYNC = false;
 _0xafe583.ID = 0x12;
 _0xafe583.NAME = "KOOPA";
 _0xafe583.ANIMATION_RATE = 0x3;
@@ -3503,10 +3515,10 @@ _0xafe583.prototype.update = function(_0x432173) {
             this.bonk();
             break;
         case 0x10:
-            this.stomped(!0x0);
+            this.stomped(true);
             break;
         case 0x11:
-            this.stomped(!0x1);
+            this.stomped(false);
             break;
         case 0xa0:
             this.enable();
@@ -3535,7 +3547,7 @@ _0xafe583.prototype.control = function() {
     this.jump > _0xafe583.JUMP_LENGTH_MAX && (this.jump = -0x1);
 };
 _0xafe583.prototype.physics = function() {
-    -0x1 !== this.jump ? (this.fallSpeed = _0xafe583.FALL_SPEED_MAX - this.jump * _0xafe583.JUMP_DECEL, this.jump++, this.grounded = !0x1) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX));
+    -0x1 !== this.jump ? (this.fallSpeed = _0xafe583.FALL_SPEED_MAX - this.jump * _0xafe583.JUMP_DECEL, this.jump++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX));
     this.grounded && (this.fallSpeed = 0x0);
     this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX);
     var _0x228c79 = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
@@ -3544,13 +3556,13 @@ _0xafe583.prototype.physics = function() {
         _0x1f400c = vec2.make(this.dim.y + Math.abs(this.moveSpeed), this.dim.y + Math.abs(this.fallSpeed)),
         _0x186c6d = this.game.world.getZone(this.level, this.zone).getTiles(_0x186c6d, _0x1f400c),
         _0x1f400c = vec2.make(0x1, 0x1),
-        _0x350f0e = !0x1;
-    this.grounded = !0x1;
+        _0x350f0e = false;
+    this.grounded = false;
     for (var _0x277a15 = 0x0; _0x277a15 < _0x186c6d.length; _0x277a15++) {
         var _0xb496d = _0x186c6d[_0x277a15];
-        _0xb496d.definition.COLLIDE && squar.intersection(_0xb496d.pos, _0x1f400c, _0x228c79, this.dim) && (this.pos.x + this.dim.x <= _0xb496d.pos.x && _0x228c79.x + this.dim.x > _0xb496d.pos.x ? (_0x228c79.x = _0xb496d.pos.x - this.dim.x, _0xa7c94d.x = _0x228c79.x, this.moveSpeed = 0x0, _0x350f0e = !0x0) : this.pos.x >= _0xb496d.pos.x + _0x1f400c.x && _0x228c79.x < _0xb496d.pos.x + _0x1f400c.x && (_0x228c79.x = _0xb496d.pos.x + _0x1f400c.x, _0xa7c94d.x = _0x228c79.x, this.moveSpeed = 0x0, _0x350f0e = !0x0));
+        _0xb496d.definition.COLLIDE && squar.intersection(_0xb496d.pos, _0x1f400c, _0x228c79, this.dim) && (this.pos.x + this.dim.x <= _0xb496d.pos.x && _0x228c79.x + this.dim.x > _0xb496d.pos.x ? (_0x228c79.x = _0xb496d.pos.x - this.dim.x, _0xa7c94d.x = _0x228c79.x, this.moveSpeed = 0x0, _0x350f0e = true) : this.pos.x >= _0xb496d.pos.x + _0x1f400c.x && _0x228c79.x < _0xb496d.pos.x + _0x1f400c.x && (_0x228c79.x = _0xb496d.pos.x + _0x1f400c.x, _0xa7c94d.x = _0x228c79.x, this.moveSpeed = 0x0, _0x350f0e = true));
     }
-    for (_0x277a15 = 0x0; _0x277a15 < _0x186c6d.length; _0x277a15++) _0xb496d = _0x186c6d[_0x277a15], _0xb496d.definition.COLLIDE && squar.intersection(_0xb496d.pos, _0x1f400c, _0xa7c94d, this.dim) && (this.pos.y >= _0xb496d.pos.y + _0x1f400c.y && _0xa7c94d.y < _0xb496d.pos.y + _0x1f400c.y ? (_0xa7c94d.y = _0xb496d.pos.y + _0x1f400c.y, this.grounded = !0x0) : this.pos.y + this.dim.y <= _0xb496d.pos.y && _0xa7c94d.y + this.dim.y > _0xb496d.pos.y && (_0xa7c94d.y = _0xb496d.pos.y - this.dim.y, this.jump = -0x1, this.fallSpeed = 0x0));
+    for (_0x277a15 = 0x0; _0x277a15 < _0x186c6d.length; _0x277a15++) _0xb496d = _0x186c6d[_0x277a15], _0xb496d.definition.COLLIDE && squar.intersection(_0xb496d.pos, _0x1f400c, _0xa7c94d, this.dim) && (this.pos.y >= _0xb496d.pos.y + _0x1f400c.y && _0xa7c94d.y < _0xb496d.pos.y + _0x1f400c.y ? (_0xa7c94d.y = _0xb496d.pos.y + _0x1f400c.y, this.grounded = true) : this.pos.y + this.dim.y <= _0xb496d.pos.y && _0xa7c94d.y + this.dim.y > _0xb496d.pos.y && (_0xa7c94d.y = _0xb496d.pos.y - this.dim.y, this.jump = -0x1, this.fallSpeed = 0x0));
     this.pos = vec2.make(_0x228c79.x, _0xa7c94d.y);
     _0x350f0e && (this.dir = !this.dir);
 };
@@ -3563,20 +3575,20 @@ _0xafe583.prototype.interaction = function() {
 };
 _0xafe583.prototype.proximity = function() {
     var _0x12bcf2 = this.game.getPlayer();
-    _0x12bcf2 && !_0x12bcf2.dead && _0x12bcf2.level === this.level && _0x12bcf2.zone === this.zone && !this.proxHit && vec2.distance(_0x12bcf2.pos, this.pos) < _0xafe583.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = !0x0);
+    _0x12bcf2 && !_0x12bcf2.dead && _0x12bcf2.level === this.level && _0x12bcf2.zone === this.zone && !this.proxHit && vec2.distance(_0x12bcf2.pos, this.pos) < _0xafe583.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
 };
 _0xafe583.prototype.sound = GameObject.prototype.sound;
 _0xafe583.prototype.enable = function() {
-    this.disabled && (this.disabled = !0x1, this.disabledTimer = _0xafe583.ENABLE_FADE_TIME);
+    this.disabled && (this.disabled = false, this.disabledTimer = _0xafe583.ENABLE_FADE_TIME);
 };
 _0xafe583.prototype.disable = function() {
-    this.disabled = !0x0;
+    this.disabled = true;
 };
 _0xafe583.prototype.damage = function(_0x565802) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0xafe583.prototype.bonk = function() {
-    this.dead || (this.setState(_0xafe583.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0xafe583.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0xafe583.prototype.stomped = function(_0x45b447) {
     if (this.state === _0xafe583.STATE.FLY) this.setState(_0xafe583.STATE.RUN), this.jump = -0x1;
@@ -3652,15 +3664,15 @@ function _0x5e412e(_0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183, _0xc898a6, _0x35c
     this.loc = [this.pos.y + 0.5 * _0x5e412e.FLY_DISTANCE, this.pos.y - 0.5 * _0x5e412e.FLY_DISTANCE];
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
-    this.disabled = this.grounded = !0x1;
+    this.disabled = this.grounded = false;
     this.disabledTimer = 0x0;
-    this.proxHit = !0x1;
+    this.proxHit = false;
     this.immuneTimer = 0x0;
-    this.rev = !0x1;
-    this.dir = !0x0;
+    this.rev = false;
+    this.dir = true;
     this.disable();
 }
-_0x5e412e.ASYNC = !0x1;
+_0x5e412e.ASYNC = false;
 _0x5e412e.ID = 0x13;
 _0x5e412e.NAME = "KOOPA TROOPA";
 _0x5e412e.FLY_DISTANCE = 0x3;
@@ -3756,7 +3768,7 @@ _0x5e412e.prototype.control = function() {
     if (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM) this.moveSpeed = 0x0;
 };
 _0x5e412e.prototype.physics = function() {
-    if (this.state === _0x5e412e.STATE.FLY) this.rev ? (this.fallSpeed = Math.min(_0x5e412e.FLY_SPEED_MAX, this.fallSpeed + _0x5e412e.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y >= this.loc[0x0] && (this.rev = !0x1)) : (this.fallSpeed = Math.max(-_0x5e412e.FLY_SPEED_MAX, this.fallSpeed - _0x5e412e.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y <= this.loc[0x1] && (this.rev = !0x0));
+    if (this.state === _0x5e412e.STATE.FLY) this.rev ? (this.fallSpeed = Math.min(_0x5e412e.FLY_SPEED_MAX, this.fallSpeed + _0x5e412e.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y >= this.loc[0x0] && (this.rev = false)) : (this.fallSpeed = Math.max(-_0x5e412e.FLY_SPEED_MAX, this.fallSpeed - _0x5e412e.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y <= this.loc[0x1] && (this.rev = true));
     else {
         this.grounded && (this.fallSpeed = 0x0);
         this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX);
@@ -3766,13 +3778,13 @@ _0x5e412e.prototype.physics = function() {
             _0x2160ce = vec2.make(this.dim.y + Math.abs(this.moveSpeed), this.dim.y + Math.abs(this.fallSpeed)),
             _0x26638d = this.game.world.getZone(this.level, this.zone).getTiles(_0x26638d, _0x2160ce),
             _0x2160ce = vec2.make(0x1, 0x1),
-            _0x58fc4d = !0x1;
-        this.grounded = !0x1;
+            _0x58fc4d = false;
+        this.grounded = false;
         for (var _0x36c036 = 0x0; _0x36c036 < _0x26638d.length; _0x36c036++) {
             var _0x46e9db = _0x26638d[_0x36c036];
-            _0x46e9db.definition.COLLIDE && squar.intersection(_0x46e9db.pos, _0x2160ce, _0x487bc8, this.dim) && (this.pos.x + this.dim.x <= _0x46e9db.pos.x && _0x487bc8.x + this.dim.x > _0x46e9db.pos.x ? (_0x487bc8.x = _0x46e9db.pos.x - this.dim.x, _0x41141f.x = _0x487bc8.x, this.moveSpeed = 0x0, _0x58fc4d = !0x0) : this.pos.x >= _0x46e9db.pos.x + _0x2160ce.x && _0x487bc8.x < _0x46e9db.pos.x + _0x2160ce.x && (_0x487bc8.x = _0x46e9db.pos.x + _0x2160ce.x, _0x41141f.x = _0x487bc8.x, this.moveSpeed = 0x0, _0x58fc4d = !0x0));
+            _0x46e9db.definition.COLLIDE && squar.intersection(_0x46e9db.pos, _0x2160ce, _0x487bc8, this.dim) && (this.pos.x + this.dim.x <= _0x46e9db.pos.x && _0x487bc8.x + this.dim.x > _0x46e9db.pos.x ? (_0x487bc8.x = _0x46e9db.pos.x - this.dim.x, _0x41141f.x = _0x487bc8.x, this.moveSpeed = 0x0, _0x58fc4d = true) : this.pos.x >= _0x46e9db.pos.x + _0x2160ce.x && _0x487bc8.x < _0x46e9db.pos.x + _0x2160ce.x && (_0x487bc8.x = _0x46e9db.pos.x + _0x2160ce.x, _0x41141f.x = _0x487bc8.x, this.moveSpeed = 0x0, _0x58fc4d = true));
         }
-        for (_0x36c036 = 0x0; _0x36c036 < _0x26638d.length; _0x36c036++) _0x46e9db = _0x26638d[_0x36c036], _0x46e9db.definition.COLLIDE && squar.intersection(_0x46e9db.pos, _0x2160ce, _0x41141f, this.dim) && (this.pos.y >= _0x46e9db.pos.y + _0x2160ce.y && _0x41141f.y < _0x46e9db.pos.y + _0x2160ce.y ? (_0x41141f.y = _0x46e9db.pos.y + _0x2160ce.y, this.fallSpeed = 0x0, this.grounded = !0x0) : this.pos.y + this.dim.y <= _0x46e9db.pos.y && _0x41141f.y + this.dim.y > _0x46e9db.pos.y && (_0x41141f.y = _0x46e9db.pos.y - this.dim.y, this.fallSpeed = 0x0));
+        for (_0x36c036 = 0x0; _0x36c036 < _0x26638d.length; _0x36c036++) _0x46e9db = _0x26638d[_0x36c036], _0x46e9db.definition.COLLIDE && squar.intersection(_0x46e9db.pos, _0x2160ce, _0x41141f, this.dim) && (this.pos.y >= _0x46e9db.pos.y + _0x2160ce.y && _0x41141f.y < _0x46e9db.pos.y + _0x2160ce.y ? (_0x41141f.y = _0x46e9db.pos.y + _0x2160ce.y, this.fallSpeed = 0x0, this.grounded = true) : this.pos.y + this.dim.y <= _0x46e9db.pos.y && _0x41141f.y + this.dim.y > _0x46e9db.pos.y && (_0x41141f.y = _0x46e9db.pos.y - this.dim.y, this.fallSpeed = 0x0));
         this.pos = vec2.make(_0x487bc8.x, _0x41141f.y);
         _0x58fc4d && (this.dir = !this.dir);
     }
@@ -3795,7 +3807,7 @@ _0x5e412e.prototype.enable = _0xafe583.prototype.enable;
 _0x5e412e.prototype.disable = _0xafe583.prototype.disable;
 _0x5e412e.prototype.damage = _0xafe583.prototype.damage;
 _0x5e412e.prototype.bonk = function() {
-    this.dead || (this.setState(_0x5e412e.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x5e412e.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0x5e412e.prototype.stomped = function(_0x2f1cbf) {
     if (this.state === _0x5e412e.STATE.FLY) this.setState(_0x5e412e.STATE.RUN);
@@ -3860,7 +3872,7 @@ function _0xa70071(_0x2b798e, _0x51f029, _0x309b8b, _0x6b74f, _0x5cdcce, _0x3c97
     this.dim = vec2.make(0.8, 0x1);
     this.dir = this.fallSpeed = this.moveSpeed = 0x0;
 }
-_0xa70071.ASYNC = !0x1;
+_0xa70071.ASYNC = false;
 _0xa70071.ID = 0x16;
 _0xa70071.NAME = "UNSPELLABLE PLANT";
 _0xa70071.ANIMATION_RATE = 0x3;
@@ -3920,7 +3932,7 @@ _0xa70071.prototype.damage = function(_0x508a32) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0xa70071.prototype.bonk = function() {
-    this.dead || (this.setState(_0xa70071.STATE.BONK), this.moveSpeed = _0xa70071.BONK_IMP.x, this.fallSpeed = _0xa70071.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0xa70071.STATE.BONK), this.moveSpeed = _0xa70071.BONK_IMP.x, this.fallSpeed = _0xa70071.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0xa70071.prototype.playerCollide = function(_0x3bb251) {
     this.dead || this.garbage || _0x3bb251.damage(this);
@@ -3979,16 +3991,16 @@ function _0x25ddce(_0x171be9, _0x49adc1, _0x3c512b, _0xf8ff83, _0x140a9f, _0x26d
     this.delay = isNaN(parseInt(_0x26dec7)) ? _0x25ddce.DELAY_DEFAULT : parseInt(_0x26dec7);
     this.impulse = isNaN(parseFloat(_0x3b38a6)) ? 0x1 : parseFloat(_0x3b38a6);
     this.anim = 0x0;
-    this.disabled = !0x1;
+    this.disabled = false;
     this.delayTimer = this.delay;
     this.bonkTimer = 0x0;
     this.pos.x += _0x25ddce.SOFFSET.x;
     this.loc = vec2.copy(this.pos);
     this.moveSpeed = this.fallSpeed = 0x0;
     this.dim = vec2.make(0.7, 0.7);
-    this.dir = !0x0;
+    this.dir = true;
 }
-_0x25ddce.ASYNC = !0x1;
+_0x25ddce.ASYNC = false;
 _0x25ddce.ID = 0x15;
 _0x25ddce.NAME = "FLYING FISH";
 _0x25ddce.ANIMATION_RATE = 0x3;
@@ -4045,16 +4057,16 @@ _0x25ddce.prototype.jump = function() {
     this.delayTimer = this.delay;
 };
 _0x25ddce.prototype.disable = function() {
-    this.disabled = !0x0;
+    this.disabled = true;
 };
 _0x25ddce.prototype.enable = function() {
-    this.disabled = !0x1;
+    this.disabled = false;
 };
 _0x25ddce.prototype.damage = function(_0x491a38) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0x25ddce.prototype.bonk = function() {
-    this.dead || (this.setState(_0x25ddce.STATE.BONK), this.moveSpeed = _0x25ddce.BONK_IMP.x, this.fallSpeed = _0x25ddce.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x25ddce.STATE.BONK), this.moveSpeed = _0x25ddce.BONK_IMP.x, this.fallSpeed = _0x25ddce.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0x25ddce.prototype.playerCollide = function(_0x28a0cf) {
     this.dead || this.garbage || _0x28a0cf.damage(this);
@@ -4094,18 +4106,18 @@ function _0x1f4abb(_0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8, _0x55466e, _0xde9
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 1.5);
     this.fallSpeed = this.moveSpeed = 0x0;
-    this.disabled = this.grounded = !0x1;
+    this.disabled = this.grounded = false;
     this.disabledTimer = 0x0;
-    this.proxHit = !0x1;
+    this.proxHit = false;
     this.hammer = undefined;
     this.loc = 0x1 === parseInt(_0xde92bf) ? [this.pos.x + _0x1f4abb.MOVE_AREA, this.pos.x] : [this.pos.x, this.pos.x - _0x1f4abb.MOVE_AREA];
     this.groundTimer = this.double = this.attackAnimTimer = this.attackTimer = 0x0;
     this.jumpTimer = -0x1;
-    this.reverse = !0x1;
-    this.dir = !0x0;
+    this.reverse = false;
+    this.dir = true;
     this.disable();
 }
-_0x1f4abb.ASYNC = !0x1;
+_0x1f4abb.ASYNC = false;
 _0x1f4abb.ID = 0x31;
 _0x1f4abb.NAME = "HAMMER BRO";
 _0x1f4abb.ANIMATION_RATE = 0x5;
@@ -4182,43 +4194,43 @@ _0x1f4abb.prototype.step = function() {
     this.disabled ? this.proximity() : (0x0 < this.disabledTimer && this.disabledTimer--, this.state === _0x1f4abb.STATE.BONK ? this.bonkTimer++ > _0x1f4abb.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0x1f4abb.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0x1f4abb.FALL_SPEED_ACCEL, -_0x1f4abb.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x1f4abb.ANIMATION_RATE) % this.state.SPRITE.length], this.face(), this.control(), this.physics(), this.sound(), 0x0 < this.attackAnimTimer ? (this.setState(_0x1f4abb.STATE.ATTACK), this.attach(), this.attackAnimTimer--) : this.attackTimer++ > _0x1f4abb.ATTACK_DELAY ? this.attack() : this.hammer = undefined, 0x0 > this.pos.y && this.destroy()));
 };
 _0x1f4abb.prototype.control = function() {
-    this.grounded ? (_0x1f4abb.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = !0x0 : this.pos.x < this.loc[0x1] && (this.reverse = !0x1)) : this.jumpTimer > _0x1f4abb.JUMP_LENGTH && (this.jumpTimer = -0x1);
+    this.grounded ? (_0x1f4abb.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = true : this.pos.x < this.loc[0x1] && (this.reverse = false)) : this.jumpTimer > _0x1f4abb.JUMP_LENGTH && (this.jumpTimer = -0x1);
     this.grounded ? this.setState(_0x1f4abb.STATE.IDLE) : this.setState(_0x1f4abb.STATE.FALL);
     this.moveSpeed = 0.75 * this.moveSpeed + 0.25 * (this.reverse ? -_0x1f4abb.MOVE_SPEED_MAX : _0x1f4abb.MOVE_SPEED_MAX);
 };
 _0x1f4abb.prototype.physics = function() {
-    -0x1 !== this.jumpTimer ? (this.fallSpeed = _0x1f4abb.FALL_SPEED_MAX - this.jumpTimer * _0x1f4abb.JUMP_DECEL, this.jumpTimer++, this.grounded = !0x1) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0x1f4abb.FALL_SPEED_ACCEL, -_0x1f4abb.FALL_SPEED_MAX));
+    -0x1 !== this.jumpTimer ? (this.fallSpeed = _0x1f4abb.FALL_SPEED_MAX - this.jumpTimer * _0x1f4abb.JUMP_DECEL, this.jumpTimer++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0x1f4abb.FALL_SPEED_ACCEL, -_0x1f4abb.FALL_SPEED_MAX));
     var _0x12b803 = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
         _0x176893 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
         _0x27250d = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
         _0xfe9df8 = vec2.make(this.dim.y + Math.abs(this.moveSpeed), this.dim.y + Math.abs(this.fallSpeed)),
         _0x27250d = this.game.world.getZone(this.level, this.zone).getTiles(_0x27250d, _0xfe9df8),
         _0xfe9df8 = vec2.make(0x1, 0x1);
-    this.grounded = !0x1;
+    this.grounded = false;
     for (var _0xac132f = 0x0; _0xac132f < _0x27250d.length; _0xac132f++) {
         var _0x44201c = _0x27250d[_0xac132f];
         _0x44201c.definition.COLLIDE && squar.intersection(_0x44201c.pos, _0xfe9df8, _0x12b803, this.dim) && (this.pos.x + this.dim.x <= _0x44201c.pos.x && _0x12b803.x + this.dim.x > _0x44201c.pos.x ? (_0x12b803.x = _0x44201c.pos.x - this.dim.x, _0x176893.x = _0x12b803.x, this.moveSpeed = 0x0) : this.pos.x >= _0x44201c.pos.x + _0xfe9df8.x && _0x12b803.x < _0x44201c.pos.x + _0xfe9df8.x && (_0x12b803.x = _0x44201c.pos.x + _0xfe9df8.x, _0x176893.x = _0x12b803.x, this.moveSpeed = 0x0));
     }
-    for (_0xac132f = 0x0; _0xac132f < _0x27250d.length; _0xac132f++) _0x44201c = _0x27250d[_0xac132f], _0x44201c.definition.COLLIDE && squar.intersection(_0x44201c.pos, _0xfe9df8, _0x176893, this.dim) && (this.pos.y >= _0x44201c.pos.y + _0xfe9df8.y && _0x176893.y < _0x44201c.pos.y + _0xfe9df8.y ? (_0x176893.y = _0x44201c.pos.y + _0xfe9df8.y, this.fallSpeed = 0x0, this.grounded = !0x0) : this.pos.y + this.dim.y <= _0x44201c.pos.y && _0x176893.y + this.dim.y > _0x44201c.pos.y && (_0x176893.y = _0x44201c.pos.y - this.dim.y, this.jumpTimer = -0x1, this.fallSpeed = 0x0));
+    for (_0xac132f = 0x0; _0xac132f < _0x27250d.length; _0xac132f++) _0x44201c = _0x27250d[_0xac132f], _0x44201c.definition.COLLIDE && squar.intersection(_0x44201c.pos, _0xfe9df8, _0x176893, this.dim) && (this.pos.y >= _0x44201c.pos.y + _0xfe9df8.y && _0x176893.y < _0x44201c.pos.y + _0xfe9df8.y ? (_0x176893.y = _0x44201c.pos.y + _0xfe9df8.y, this.fallSpeed = 0x0, this.grounded = true) : this.pos.y + this.dim.y <= _0x44201c.pos.y && _0x176893.y + this.dim.y > _0x44201c.pos.y && (_0x176893.y = _0x44201c.pos.y - this.dim.y, this.jumpTimer = -0x1, this.fallSpeed = 0x0));
     this.pos = vec2.make(_0x12b803.x, _0x176893.y);
 };
 _0x1f4abb.prototype.proximity = function() {
     var _0x2e2202 = this.game.getPlayer();
-    _0x2e2202 && !_0x2e2202.dead && _0x2e2202.level === this.level && _0x2e2202.zone === this.zone && !this.proxHit && vec2.distance(_0x2e2202.pos, this.pos) < _0x1f4abb.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = !0x0);
+    _0x2e2202 && !_0x2e2202.dead && _0x2e2202.level === this.level && _0x2e2202.zone === this.zone && !this.proxHit && vec2.distance(_0x2e2202.pos, this.pos) < _0x1f4abb.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
 };
 _0x1f4abb.prototype.face = function() {
     for (var _0xe75dbb, _0x338971 = 0x0; _0x338971 < this.game.objects.length; _0x338971++) {
         var _0x345c5d = this.game.objects[_0x338971];
         _0x345c5d instanceof PlayerObject && _0x345c5d.level === this.level && _0x345c5d.zone === this.zone && _0x345c5d.isTangible() && (!_0xe75dbb || Math.abs(_0xe75dbb) > vec2.distance(_0x345c5d.pos, this.pos)) && (_0xe75dbb = _0x345c5d.pos.x - this.pos.x);
     }
-    this.dir = _0xe75dbb ? 0x0 > _0xe75dbb : !0x0;
+    this.dir = _0xe75dbb ? 0x0 > _0xe75dbb : true;
 };
 _0x1f4abb.prototype.sound = GameObject.prototype.sound;
 _0x1f4abb.prototype.enable = function() {
-    this.disabled && (this.disabled = !0x1, this.disabledTimer = _0x1f4abb.ENABLE_FADE_TIME);
+    this.disabled && (this.disabled = false, this.disabledTimer = _0x1f4abb.ENABLE_FADE_TIME);
 };
 _0x1f4abb.prototype.disable = function() {
-    this.disabled = !0x0;
+    this.disabled = true;
 };
 _0x1f4abb.prototype.attack = function() {
     this.attackAnimTimer = _0x1f4abb.ATTACK_ANIM_LENGTH;
@@ -4240,7 +4252,7 @@ _0x1f4abb.prototype.damage = function(_0x23a76d) {
     this.dead || (this.bonk(), NET020.encode(this.level, this.zone, this.oid, 0x1));
 };
 _0x1f4abb.prototype.bonk = function() {
-    this.dead || (this.setState(_0x1f4abb.STATE.BONK), this.moveSpeed = _0x1f4abb.BONK_IMP.x, this.fallSpeed = _0x1f4abb.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x1f4abb.STATE.BONK), this.moveSpeed = _0x1f4abb.BONK_IMP.x, this.fallSpeed = _0x1f4abb.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0x1f4abb.prototype.kill = function() {};
 _0x1f4abb.prototype.isTangible = GameObject.prototype.isTangible;
@@ -4282,14 +4294,14 @@ function BowserObject(_0x296e51, _0xaf6db9, _0x35a12d, _0x5dd1db, _0x1c5ca6) {
     this.bonkTimer = 0x0;
     this.dim = vec2.make(0x2, 0x2);
     this.fallSpeed = this.moveSpeed = 0x0;
-    this.grounded = !0x1;
+    this.grounded = false;
     this.loc = [this.pos.x, this.pos.x - BowserObject.MOVE_AREA];
     this.groundTimer = this.attackAnimTimer = this.attackTimer = 0x0;
     this.jumpTimer = -0x1;
-    this.reverse = !0x1;
-    this.dir = !0x0;
+    this.reverse = false;
+    this.dir = true;
 }
-BowserObject.ASYNC = !0x0;
+BowserObject.ASYNC = true;
 BowserObject.ID = 0x19;
 BowserObject.NAME = "BOWSER";
 BowserObject.ANIMATION_RATE = 0x5;
@@ -4359,23 +4371,23 @@ BowserObject.prototype.step = function() {
     this.state === BowserObject.STATE.BONK ? this.bonkTimer++ > BowserObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= BowserObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - BowserObject.FALL_SPEED_ACCEL, -BowserObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / BowserObject.ANIMATION_RATE) % this.state.SPRITE.length], this.control(), this.physics(), this.sound(), this.attackTimer++ > BowserObject.ATTACK_DELAY && this.attack(), 0x0 < this.attackAnimTimer ? (this.setState(BowserObject.STATE.ATTACK), this.attackAnimTimer--) : this.setState(BowserObject.STATE.RUN), 0x0 > this.pos.y && this.destroy());
 };
 BowserObject.prototype.control = function() {
-    this.grounded ? (BowserObject.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = !0x0 : this.pos.x < this.loc[0x1] && (this.reverse = !0x1)) : this.jumpTimer > BowserObject.JUMP_LENGTH && (this.jumpTimer = -0x1);
+    this.grounded ? (BowserObject.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = true : this.pos.x < this.loc[0x1] && (this.reverse = false)) : this.jumpTimer > BowserObject.JUMP_LENGTH && (this.jumpTimer = -0x1);
     this.moveSpeed = 0.75 * this.moveSpeed + 0.25 * (this.reverse ? -BowserObject.MOVE_SPEED_MAX : BowserObject.MOVE_SPEED_MAX);
 };
 BowserObject.prototype.physics = function() {
-    -0x1 !== this.jumpTimer ? (this.fallSpeed = BowserObject.FALL_SPEED_MAX - this.jumpTimer * BowserObject.JUMP_DECEL, this.jumpTimer++, this.grounded = !0x1) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - BowserObject.FALL_SPEED_ACCEL, -BowserObject.FALL_SPEED_MAX));
+    -0x1 !== this.jumpTimer ? (this.fallSpeed = BowserObject.FALL_SPEED_MAX - this.jumpTimer * BowserObject.JUMP_DECEL, this.jumpTimer++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - BowserObject.FALL_SPEED_ACCEL, -BowserObject.FALL_SPEED_MAX));
     var _0x85d755 = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
         _0x471885 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
         _0x3ec375 = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
         _0x486f5e = vec2.make(this.dim.y + Math.abs(this.moveSpeed), this.dim.y + Math.abs(this.fallSpeed)),
         _0x3ec375 = this.game.world.getZone(this.level, this.zone).getTiles(_0x3ec375, _0x486f5e),
         _0x486f5e = vec2.make(0x1, 0x1);
-    this.grounded = !0x1;
+    this.grounded = false;
     for (var _0x2d6663 = 0x0; _0x2d6663 < _0x3ec375.length; _0x2d6663++) {
         var _0x50845a = _0x3ec375[_0x2d6663];
         _0x50845a.definition.COLLIDE && squar.intersection(_0x50845a.pos, _0x486f5e, _0x85d755, this.dim) && (this.pos.x + this.dim.x <= _0x50845a.pos.x && _0x85d755.x + this.dim.x > _0x50845a.pos.x ? (_0x85d755.x = _0x50845a.pos.x - this.dim.x, _0x471885.x = _0x85d755.x, this.moveSpeed = 0x0) : this.pos.x >= _0x50845a.pos.x + _0x486f5e.x && _0x85d755.x < _0x50845a.pos.x + _0x486f5e.x && (_0x85d755.x = _0x50845a.pos.x + _0x486f5e.x, _0x471885.x = _0x85d755.x, this.moveSpeed = 0x0));
     }
-    for (_0x2d6663 = 0x0; _0x2d6663 < _0x3ec375.length; _0x2d6663++) _0x50845a = _0x3ec375[_0x2d6663], _0x50845a.definition.COLLIDE && squar.intersection(_0x50845a.pos, _0x486f5e, _0x471885, this.dim) && (this.pos.y >= _0x50845a.pos.y + _0x486f5e.y && _0x471885.y < _0x50845a.pos.y + _0x486f5e.y ? (_0x471885.y = _0x50845a.pos.y + _0x486f5e.y, this.fallSpeed = 0x0, this.grounded = !0x0) : this.pos.y + this.dim.y <= _0x50845a.pos.y && _0x471885.y + this.dim.y > _0x50845a.pos.y && (_0x471885.y = _0x50845a.pos.y - this.dim.y, this.jumpTimer = -0x1, this.fallSpeed = 0x0));
+    for (_0x2d6663 = 0x0; _0x2d6663 < _0x3ec375.length; _0x2d6663++) _0x50845a = _0x3ec375[_0x2d6663], _0x50845a.definition.COLLIDE && squar.intersection(_0x50845a.pos, _0x486f5e, _0x471885, this.dim) && (this.pos.y >= _0x50845a.pos.y + _0x486f5e.y && _0x471885.y < _0x50845a.pos.y + _0x486f5e.y ? (_0x471885.y = _0x50845a.pos.y + _0x486f5e.y, this.fallSpeed = 0x0, this.grounded = true) : this.pos.y + this.dim.y <= _0x50845a.pos.y && _0x471885.y + this.dim.y > _0x50845a.pos.y && (_0x471885.y = _0x50845a.pos.y - this.dim.y, this.jumpTimer = -0x1, this.fallSpeed = 0x0));
     this.pos = vec2.make(_0x85d755.x, _0x471885.y);
 };
 BowserObject.prototype.sound = GameObject.prototype.sound;
@@ -4394,7 +4406,7 @@ BowserObject.prototype.damage = function(_0x25178b) {
     this.dead || 0x0 >= --this.health && this.bonk();
 };
 BowserObject.prototype.bonk = function() {
-    this.dead || (this.setState(BowserObject.STATE.BONK), this.moveSpeed = BowserObject.BONK_IMP.x, this.fallSpeed = BowserObject.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(BowserObject.STATE.BONK), this.moveSpeed = BowserObject.BONK_IMP.x, this.fallSpeed = BowserObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 BowserObject.prototype.kill = function() {};
 BowserObject.prototype.isTangible = GameObject.prototype.isTangible;
@@ -4433,11 +4445,11 @@ function _0x5bbb5e(_0x38f9a7, _0x27f352, _0x55bfab, _0x551362, _0x61ea43, _0x1b0
     this.dim = vec2.make(parseInt(_0x1b085a), 0.5);
     this.speed = parseFloat(_0x46cdb7);
     this.riders = [];
-    this.dir = !0x1;
-    this.loop = 0x0 === parseInt(_0x151f14) ? !0x1 : !0x0;
+    this.dir = false;
+    this.loop = 0x0 === parseInt(_0x151f14) ? false : true;
     this.delay = parseInt(_0x271b52);
 }
-_0x5bbb5e.ASYNC = !0x0;
+_0x5bbb5e.ASYNC = true;
 _0x5bbb5e.ID = 0x91;
 _0x5bbb5e.NAME = "PLATFORM";
 _0x5bbb5e.ANIMATION_RATE = 0x3;
@@ -4506,9 +4518,9 @@ function _0x4b6e2c(_0x1d4931, _0xe3dc6, _0x10f6a5, _0x3813e7, _0x1e87d2, _0x1f93
     this.dim = vec2.make(parseInt(_0x1f931e), 0.5);
     this.speed = parseFloat(_0x53c646);
     this.riders = [];
-    this.dir = this.go = !0x1;
+    this.dir = this.go = false;
 }
-_0x4b6e2c.ASYNC = !0x1;
+_0x4b6e2c.ASYNC = false;
 _0x4b6e2c.ID = 0x92;
 _0x4b6e2c.NAME = "BUS PLATFORM";
 _0x4b6e2c.ANIMATION_RATE = 0x3;
@@ -4551,7 +4563,7 @@ _0x4b6e2c.prototype.physics = function() {
     this.riders = [];
 };
 _0x4b6e2c.prototype.start = function() {
-    this.go = !0x0;
+    this.go = true;
 };
 _0x4b6e2c.prototype.riding = function(_0x4a3b82) {
     _0x4a3b82.pid !== this.game.pid || this.go || this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa1));
@@ -4583,7 +4595,7 @@ function SpringObject(_0x9d9b10, _0x5d6af4, _0x14b8a1, _0x25d330, _0x2899a3) {
     this.pos = vec2.add(this.pos, SpringObject.SOFFSET);
     this.dim = vec2.make(0.8, 0x2);
 }
-SpringObject.ASYNC = !0x0;
+SpringObject.ASYNC = true;
 SpringObject.ID = 0x95;
 SpringObject.NAME = "SPRING";
 SpringObject.ANIMATION_RATE = 0x3;
@@ -4633,9 +4645,9 @@ SpringObject.prototype.interaction = function() {
     var _0x4c2d7a = this.game.getPlayer();
     if (_0x4c2d7a && _0x4c2d7a.level === this.level && _0x4c2d7a.zone === this.zone && _0x4c2d7a.isTangible() && squar.intersection(this.pos, this.dim, _0x4c2d7a.pos, _0x4c2d7a.dim)) {
         var _0x370dd9 = Math.pow(0x1 - 0.5 * Math.min(Math.max(0x0, _0x4c2d7a.pos.y - this.pos.y), 0x2), 0x2);
-        _0x4c2d7a.fallSpeed >= 0.75 * PlayerObject.FALL_SPEED_MAX && _0x4c2d7a.btnA && (_0x4c2d7a.jumping = 0x0, _0x4c2d7a.isSpring = !0x0);
+        _0x4c2d7a.fallSpeed >= 0.75 * PlayerObject.FALL_SPEED_MAX && _0x4c2d7a.btnA && (_0x4c2d7a.jumping = 0x0, _0x4c2d7a.isSpring = true);
         _0x4c2d7a.fallSpeed += Math.min(0x2 * PlayerObject.FALL_SPEED_MAX, _0x370dd9 * SpringObject.POWER);
-        _0x4c2d7a.grounded = !0x1;
+        _0x4c2d7a.grounded = false;
     }
     _0x4c2d7a = 0x2;
     for (_0x370dd9 = 0x0; _0x370dd9 < this.game.objects.length; _0x370dd9++) {
@@ -4655,12 +4667,12 @@ SpringObject.prototype.draw = function(_0x132bc0) {
         for (var _0x3191ef = this.sprite.INDEX, _0x4714a0 = 0x0; _0x4714a0 < _0x3191ef.length; _0x4714a0++)
             for (var _0x507d31 = 0x0; _0x507d31 < _0x3191ef[_0x4714a0].length; _0x507d31++) _0x132bc0.push({
                 'pos': vec2.subtract(vec2.add(this.pos, vec2.make(_0x507d31, _0x4714a0)), SpringObject.SOFFSET),
-                'reverse': !0x1,
+                'reverse': false,
                 'index': _0x3191ef[_0x4714a0][_0x507d31]
             });
     else _0x132bc0.push({
         'pos': vec2.subtract(this.pos, SpringObject.SOFFSET),
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
@@ -4674,7 +4686,7 @@ function FlagpoleObject(_0x5642ff, _0x3d3a00, _0x34f17d, _0x57e7a3, _0x93cf94) {
     this.setState(FlagpoleObject.STATE.IDLE);
     this.anim = 0x0;
 }
-FlagpoleObject.ASYNC = !0x0;
+FlagpoleObject.ASYNC = true;
 FlagpoleObject.ID = 0xb1;
 FlagpoleObject.NAME = "FLAG";
 FlagpoleObject.ANIMATION_RATE = 0x3;
@@ -4707,7 +4719,7 @@ FlagpoleObject.prototype.setState = function(_0x2d7e00) {
 FlagpoleObject.prototype.draw = function(_0x33d2c9) {
     _0x33d2c9.push({
         'pos': vec2.add(this.pos, FlagpoleObject.OFFSET),
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
@@ -4724,7 +4736,7 @@ function _0x35ddf4(_0x5067e9, _0x471c11, _0x4c3d45, _0x5b45aa, _0x5f9e08, _0x62b
     this.dim = vec2.make(0.5, 0.5);
     this.size = isNaN(parseInt(_0x119674)) ? _0x35ddf4.PARTS : parseInt(_0x119674);
 }
-_0x35ddf4.ASYNC = !0x0;
+_0x35ddf4.ASYNC = true;
 _0x35ddf4.ID = 0x21;
 _0x35ddf4.NAME = "FIRE TRAP";
 _0x35ddf4.ANIMATION_RATE = 0x2;
@@ -4789,7 +4801,7 @@ _0x35ddf4.prototype.setState = function(_0xaf8a26) {
 _0x35ddf4.prototype.draw = function(_0x4e240c) {
     for (var _0x40d21a = vec2.normalize(vec2.make(Math.sin(-this.anim / _0x35ddf4.SPIN_RATE), Math.cos(-this.anim / _0x35ddf4.SPIN_RATE))), _0x4e0952 = 0x0; _0x4e0952 < this.size; _0x4e0952++) _0x4e240c.push({
         'pos': vec2.add(this.pos, vec2.scale(_0x40d21a, _0x35ddf4.SPACING * _0x4e0952)),
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
@@ -4810,7 +4822,7 @@ function _0x4a8773(_0x23df7f, _0x31f095, _0x2a1fe9, _0x53aba8, _0x3d90ca, _0x213
     this.fallSpeed = 0x0;
     this.dim = vec2.make(0.7, 0.7);
 }
-_0x4a8773.ASYNC = !0x0;
+_0x4a8773.ASYNC = true;
 _0x4a8773.ID = 0x22;
 _0x4a8773.NAME = "FIRE BLAST";
 _0x4a8773.ANIMATION_RATE = 0x3;
@@ -4867,7 +4879,7 @@ _0x4a8773.prototype.draw = function(_0x39c7cf) {
     var _0x5ecf74 = 0x0 <= this.fallSpeed ? 0x0 : 0x3;
     _0x39c7cf.push({
         'pos': vec2.subtract(this.pos, _0x4a8773.SOFFSET),
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': _0x5ecf74
     });
@@ -4883,7 +4895,7 @@ function _0x458a57(_0x278773, _0xa84297, _0x156cd9, _0x3a6374, _0x2a748a, _0x429
     this.delay = isNaN(parseInt(_0x429175)) ? _0x458a57.FIRE_DELAY_DEFAULT : parseInt(_0x429175);
     this.shootDirection = isNaN(parseInt(direction)) ? 0 : parseInt(direction);
 }
-_0x458a57.ASYNC = !0x0;
+_0x458a57.ASYNC = true;
 _0x458a57.ID = 0x23;
 _0x458a57.NAME = "LAUNCHER";
 _0x458a57.ANIMATION_RATE = 0x3;
@@ -4933,7 +4945,7 @@ function _0x30df09(_0x3877d1, _0x3182b8, _0xa0e13f, _0xe81bce, _0x1d56a5, direct
     this.fallSpeed = this.moveSpeed = 0x0;
     this.direction = isNaN(parseInt(direction)) ? 0 : parseInt(direction);
 }
-_0x30df09.ASYNC = !0x0;
+_0x30df09.ASYNC = true;
 _0x30df09.ID = 0x24;
 _0x30df09.NAME = "BULLET";
 _0x30df09.ANIMATION_RATE = 0x3;
@@ -4975,14 +4987,14 @@ _0x30df09.prototype.physics = function() {
 };
 _0x30df09.prototype.sound = GameObject.prototype.sound;
 _0x30df09.prototype.disable = function() {
-    this.disabled = !0x0;
+    this.disabled = true;
 };
 _0x30df09.prototype.enable = function() {
-    this.disabled = !0x1;
+    this.disabled = false;
 };
 _0x30df09.prototype.damage = function(_0x582020) {};
 _0x30df09.prototype.bonk = function() {
-    this.dead || (this.setState(_0x30df09.STATE.BONK), this.moveSpeed = _0x30df09.BONK_IMP.x, this.fallSpeed = _0x30df09.BONK_IMP.y, this.dead = !0x0, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x30df09.STATE.BONK), this.moveSpeed = _0x30df09.BONK_IMP.x, this.fallSpeed = _0x30df09.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
 _0x30df09.prototype.playerCollide = function(_0x15f7e9) {
     this.dead || this.garbage || _0x15f7e9.damage(this);
@@ -5023,7 +5035,7 @@ function _0x6c6f53(_0x36213e, _0xed9c2f, _0xdb3ba1, _0x192895, _0x145ee8, _0x367
     this.fallSpeed = -_0x6c6f53.FALL_SPEED_MAX;
     this.dir = _0x145ee8;
 }
-_0x6c6f53.ASYNC = !0x0;
+_0x6c6f53.ASYNC = true;
 _0x6c6f53.ID = 0xa1;
 _0x6c6f53.NAME = "FIREBALL PROJECTILE";
 _0x6c6f53.ANIMATION_RATE = 0x2;
@@ -5111,7 +5123,7 @@ _0x6c6f53.prototype.playerBump = function(_0xad5318) {};
 _0x6c6f53.prototype.kill = function() {
     this.setState(_0x6c6f53.STATE.DEAD);
     this.play("sfx/firework.wav", 0.7, 0.04);
-    this.dead = !0x0;
+    this.dead = true;
 };
 _0x6c6f53.prototype.isTangible = GameObject.prototype.isTangible;
 _0x6c6f53.prototype.destroy = GameObject.prototype.destroy;
@@ -5121,7 +5133,7 @@ _0x6c6f53.prototype.setState = function(_0x37987d) {
 _0x6c6f53.prototype.draw = function(_0x12ec20) {
     _0x12ec20.push({
         'pos': vec2.add(this.pos, _0x6c6f53.SOFFSET),
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
@@ -5139,7 +5151,7 @@ function _0x1899b7(_0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8) {
     this.deadTimer = 0x0;
     this.dim = vec2.make(0x1, 0.5);
 }
-_0x1899b7.ASYNC = !0x0;
+_0x1899b7.ASYNC = true;
 _0x1899b7.ID = 0xa2;
 _0x1899b7.NAME = "FIRE BREATH PROJECTILE";
 _0x1899b7.ANIMATION_RATE = 0x2;
@@ -5207,7 +5219,7 @@ _0x1899b7.prototype.playerCollide = function(_0x4b7e2a) {};
 _0x1899b7.prototype.playerStomp = function(_0x2f2ded) {};
 _0x1899b7.prototype.playerBump = function(_0xa7f751) {};
 _0x1899b7.prototype.kill = function() {
-    this.dead = !0x0;
+    this.dead = true;
     this.setState(_0x1899b7.STATE.DEAD);
 };
 _0x1899b7.prototype.isTangible = GameObject.prototype.isTangible;
@@ -5220,12 +5232,12 @@ _0x1899b7.prototype.draw = function(_0x215d5f) {
         for (var _0x22ac30 = this.sprite.INDEX, _0x1cb97d = 0x0; _0x1cb97d < _0x22ac30.length; _0x1cb97d++)
             for (var _0x5791f1 = 0x0; _0x5791f1 < _0x22ac30[_0x1cb97d].length; _0x5791f1++) _0x215d5f.push({
                 'pos': vec2.add(vec2.add(this.pos, _0x1899b7.SOFFSET), vec2.make(_0x5791f1, _0x1cb97d)),
-                'reverse': !0x1,
+                'reverse': false,
                 'index': _0x22ac30[_0x1cb97d][_0x5791f1]
             });
     else _0x215d5f.push({
         'pos': vec2.add(this.pos, _0x1899b7.SOFFSET),
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
@@ -5239,10 +5251,10 @@ function _0x1bc0ed(_0x33b14c, _0x36a1c4, _0x148c3f, _0x54b3e0, _0x33ad79) {
     this.setState(_0x1bc0ed.STATE.IDLE);
     this.anim = 0x0;
     this.throwTimer = _0x1bc0ed.THROW_DELAY;
-    this.dir = !0x1;
+    this.dir = false;
     this.dim = vec2.make(0.5, 0.5);
 }
-_0x1bc0ed.ASYNC = !0x0;
+_0x1bc0ed.ASYNC = true;
 _0x1bc0ed.ID = 0xa3;
 _0x1bc0ed.NAME = "HAMMER PROJECTILE";
 _0x1bc0ed.ANIMATION_RATE = 0x2;
@@ -5318,7 +5330,7 @@ _0x1bc0ed.prototype.draw = function(_0x4db511) {
         for (var _0x452daa = this.sprite.INDEX, _0x4a6d8c = 0x0; _0x4a6d8c < _0x452daa.length; _0x4a6d8c++)
             for (var _0x3a08a0 = 0x0; _0x3a08a0 < _0x452daa[_0x4a6d8c].length; _0x3a08a0++) _0x4db511.push({
                 'pos': vec2.add(vec2.add(this.pos, _0x1bc0ed.SOFFSET), vec2.make(_0x3a08a0, _0x4a6d8c)),
-                'reverse': !0x1,
+                'reverse': false,
                 'index': _0x452daa[_0x4a6d8c][_0x3a08a0]
             });
     else _0x4db511.push({
@@ -5337,17 +5349,17 @@ function _0x2e2bc3(_0x23b738, _0x46c7a3, _0x118fd6, _0xb55197, _0x48d8ac) {
     this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
-    this.rise = this.grounded = !0x1;
+    this.rise = this.grounded = false;
     _0x23b738 = vec2.make(0x1, 0x1);
     _0x46c7a3 = this.game.world.getZone(this.level, this.zone).getTiles(this.pos, this.dim);
     for (_0x118fd6 = 0x0; _0x118fd6 < _0x46c7a3.length; _0x118fd6++)
         if (squar.intersection(_0x46c7a3[_0x118fd6].pos, _0x23b738, this.pos, this.dim)) {
-            this.rise = !0x0;
+            this.rise = true;
             break;
-        } this.dir = !0x1;
+        } this.dir = false;
     this.jump = -0x1;
 }
-_0x2e2bc3.ASYNC = !0x0;
+_0x2e2bc3.ASYNC = true;
 _0x2e2bc3.ID = 0x50;
 _0x2e2bc3.ANIMATION_RATE = 0x3;
 _0x2e2bc3.MOVE_SPEED_MAX = 0.075;
@@ -5374,11 +5386,11 @@ _0x2e2bc3.prototype.control = function() {
 };
 _0x2e2bc3.prototype.physics = function() {
     if (this.rise) {
-        this.rise = !0x1;
+        this.rise = false;
         for (var _0x2d4761 = vec2.make(0x1, 0x1), _0x48762f = this.game.world.getZone(this.level, this.zone).getTiles(this.pos, this.dim), _0xae67e5 = 0x0; _0xae67e5 < _0x48762f.length; _0xae67e5++) {
             var _0x323720 = _0x48762f[_0xae67e5];
             if (_0x323720.definition.COLLIDE && squar.intersection(_0x323720.pos, _0x2d4761, this.pos, this.dim)) {
-                this.rise = !0x0;
+                this.rise = true;
                 break;
             }
         }
@@ -5391,10 +5403,10 @@ _0x2e2bc3.prototype.physics = function() {
             _0x48762f = vec2.make(this.dim.y + Math.abs(this.moveSpeed), this.dim.y + Math.abs(this.fallSpeed)),
             _0x48762f = this.game.world.getZone(this.level, this.zone).getTiles(_0x2d4761, _0x48762f),
             _0x2d4761 = vec2.make(0x1, 0x1),
-            _0x32139c = !0x1;
-        this.grounded = !0x1;
-        for (_0xae67e5 = 0x0; _0xae67e5 < _0x48762f.length; _0xae67e5++) _0x323720 = _0x48762f[_0xae67e5], _0x323720.definition.COLLIDE && squar.intersection(_0x323720.pos, _0x2d4761, _0x17799f, this.dim) && (this.pos.x <= _0x17799f.x && _0x17799f.x + this.dim.x > _0x323720.pos.x ? (_0x17799f.x = _0x323720.pos.x - this.dim.x, _0x7b593c.x = _0x17799f.x, this.moveSpeed = 0x0, _0x32139c = !0x0) : this.pos.x >= _0x17799f.x && _0x17799f.x < _0x323720.pos.x + _0x2d4761.x && (_0x17799f.x = _0x323720.pos.x + _0x2d4761.x, _0x7b593c.x = _0x17799f.x, this.moveSpeed = 0x0, _0x32139c = !0x0));
-        for (_0xae67e5 = 0x0; _0xae67e5 < _0x48762f.length; _0xae67e5++) _0x323720 = _0x48762f[_0xae67e5], _0x323720.definition.COLLIDE && squar.intersection(_0x323720.pos, _0x2d4761, _0x7b593c, this.dim) && (this.pos.y >= _0x7b593c.y && _0x7b593c.y < _0x323720.pos.y + _0x2d4761.y ? (_0x7b593c.y = _0x323720.pos.y + _0x2d4761.y, this.grounded = !0x0) : this.pos.y <= _0x7b593c.y && _0x7b593c.y + this.dim.y > _0x323720.pos.y && (_0x7b593c.y = _0x323720.pos.y - this.dim.y, this.jumping = -0x1, this.fallSpeed = 0x0));
+            _0x32139c = false;
+        this.grounded = false;
+        for (_0xae67e5 = 0x0; _0xae67e5 < _0x48762f.length; _0xae67e5++) _0x323720 = _0x48762f[_0xae67e5], _0x323720.definition.COLLIDE && squar.intersection(_0x323720.pos, _0x2d4761, _0x17799f, this.dim) && (this.pos.x <= _0x17799f.x && _0x17799f.x + this.dim.x > _0x323720.pos.x ? (_0x17799f.x = _0x323720.pos.x - this.dim.x, _0x7b593c.x = _0x17799f.x, this.moveSpeed = 0x0, _0x32139c = true) : this.pos.x >= _0x17799f.x && _0x17799f.x < _0x323720.pos.x + _0x2d4761.x && (_0x17799f.x = _0x323720.pos.x + _0x2d4761.x, _0x7b593c.x = _0x17799f.x, this.moveSpeed = 0x0, _0x32139c = true));
+        for (_0xae67e5 = 0x0; _0xae67e5 < _0x48762f.length; _0xae67e5++) _0x323720 = _0x48762f[_0xae67e5], _0x323720.definition.COLLIDE && squar.intersection(_0x323720.pos, _0x2d4761, _0x7b593c, this.dim) && (this.pos.y >= _0x7b593c.y && _0x7b593c.y < _0x323720.pos.y + _0x2d4761.y ? (_0x7b593c.y = _0x323720.pos.y + _0x2d4761.y, this.grounded = true) : this.pos.y <= _0x7b593c.y && _0x7b593c.y + this.dim.y > _0x323720.pos.y && (_0x7b593c.y = _0x323720.pos.y - this.dim.y, this.jumping = -0x1, this.fallSpeed = 0x0));
         this.pos = vec2.make(_0x17799f.x, _0x7b593c.y);
         _0x32139c && (this.dir = !this.dir);
     }
@@ -5413,7 +5425,7 @@ _0x2e2bc3.prototype.playerBump = function(_0x25bf11) {
     this.playerCollide(_0x25bf11);
 };
 _0x2e2bc3.prototype.kill = function() {
-    this.dead = !0x0;
+    this.dead = true;
     this.destroy();
 };
 _0x2e2bc3.prototype.destroy = GameObject.prototype.destroy;
@@ -5436,7 +5448,7 @@ function MushroomObject(_0x1d612b, _0x30e50f, _0x5ea008, _0xaa5aa6, _0x2e3285) {
     this.state = MushroomObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
-MushroomObject.ASYNC = !0x1;
+MushroomObject.ASYNC = false;
 MushroomObject.ID = 0x51;
 MushroomObject.NAME = "MUSHROOM";
 MushroomObject.SPRITE = {};
@@ -5477,7 +5489,7 @@ function FlowerObject(_0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437) {
     this.state = FlowerObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
-FlowerObject.ASYNC = !0x1;
+FlowerObject.ASYNC = false;
 FlowerObject.ID = 0x52;
 FlowerObject.NAME = "FIRE FLOWER";
 FlowerObject.SPRITE = {};
@@ -5526,7 +5538,7 @@ function GoldFlowerObject(_0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437)
     this.state = GoldFlowerObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
-GoldFlowerObject.ASYNC = !0x1;
+GoldFlowerObject.ASYNC = false;
 GoldFlowerObject.ID = 0x64;
 GoldFlowerObject.NAME = "GOLD FLOWER";
 GoldFlowerObject.SPRITE = {};
@@ -5576,7 +5588,7 @@ function StarObject(_0x375784, _0x5a5c7c, _0xa508b, _0x131d1e, _0x44782e) {
     this.sprite = this.state.SPRITE[0x0];
     this.groundTimer = 0x0;
 }
-StarObject.ASYNC = !0x1;
+StarObject.ASYNC = false;
 StarObject.ID = 0x54;
 StarObject.NAME = "STAR";
 StarObject.JUMP_LENGTH = 0x6;
@@ -5632,7 +5644,7 @@ function LifeObject(_0x1fd5d8, _0x3fd6ae, _0x16274e, _0x3cab6e, _0x53f924) {
     this.state = LifeObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
-LifeObject.ASYNC = !0x1;
+LifeObject.ASYNC = false;
 LifeObject.ID = 0x53;
 LifeObject.NAME = "ONEUP";
 LifeObject.SPRITE = {};
@@ -5672,10 +5684,10 @@ function AxeObject(_0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e) {
     _0x2e2bc3.call(this, _0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e);
     this.state = AxeObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
-    this.used = !0x1;
+    this.used = false;
     this.dim = vec2.make(0x1, 0x3);
 }
-AxeObject.ASYNC = !0x0;
+AxeObject.ASYNC = true;
 AxeObject.ID = 0x55;
 AxeObject.NAME = "AXE";
 AxeObject.SPRITE = {};
@@ -5710,7 +5722,7 @@ AxeObject.prototype.control = function() {};
 AxeObject.prototype.physics = _0x2e2bc3.prototype.physics;
 AxeObject.prototype.playerCollide = function(_0x250479) {
     if (!(this.dead || this.garbage || this.used))
-        for (_0x250479.powerup(this), this.used = !0x0, _0x250479 = 0x0; _0x250479 < this.game.objects.length; _0x250479++) {
+        for (_0x250479.powerup(this), this.used = true, _0x250479 = 0x0; _0x250479 < this.game.objects.length; _0x250479++) {
             var _0x2ea61e = this.game.objects[_0x250479];
             if (_0x2ea61e instanceof BowserObject && _0x2ea61e.level === this.level && _0x2ea61e.zone === _0x2ea61e.zone && !_0x2ea61e.dead) {
                 _0x2ea61e.bonk();
@@ -5733,7 +5745,7 @@ function _0x5010c8(_0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4) {
     this.state = _0x5010c8.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
-_0x5010c8.ASYNC = !0x1;
+_0x5010c8.ASYNC = false;
 _0x5010c8.ID = 0x56;
 _0x5010c8.NAME = "POISON MUSHROOM";
 _0x5010c8.SPRITE = {};
@@ -5777,7 +5789,7 @@ function CoinObject(_0x52a861, _0x4a48fc, _0x331cc6, _0x11bbb6, _0x11c124) {
     this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
 }
-CoinObject.ASYNC = !0x1;
+CoinObject.ASYNC = false;
 CoinObject.ID = 0x61;
 CoinObject.NAME = "COIN";
 CoinObject.ANIMATION_RATE = 0x5;
@@ -5827,7 +5839,7 @@ CoinObject.prototype.playerBump = function(_0x298d70) {
     this.playerCollide(_0x298d70);
 };
 CoinObject.prototype.kill = function() {
-    this.dead = !0x0;
+    this.dead = true;
     this.destroy();
 };
 CoinObject.prototype.isTangible = GameObject.prototype.isTangible;
@@ -5852,7 +5864,7 @@ function CheckObject(_0x13f285, _0x12549b, _0x2d8560, _0x18e975, _0x3c4894) {
     this.setState(CheckObject.STATE.IDLE);
     this.anim = 0x0;
 }
-CheckObject.ASYNC = !0x0;
+CheckObject.ASYNC = true;
 CheckObject.ID = 0xfe;
 CheckObject.NAME = "CHECKMARK";
 CheckObject.ANIMATION_RATE = 0x3;
@@ -5884,7 +5896,7 @@ CheckObject.prototype.setState = function(_0x49f103) {
 CheckObject.prototype.draw = function(_0x197f04) {
     _0x197f04.push({
         'pos': this.pos,
-        'reverse': !0x1,
+        'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
@@ -5901,7 +5913,7 @@ function _0x3db18a(_0x289121, _0x27327c, _0x2b1dd0, _0x19f16d, _0x347488, _0xbb3
     this.color = _0x457c51;
     this.text = _0x10fe68;
 }
-_0x3db18a.ASYNC = !0x0;
+_0x3db18a.ASYNC = true;
 _0x3db18a.ID = 0xfd;
 _0x3db18a.NAME = "TEXT";
 _0x3db18a.ANIMATION_RATE = 0x3;
@@ -5940,13 +5952,13 @@ GameObject.REGISTER_OBJECT(_0x3db18a);
 
 function _0x403fef(_0x30fe8a) {
     this.pos = _0x30fe8a;
-    this.garbage = !0x1;
+    this.garbage = false;
 }
 _0x403fef.prototype.step = function() {
     0x1 > this.life-- && this.destroy();
 };
 _0x403fef.prototype.destroy = function() {
-    this.garbage = !0x0;
+    this.garbage = true;
 };
 _0x403fef.prototype.draw = function(_0x47aa2d) {};
 "use strict";
@@ -6056,29 +6068,29 @@ function _0x2406bb(_0x4377d5,_0x141691){
         _0x3b9d05.mouse.event(_0x4377d5);
     };
     this.container.onmousedown=function(_0x4377d5){
-        _0x3b9d05.mouse.event(_0x4377d5,!0x0);
+        _0x3b9d05.mouse.event(_0x4377d5,true);
     };
     this.container.onmouseup=function(_0x4377d5){
-        _0x3b9d05.mouse.event(_0x4377d5,!0x1);
+        _0x3b9d05.mouse.event(_0x4377d5,false);
     };
     this.container.addEventListener("mousewheel",function(_0x4377d5){
         _0x3b9d05.mouse.wheel(_0x4377d5);
-        },!0x1);
+        },false);
     this.container.addEventListener("DOMMouseScroll",function(_0x4377d5){
         _0x3b9d05.mouse.wheel(_0x4377d5);
-        },!0x1);
+        },false);
     document.onkeyup=function(_0x4377d5){
-        _0x3b9d05.keyboard.event(_0x4377d5,!0x1);
+        _0x3b9d05.keyboard.event(_0x4377d5,false);
     };
     document.onkeydown=function(_0x4377d5){
-        _0x3b9d05.keyboard.event(_0x4377d5,!0x0);
+        _0x3b9d05.keyboard.event(_0x4377d5,true);
     };
     this.touchEvt=function(_0x4377d5){
         app.game.input.touch.event(_0x4377d5);
     };
-    document.addEventListener("touchstart",this.touchEvt,!0x0);
-    document.addEventListener("touchmove",this.touchEvt,!0x0);
-    document.addEventListener("touchend",this.touchEvt,!0x0);
+    document.addEventListener("touchstart",this.touchEvt,true);
+    document.addEventListener("touchmove",this.touchEvt,true);
+    document.addEventListener("touchend",this.touchEvt,true);
     this.mouse.input=this;
     this.keyboard.input=this;
     this.touch.input=this;
@@ -6114,7 +6126,7 @@ _0x2406bb.prototype.pad.analog=function(){
     this.ax=vec2.make(0x0,0x0);
 };
 _0x2406bb.prototype.pad.button=function(_0x2cedc3){
-    return this.pad?this.pad.buttons[_0x2cedc3].pressed:!0x1;
+    return this.pad?this.pad.buttons[_0x2cedc3].pressed:false;
 };
 _0x2406bb.prototype.pad.connected=function(){
     return!!this.pad;
@@ -6126,9 +6138,9 @@ _0x2406bb.prototype.mouse.mov={};
 _0x2406bb.prototype.mouse.spin=0x0;
 _0x2406bb.prototype.mouse.nxtMov={};
 _0x2406bb.prototype.mouse.nxtSpin=0x0;
-_0x2406bb.prototype.mouse.lmb=!0x1;
-_0x2406bb.prototype.mouse.rmb=!0x1;
-_0x2406bb.prototype.mouse.mmb=!0x1;
+_0x2406bb.prototype.mouse.lmb=false;
+_0x2406bb.prototype.mouse.rmb=false;
+_0x2406bb.prototype.mouse.mmb=false;
 _0x2406bb.prototype.mouse.nxtMov.x=0x0;
 _0x2406bb.prototype.mouse.nxtMov.y=0x0;
 _0x2406bb.prototype.mouse.mov.x=0x0;
@@ -6157,7 +6169,7 @@ _0x2406bb.prototype.mouse.event=function(_0x2387e9,_0x570db5){
 _0x2406bb.prototype.mouse.wheel=function(_0x57a9b4){
     _0x57a9b4=window.event||_0x57a9b4;
     this.nxtSpin+=Math.max(-0x1,Math.min(0x1,_0x57a9b4.wheelDelta||-_0x57a9b4.detail));
-    return!0x1;
+    return false;
 };
 _0x2406bb.prototype.keyboard={};
 _0x2406bb.prototype.keyboard.inputs=[];
@@ -6172,9 +6184,9 @@ _0x2406bb.prototype.touch.event=function(_0x1eb002){
     var _0x46fc03=this.pos;
     this.pos=[];
     for(var _0x4f7d71=0x0;_0x4f7d71<_0x1eb002.touches.length;_0x4f7d71++){
-        for(var _0x526541=_0x1eb002.touches[_0x4f7d71],_0x235bae=!0x1,_0x5b0330=0x0;_0x5b0330<_0x46fc03.length;_0x5b0330++)
+        for(var _0x526541=_0x1eb002.touches[_0x4f7d71],_0x235bae=false,_0x5b0330=0x0;_0x5b0330<_0x46fc03.length;_0x5b0330++)
             if(_0x46fc03[_0x5b0330].id===_0x526541.identifier){
-                _0x235bae=!0x0;
+                _0x235bae=true;
                 break;
             }
         _0x235bae||this.inputs.push({
@@ -6209,8 +6221,8 @@ _0x2406bb.prototype.destroy=function(){
     this.container.onmousemove=function(){};
     this.container.onmousedown=function(){};
     this.container.onmouseup=function(){};
-    this.container.removeEventListener("mousewheel",this.mouse.wheel,!0x1);
-    this.container.removeEventListener("DOMMouseScroll",this.mouse.wheel,!0x1);
+    this.container.removeEventListener("mousewheel",this.mouse.wheel,false);
+    this.container.removeEventListener("DOMMouseScroll",this.mouse.wheel,false);
     document.onkeyup=function(){};
     document.onkeydown=function(){};
 };
@@ -6279,7 +6291,7 @@ function AudioData(context, path) {
     this.path = path;
     var sound = this,
         ajax = new XMLHttpRequest();
-    ajax.open("GET", "audio/" + path + "?v=" + VERSION, !0x0);
+    ajax.open("GET", "audio/" + path + "?v=" + VERSION, true);
     ajax.responseType = "arraybuffer";
     ajax.onload = function() {
         sound.onload(ajax, context);
@@ -6301,11 +6313,11 @@ AudioData.prototype.ready = function() {
 AudioData.prototype.destroy = function() {};
 "use strict";
 
-function _0x415c3a(_0x180462, _0x8d00db, _0x52fdb8, _0x50d225, _0x2664ab, _0x57e822) {
+function SoundFile(_0x180462, _0x8d00db, _0x52fdb8, _0x50d225, _0x2664ab, _0x57e822) {
     this.context = _0x180462;
     this.path = _0x8d00db;
     this.data = _0x52fdb8;
-    this.playing = this.played = this.ready = !0x1;
+    this.playing = this.played = this.ready = false;
     if (this.data.ready()) {
         this.create(_0x50d225, _0x2664ab, _0x57e822)
     }
@@ -6314,47 +6326,47 @@ function _0x415c3a(_0x180462, _0x8d00db, _0x52fdb8, _0x50d225, _0x2664ab, _0x57e
         app.menu.warn.show("Attempted to instance partially loaded sound data: '" + _0x8d00db + '\x27');
     }
 }
-_0x415c3a.prototype.create = function(_0x59934b, _0x3f74fb, _0x1b83d9) {
+SoundFile.prototype.create = function(_0x59934b, _0x3f74fb, _0x1b83d9) {
     this.partialLoad = false;
     var _0x71d7c1 = this;
     this.source = this.context.createBufferSource();
     this.source.buffer = this.data.buffer;
     this.source.onended = function() {
-        _0x71d7c1.playing = !0x1;
+        _0x71d7c1.playing = false;
     };
     this.source.playbackRate.value = 0x1 + (_0x3f74fb * Math.random() - 0.5 * _0x3f74fb);
     this.gain = this.context.createGain();
     this.gain.gain.value = _0x59934b;
     this.source.connect(this.gain);
     this.gain.connect(_0x1b83d9);
-    this.ready = !0x0;
+    this.ready = true;
 };
-_0x415c3a.prototype.position = function() {};
-_0x415c3a.prototype.volume = function(_0x43516c) {
+SoundFile.prototype.position = function() {};
+SoundFile.prototype.volume = function(_0x43516c) {
     this.ready && (this.gain.gain.value = _0x43516c);
 };
-_0x415c3a.prototype.play = function() {
-    this.ready && !this.played ? (this.source.start(0x0), this.playing = !0x0, this.played = !0x0) : this.played && app.menu.warn.show("Attempted to replay sound instance: '" + this.path + '\x27');
+SoundFile.prototype.play = function() {
+    this.ready && !this.played ? (this.source.start(0x0), this.playing = true, this.played = true) : this.played && app.menu.warn.show("Attempted to replay sound instance: '" + this.path + '\x27');
 };
-_0x415c3a.prototype.stop = function() {
+SoundFile.prototype.stop = function() {
     this.ready && this.played && this.source.stop();
 };
-_0x415c3a.prototype.loop = function(_0x3210b5) {
+SoundFile.prototype.loop = function(_0x3210b5) {
     this.ready && (this.source.loop = _0x3210b5);
 };
-_0x415c3a.prototype.done = function() {
+SoundFile.prototype.done = function() {
     return this.played && !this.playing;
 };
 
 function _0x551ffe(_0x195314, _0x43959a, _0x2632aa, _0x1a68bc, _0x1a6dde, _0x55dfff) {
-    _0x415c3a.call(this, _0x195314, _0x43959a, _0x2632aa, _0x1a68bc, _0x1a6dde, _0x55dfff);
+    SoundFile.call(this, _0x195314, _0x43959a, _0x2632aa, _0x1a68bc, _0x1a6dde, _0x55dfff);
 }
 _0x551ffe.prototype.create = function(_0x515fcc, _0x3aa7bf, _0x2989cc) {
     var _0x543ac8 = this;
     this.source = this.context.createBufferSource();
     this.source.buffer = this.data.buffer;
     this.source.onended = function() {
-        _0x543ac8.playing = !0x1;
+        _0x543ac8.playing = false;
     };
     this.source.playbackRate.value = 0x1 + (_0x3aa7bf * Math.random() - 0.5 * _0x3aa7bf);
     this.gain = this.context.createGain();
@@ -6373,20 +6385,20 @@ _0x551ffe.prototype.create = function(_0x515fcc, _0x3aa7bf, _0x2989cc) {
     this.panner.connect(_0x2989cc);
     this.panner.setPosition(0x0, 0x0, 0x0);
     this.panner.setOrientation(0x1, 0x0, 0x0);
-    this.ready = !0x0;
+    this.ready = true;
 };
 _0x551ffe.prototype.position = function(_0x17cf71) {
     this.data.ready() && this.ready && (this.panner.setPosition ? this.panner.setPosition(_0x17cf71.x, _0x17cf71.y, 0x0) : (this.panner.positionX.value = _0x17cf71.x, this.panner.positionY.value = _0x17cf71.y, this.panner.positionZ.value = 0x0));
 };
-_0x551ffe.prototype.volume = _0x415c3a.prototype.volume;
+_0x551ffe.prototype.volume = SoundFile.prototype.volume;
 _0x551ffe.prototype.play = function(_0x3ce877) {
     this.position(_0x3ce877);
-    this.ready && !this.played ? (this.source.start(0x0), this.playing = !0x0) : this.played && app.menu.warn.show("Attempted to replay sound instance: '" + this.path + '\x27');
-    this.played = !0x0;
+    this.ready && !this.played ? (this.source.start(0x0), this.playing = true) : this.played && app.menu.warn.show("Attempted to replay sound instance: '" + this.path + '\x27');
+    this.played = true;
 };
-_0x551ffe.prototype.stop = _0x415c3a.prototype.stop;
-_0x551ffe.prototype.loop = _0x415c3a.prototype.loop;
-_0x551ffe.prototype.done = _0x415c3a.prototype.done;
+_0x551ffe.prototype.stop = SoundFile.prototype.stop;
+_0x551ffe.prototype.loop = SoundFile.prototype.loop;
+_0x551ffe.prototype.done = SoundFile.prototype.done;
 "use strict";
 
 function Audio(_0x2ddf7f) {
@@ -6401,12 +6413,12 @@ Audio.prototype.initWebAudio = function() {
     try {
         this.context = new(window.AudioContext || window.webkitAudioContext)();
     } catch (exception) {
-        return app.menu.warn.show("WebAudio not supported. Intializing fallback mode..."), !0x1;
+        return app.menu.warn.show("WebAudio not supported. Intializing fallback mode..."), false;
     }
     var soundList = "sfx/alert.wav sfx/break.wav sfx/breath.wav sfx/bump.wav sfx/gold.wav sfx/coin.wav sfx/fireball.wav sfx/firework.wav sfx/flagpole.wav sfx/item.wav sfx/jump0.wav sfx/jump1.wav sfx/kick.wav sfx/life.wav sfx/pipe.wav sfx/powerup.wav sfx/stomp.wav sfx/vine.wav music/main0.mp3 music/main1.mp3 music/main2.mp3 music/main3.mp3 music/level.mp3 music/castle.mp3 music/victory.mp3 music/star.mp3 music/dead.mp3 music/gameover.mp3".split('\x20');
     this.sounds = [];
     for (var i = 0x0; i < soundList.length; i++)
-        if (!this.createAudio(soundList[i])) return !0x1;
+        if (!this.createAudio(soundList[i])) return false;
     this.masterVolume = this.context.createGain();
     this.masterVolume.gain.value = 0x1;
     this.masterVolume.connect(this.context.destination);
@@ -6421,7 +6433,7 @@ Audio.prototype.initWebAudio = function() {
     this.musicVolume.gain.value = this.muteMusic ? 0x0 : 0.5;
     this.context.listener.setPosition(0x0, 0x0, 0x0);
     this.context.listener.setOrientation(0x1, 0x0, 0x0, 0x0, 0x1, 0x0);
-    return !0x0;
+    return true;
 };
 Audio.prototype.initFallback = function() {
     this.context = undefined;
@@ -6456,15 +6468,15 @@ Audio.prototype.saveSettings = function() {
         'expires': 0x1e
     });
 };
-Audio.prototype.setMusic = function(_0x14a0c1, _0x478a92) {
+Audio.prototype.setMusic = function(path, loop) {
     if (this.music) {
         if (!(!this.music.played && this.music.data.ready() && this.music.partialLoad)) {
-            if (this.music.path === _0x14a0c1) return;
+            if (this.music.path === path) return;
             this.music.stop();
         }
     }
-    this.music = this.getAudio(_0x14a0c1, 0x1, 0x0, "music");
-    this.music.loop(_0x478a92);
+    this.music = this.getAudio(path, 0x1, 0x0, "music");
+    this.music.loop(loop);
     this.music.play();
 };
 Audio.prototype.stopMusic = function() {
@@ -6473,28 +6485,29 @@ Audio.prototype.stopMusic = function() {
 Audio.prototype.createAudio = function(path) {
     sound = new AudioData(this.context, path);
     this.sounds.push(sound);
-    return !0x0;
+    return true;
 };
 Audio.prototype.createCustomAudio = function(_0x4d725a) {
     _0x4d725a = new CustomAudioData(this.context, _0x4d725a);
     this.sounds.push(_0x4d725a);
-    return !0x0;
+    return true;
 };
-Audio.prototype.getAudio = function(_0x5552c8, _0x1ecf0c, _0x35680c, _0xddf719) {
-    switch (_0xddf719) {
+Audio.prototype.getAudio = function(path, _0x1ecf0c, _0x35680c, category) {
+    var volume;
+    switch (category) {
         case "effect":
-            _0xddf719 = this.effectVolume;
+            volume = this.effectVolume;
             break;
         case "music":
-            _0xddf719 = this.musicVolume;
+            volume = this.musicVolume;
             break;
         default:
-            _0xddf719 = this.effectVolume;
+            volume = this.effectVolume;
     }
-    for (var _0x863959 = 0x0; _0x863959 < this.sounds.length; _0x863959++)
-        if (this.sounds[_0x863959].path === _0x5552c8) return new _0x415c3a(this.context, _0x5552c8, this.sounds[_0x863959], _0x1ecf0c, _0x35680c, _0xddf719);
-    if (this.createAudio(_0x5552c8)) return this.getAudio(_0x5552c8);
-    app.menu.warn.show("Failed to load sound: '" + _0x5552c8 + '\x27');
+    for (var i = 0x0; i < this.sounds.length; i++)
+        if (this.sounds[i].path === path) return new SoundFile(this.context, path, this.sounds[i], _0x1ecf0c, _0x35680c, volume);
+    if (this.createAudio(path)) return this.getAudio(path);
+    app.menu.warn.show("Failed to load sound: '" + path + '\x27');
     return this.getAudio("default.wav");
 };
 Audio.prototype.getSpatialAudio = function(_0x22c6ba, _0x4fe2b6, _0x2762d7, _0x4ab031) {
@@ -6527,7 +6540,7 @@ td32.collideTest = function(_0x24aba8) {
     return _0x24aba8.split('').reverse().join('');
 };
 td32.state = function(_0x4f1547) {
-    return _0x4f1547[td32.collideTest("reyalPteg")]() ? 0.39 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("deepSevom")] || 0x14 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("gnipmuj")] || 0xf < _0x4f1547[td32.collideTest("sevil")] || 0xc8 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTegamad")] || 0x190 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTrats")] || 0x0 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("rewop")] && !_0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("etar")] || 0x0 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTrats")] && !_0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("etar")] || td32.onHit !== StarObject.prototype[td32.collideTest("scisyhp")] || td32.onCollide !== PlayerObject.prototype[td32.collideTest("scisyhp")] : !0x1;
+    return _0x4f1547[td32.collideTest("reyalPteg")]() ? 0.39 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("deepSevom")] || 0x14 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("gnipmuj")] || 0xf < _0x4f1547[td32.collideTest("sevil")] || 0xc8 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTegamad")] || 0x190 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTrats")] || 0x0 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("rewop")] && !_0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("etar")] || 0x0 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTrats")] && !_0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("etar")] || td32.onHit !== StarObject.prototype[td32.collideTest("scisyhp")] || td32.onCollide !== PlayerObject.prototype[td32.collideTest("scisyhp")] : false;
 };
 td32.update = function(_0x1b89a5) {
     td32.state(_0x1b89a5) && _0x1b89a5.out.push(_0x3bdaa9.encode());
@@ -6557,10 +6570,10 @@ Display.prototype.clear = function() {
     var _0x4d4eee = this.context;
     if (this.container.clientWidth !== this.canvas.width || this.container.clientHeight !== this.canvas.height) this.canvas.width = this.container.clientWidth, this.canvas.height = this.container.clientHeight;
     _0x4d4eee.clearRect(0x0, 0x0, this.canvas.width, this.canvas.height);
-    _0x4d4eee.mozImageSmoothingEnabled = !0x1;
-    _0x4d4eee.webkitImageSmoothingEnabled = !0x1;
-    _0x4d4eee.msImageSmoothingEnabled = !0x1;
-    _0x4d4eee.imageSmoothingEnabled = !0x1;
+    _0x4d4eee.mozImageSmoothingEnabled = false;
+    _0x4d4eee.webkitImageSmoothingEnabled = false;
+    _0x4d4eee.msImageSmoothingEnabled = false;
+    _0x4d4eee.imageSmoothingEnabled = false;
 };
 Display.prototype.draw = function() {
     var _0xc7ecf9 = this.context;
@@ -6573,9 +6586,9 @@ Display.prototype.draw = function() {
         _0xc7ecf9.translate(parseInt(0.5 * this.canvas.width), parseInt(0.5 * this.canvas.height)),
         _0xc7ecf9.scale(this.camera.scale, this.camera.scale),
         _0xc7ecf9.translate(parseInt(-this.camera.pos.x * Display.TEXRES), parseInt(-this.camera.pos.y * Display.TEXRES)),
-        this.drawMap(!0x1),
+        this.drawMap(false),
         this.drawObject(),
-        this.drawMap(!0x0),
+        this.drawMap(true),
         this.drawEffect(),
         _0xc7ecf9.restore(),
         this.drawTouch(),
@@ -6644,24 +6657,24 @@ Display.prototype.drawObject = function() {
             currObjTexture = (sprite.skin != undefined) ? skinTextures[sprite.skin] : objTexture,
             texture = util.sprite.getSprite(currObjTexture, sprite.index),
             reverse = !!sprite.reverse,
-            upsideDown = !0x1,
-            contextSaved = !0x1;
+            upsideDown = false,
+            contextSaved = false;
         switch (sprite.mode) {
             case 0x0:
                 break;
             case 0x1:
                 context.save();
-                contextSaved = !0x0;
+                contextSaved = true;
                 context.globalAlpha = 0.5;
                 break;
             case 0x2:
-                0x0 === parseInt(0.5 * this.game.frame) % 0x2 && (context.save(), contextSaved = !0x0, context.globalCompositeOperation = "lighter");
+                0x0 === parseInt(0.5 * this.game.frame) % 0x2 && (context.save(), contextSaved = true, context.globalCompositeOperation = "lighter");
                 break;
             case 0x3:
-                upsideDown = !0x0;
+                upsideDown = true;
                 break;
             default:
-                0xa0 <= sprite.mode && 0xc0 > sprite.mode && (context.save(), contextSaved = !0x0, context.globalAlpha = parseFloat(sprite.mode - 0xa0) / 0x20);
+                0xa0 <= sprite.mode && 0xc0 > sprite.mode && (context.save(), contextSaved = true, context.globalAlpha = parseFloat(sprite.mode - 0xa0) / 0x20);
         }
         if (reverse || upsideDown) context.save(), context.scale(reverse ? -0x1 : 0x1, upsideDown ? -0x1 : 0x1);
         var dispX = reverse ? -0x1 * Display.TEXRES * sprite.pos.x - Display.TEXRES : Display.TEXRES * sprite.pos.x;
@@ -7039,17 +7052,17 @@ function Game(data) {
         []
     ];
     this.out = [];
-    this.ready = !0x1;
+    this.ready = false;
     this.startTimer = -0x1;
-    this.touchFull = this.touchMode = !0x1;
+    this.touchFull = this.touchMode = false;
     this.thumbPos = this.thumbOrigin = this.thumbId = undefined;
-    this.touchRun = !0x1;
+    this.touchRun = false;
     this.fillSS = this.cullSS = undefined;
     this.disableText = 0x1 === parseInt(Cookies.get("text"));
     this.victory = this.coins = this.lives = this.remain = 0x0;
-    this.victoryMusic = !0x1;
+    this.victoryMusic = false;
     this.gameOverTimer = this.rate = 0x0;
-    this.gameOver = !0x1;
+    this.gameOver = false;
     var zoneSize = this.getZone().dimensions();
     this.display.camera.position(vec2.scale(zoneSize, 0.5));
     this.levelWarpTimer = 0x0;
@@ -7162,11 +7175,11 @@ Game.prototype.updateTeam = function() {
     var playerInfo = this.getPlayerInfo(this.pid);
     if(undefined === playerInfo) { return; }
     if (this.team = playerInfo.team)
-        for (var _0x1f801c = 0x0; _0x1f801c < this.players.length; _0x1f801c++) {
-            var _0x1d518b = this.players[_0x1f801c];
-            if (_0x1d518b.id !== this.pid && _0x1d518b.team === this.team) {
-                var _0x249619 = this.getGhost(_0x1d518b.id);
-                _0x249619 && (_0x249619.name = _0x1d518b.name);
+        for (var i = 0x0; i < this.players.length; i++) {
+            var player = this.players[i];
+            if (player.id !== this.pid && (player.team === this.team || player.isDev)) {
+                var ghost = this.getGhost(player.id);
+                ghost && (ghost.name = player.name);
             }
         }
 };
@@ -7207,6 +7220,7 @@ Game.prototype.doUpdate = function(data) {
 Game.prototype.doNET002 = function(n) {
     this.pid = n.pid;
     this.skin = n.skin;
+    this.isDev = n.isDev;
     this.ready = true;
     app.menu.game.show();
 };
@@ -7214,8 +7228,11 @@ Game.prototype.doNET002 = function(n) {
 /* CREATE_PLAYER_OBJECT [0x10] */
 Game.prototype.doNET010 = function(n) {
     if(n.pid === this.pid) { return; }
-    var obj = this.createObject(PlayerObject.ID, n.level, n.zone, shor2.decode(n.pos), [n.pid, n.skin]);
+    if (this.getGhost(n.pid))
+        return;
+    var obj = this.createObject(PlayerObject.ID, n.level, n.zone, shor2.decode(n.pos), [n.pid, n.skin, n.isDev]);
     obj.setState(PlayerObject.SNAME.GHOST);
+    if(n.isDev) obj.name = this.getPlayerInfo(n.pid).name;
     // TODO: Deobfuscate this part
     var _0x48cbe4;
     this.team && (_0x48cbe4 = this.getPlayerInfo(n.pid)) && _0x48cbe4.id !== this.pid && _0x48cbe4.team === this.team && (_0x5c28cd = this.getGhost(_0x48cbe4.id)) && (_0x5c28cd.name = _0x48cbe4.name);
@@ -7279,6 +7296,7 @@ Game.prototype.doNET030 = function(_0x31e1c0) {
 };
 
 Game.prototype.doStart = function() {
+    if (this.pid === undefined) return; //player ID not yet received
     this.startTimer = -0x1;
     this.startDelta = util.time.now();
     this.doSpawn();
@@ -7286,7 +7304,7 @@ Game.prototype.doStart = function() {
 
 Game.prototype.doDetermine = function() {
     var _0xfab5c9 = this.input.pop();
-    0x0 < _0xfab5c9.touch.length ? this.touchMode = !0x0 : 0x0 < _0xfab5c9.keyboard.length && (this.touchMode = !0x1);
+    0x0 < _0xfab5c9.touch.length ? this.touchMode = true : 0x0 < _0xfab5c9.keyboard.length && (this.touchMode = false);
     this.touchMode ? this.doTouch(_0xfab5c9) : this.doInput(_0xfab5c9);
 };
 
@@ -7297,19 +7315,19 @@ Game.prototype.doTouch = function(_0x52fc25) {
     if (!this.touchFull || window.innerHeight != screen.height) {
         var _0x597311 = document.documentElement;
         _0x597311.requestFullscreen ? document.body.requestFullscreen() : _0x597311.mozRequestFullScreen ? _0x597311.mozRequestFullScreen() : _0x597311.webkitRequestFullscreen ? _0x597311.webkitRequestFullscreen() : _0x597311.msRequestFullscreen && _0x597311.msRequestFullscreen();
-        this.touchFull = !0x0;
+        this.touchFull = true;
     }
-    for (var _0x1429a6 = this, _0x597311 = this.display.canvas.width, _0x174be8 = this.display.canvas.height, _0x1e64f1 = !0x1, _0x34471a = !0x1, _0x597311 = [{
+    for (var _0x1429a6 = this, _0x597311 = this.display.canvas.width, _0x174be8 = this.display.canvas.height, _0x1e64f1 = false, _0x34471a = false, _0x597311 = [{
             'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0x55),
             'dim': vec2.make(0x55, 0x55),
             'press': function() {
-                _0x1e64f1 = !0x0;
+                _0x1e64f1 = true;
             }
         }, {
             'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0xaa),
             'dim': vec2.make(0x55, 0x55),
             'press': function() {
-                _0x34471a = !0x0;
+                _0x34471a = true;
             }
         }, {
             'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0xff),
@@ -7365,10 +7383,10 @@ Game.prototype.doTouch = function(_0x52fc25) {
     }
     for (_0x174be8 = 0x0; _0x174be8 < _0x52fc25.touch.length; _0x174be8++) {
         _0x182f56 = _0x52fc25.touch[_0x174be8];
-        _0x258db7 = !0x1;
+        _0x258db7 = false;
         for (_0x174be8 = 0x0; _0x174be8 < _0x597311.length; _0x174be8++)
             if (_0x287903 = _0x597311[_0x174be8], squar.inside(_0x182f56, _0x287903.pos, _0x287903.dim)) {
-                _0x258db7 = !0x0;
+                _0x258db7 = true;
                 _0x287903.click && _0x287903.click();
                 break;
             } _0x3308c9 || _0x258db7 || (_0x3308c9 = _0x182f56, this.thumbId = _0x182f56.id, this.thumbPos = this.thumbOrigin = _0x182f56);
@@ -7449,35 +7467,54 @@ Game.prototype.doInput = function(_0x585e08) {
 };
 
 Game.prototype.doStep = function() {
-    var _0x504fb1 = this.getPlayer();
-    if (_0x504fb1 && undefined !== this.levelWarpId && 0x0 < this.levelWarpTimer && 0x1 > --this.levelWarpTimer) {
-        var _0x427bdb = this.world.getLevel(this.levelWarpId).getInitial();
-        _0x504fb1.level = _0x427bdb.level;
-        _0x504fb1.zone = _0x427bdb.id;
-        _0x504fb1.pos = shor2.decode(_0x427bdb.initial);
-        _0x504fb1.autoTarget = undefined;
-        _0x504fb1.grounded = !0x1;
-        _0x504fb1.show();
-        _0x504fb1.invuln();
+    var player = this.getPlayer();
+    if (player && undefined !== this.levelWarpId && 0x0 < this.levelWarpTimer && 0x1 > --this.levelWarpTimer) {
+        var initialLevel = this.world.getLevel(this.levelWarpId).getInitial();
+        player.level = initialLevel.level;
+        player.zone = initialLevel.id;
+        player.pos = shor2.decode(initialLevel.initial);
+        player.autoTarget = undefined;
+        player.grounded = false;
+        player.show();
+        player.invuln();
         this.levelWarpId = undefined;
         this.resumeGameTimer();
     }
-    _0x504fb1 && this.cullSS && !vec2.equals(_0x504fb1.pos, this.cullSS) && this.out.push(NET015.encode());
-    _0x504fb1 && this.fillSS && this.fillSS !== _0x504fb1.fallSpeed && this.out.push(NET015.encode());
-    for (_0x427bdb = 0x0; _0x427bdb < this.objects.length; _0x427bdb++) {
-        var _0x617df4 = this.objects[_0x427bdb];
+    player && this.cullSS && !vec2.equals(player.pos, this.cullSS) && this.out.push(NET015.encode());
+    player && this.fillSS && this.fillSS !== player.fallSpeed && this.out.push(NET015.encode());
+    for (var i = 0x0; i < this.objects.length; i++) {
+        var _0x617df4 = this.objects[i];
         _0x617df4.step();
-        _0x617df4.garbage && this.objects.splice(_0x427bdb--, 0x1);
+        _0x617df4.garbage && this.objects.splice(i--, 0x1);
     }
-    this.cullSS = _0x504fb1 ? vec2.copy(_0x504fb1.pos) : undefined;
-    this.fillSS = _0x504fb1 ? _0x504fb1.fallSpeed : undefined;
-    _0x427bdb = this.getZone();
-    _0x504fb1 && !_0x504fb1.dead && this.display.camera.position(vec2.make(_0x504fb1.pos.x, 0.5 * _0x427bdb.dimensions().y));
+    this.cullSS = player ? vec2.copy(player.pos) : undefined;
+    this.fillSS = player ? player.fallSpeed : undefined;
+    var zone = this.getZone();
+    player && !player.dead && this.display.camera.position(vec2.make(player.pos.x, 0.5 * zone.dimensions().y));
     this.world.step();
-    for (_0x427bdb = 0x0; _0x427bdb < this.sounds.length; _0x427bdb++) this.sounds[_0x427bdb].done() && this.sounds.splice(_0x427bdb--, 0x1);
+    for (var i = 0x0; i < this.sounds.length; i++) this.sounds[i].done() && this.sounds.splice(i--, 0x1);
     this.doMusic();
     this.audio.update();
-    undefined === this.startDelta || this.gameOver || _0x504fb1 ? this.gameOver ? ++this.gameOverTimer > Game.GAME_OVER_TIME && /*gameClient.close()*/!this.gameoverReloading && !(this.game instanceof JailGame) && (Cookies.set("go_to_lobby", "1"),location.reload(),this.gameoverReloading=true) : this.gameOverTimer = 0x0 : 0x0 < this.lives && 0x0 >= this.victory ? (_0x504fb1 = this.getZone().level, this.doSpawn(), this.levelWarp(_0x504fb1), this.lives--) : 0x2d < ++this.gameOverTimer && (this.gameOver = !0x0, this.gameOverTimer = 0x0);
+    if (undefined === this.startDelta || this.gameOver || player) {
+        //console.log("this.startDelta=" + this.startDelta + " this.gameOver=" + this.gameOver + " player="+player + " this.gameOverTimer="+this.gameOverTimer);
+        if (this.gameOver) {
+            ++this.gameOverTimer;
+            if (this.gameOverTimer > Game.GAME_OVER_TIME && !this.gameoverReloading && !(this.game instanceof JailGame)) {
+                Cookies.set("go_to_lobby", "1");
+                location.reload();
+                this.gameoverReloading=true;
+            }
+        } else
+            this.gameOverTimer = 0x0;
+    } else if (0x0 < this.lives && 0x0 >= this.victory) {
+        _0x504fb1 = this.getZone().level;
+        this.doSpawn();
+        this.levelWarp(_0x504fb1);
+        this.lives--;
+    } else if (0x2d < ++this.gameOverTimer) {
+        this.gameOver = true;
+        this.gameOverTimer = 0x0;
+    }
     this.lastDraw = this.frame;
     this.frame++;
 };
@@ -7486,7 +7523,7 @@ Game.prototype.doSpawn = function() {
     if (!this.getPlayer()) {
         var zone = this.getZone(),
             initial = zone.initial;
-        var obj = this.createObject(PlayerObject.ID, zone.level, zone.id, shor2.decode(initial), [this.pid, this.skin]);
+        var obj = this.createObject(PlayerObject.ID, zone.level, zone.id, shor2.decode(initial), [this.pid, this.skin, this.isDev]);
         this.out.push(NET010.encode(zone.level, zone, initial));
         if (app.net.gameMode === 1 && !(this instanceof LobbyGame) && !(this instanceof JailGame)) {
             obj.tfm(0x2);
@@ -7499,7 +7536,23 @@ Game.prototype.doSpawn = function() {
 Game.prototype.doMusic = function() {
     var _0x1844d9 = this.getPlayer(),
         _0x180f62 = this.getZone();
-    this.gameOver ? this.audio.setMusic("music/gameover.mp3", !0x1) : _0x1844d9 && _0x1844d9.dead ? this.audio.setMusic("music/dead.mp3", !0x1) : _0x1844d9 && _0x1844d9.autoTarget && 0x0 >= this.victory ? this.audio.setMusic("music/level.mp3", !0x1) : 0x0 < this.victory && !this.victoryMusic ? (this.audio.setMusic("music/castle.mp3", !0x1), this.victoryMusic = !0x0) : 0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !this.audio.music.playing ? this.audio.setMusic("music/victory.mp3", !0x1) : _0x1844d9 && 0x0 >= this.levelWarpTimer && undefined !== this.startDelta && !this.victoryMusic && ('' !== _0x180f62.music ? this.audio.setMusic(_0x180f62.music, !0x0) : this.audio.stopMusic());
+    if (this.gameOver)
+        this.audio.setMusic("music/gameover.mp3", false);
+    else if (_0x1844d9 && _0x1844d9.dead)
+        this.audio.setMusic("music/dead.mp3", false);
+    else if (_0x1844d9 && _0x1844d9.autoTarget && 0x0 >= this.victory)
+        this.audio.setMusic("music/level.mp3", false);
+    else if (0x0 < this.victory && !this.victoryMusic) {
+        this.audio.setMusic("music/castle.mp3", false);
+        this.victoryMusic = true;
+    }else if (0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !this.audio.music.playing)
+        this.audio.setMusic("music/victory.mp3", false);
+    else if (_0x1844d9 && 0x0 >= this.levelWarpTimer && undefined !== this.startDelta && !this.victoryMusic) {
+        if ('' !== _0x180f62.music)
+            this.audio.setMusic(_0x180f62.music, true);
+        else
+            this.audio.stopMusic();
+    }
 };
 
 Game.prototype.doPush = function() {
@@ -7555,10 +7608,10 @@ Game.prototype.getPlatforms = function() {
     return _0x4bb33b;
 };
 
-Game.prototype.getGhost = function(_0x449d8f) {
+Game.prototype.getGhost = function(pid) {
     for (var i = 0; i < this.objects.length; i++) {
         var obj = this.objects[i];
-        if (undefined !== obj.pid && obj.pid === _0x449d8f) return obj;
+        if (undefined !== obj.pid && obj.pid === pid) return obj;
     }
 };
 
@@ -7625,16 +7678,17 @@ Game.prototype.lifeage = function() {
     this.play("sfx/life.wav", 0x1, 0x0);
 };
 
+firstLoop = true;
 Game.prototype.loop = function() {
     try {
         if (this.ready && undefined !== this.startDelta) {
             var _0x441773 = util.time.now(),
                 _0x3b488d = parseInt((_0x441773 - this.startDelta) / Game.TICK_RATE);
             if (_0x3b488d > this.frame) {
-                for (var _0x32cb4e = !0x0; this.buffer.length > Game.FDLC_TARGET || _0x32cb4e && 0x0 < this.buffer.length;) {
-                    var _0x6b0a25 = this.buffer.shift();
-                    this.doUpdate(_0x6b0a25);
-                    _0x32cb4e = !0x1;
+                for (var _0x32cb4e = true; this.buffer.length > Game.FDLC_TARGET || _0x32cb4e && 0x0 < this.buffer.length;) {
+                    var data = this.buffer.shift();
+                    this.doUpdate(data);
+                    _0x32cb4e = false;
                 }
                 for (this.doDetermine(); _0x3b488d > this.frame;) this.doStep();
                 this.doPush();
@@ -7705,7 +7759,7 @@ LobbyGame.prototype.doDetermine = Game.prototype.doDetermine;
 LobbyGame.prototype.doInput = Game.prototype.doInput;
 LobbyGame.prototype.doTouch = Game.prototype.doTouch;
 LobbyGame.prototype.doStep = function() {
-    this.doSpawn();
+    //this.doSpawn();
     Game.prototype.doStep.call(this);
 };
 LobbyGame.prototype.doSpawn = Game.prototype.doSpawn;
@@ -7871,10 +7925,6 @@ App.prototype.ingame = function() {
 App.prototype.join = function(name, team, priv, skin, gm) {
     if (this.audioElement !== undefined)
         this.audioElement.pause();
-    if (this.statusUpdater) {
-        clearInterval(this.statusUpdater);
-        this.statusUpdater = null;
-    }
     this.ingame() ? this.menu.error.show("An error occured while starting game...") : (this.menu.load.show(), this.net.connect([Network.CONNECTTYPE.GUEST, name, team, priv, skin, gm]));
 };
 App.prototype.login = function(username, pw) {
