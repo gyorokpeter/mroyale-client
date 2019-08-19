@@ -1515,9 +1515,9 @@ MainAsMemberScreen.prototype.updPrivateBtn = function() {
 
         this.launchBtn.style.color = "";
         this.launchBtn.classList.remove("tooltip");
-        if (this.launchBtn.lastChild.nodeName == "SPAN") {
-            this.launchBtn.removeChild(this.launchBtn.lastChild);
-        }
+        var elem = document.getElementById("mainAsMember-launch-tooltip");
+        if(elem)
+            this.launchBtn.removeChild(elem);
     } else {
         this.privateBtn.classList.add("enabled");
         this.privateBtn.classList.remove("disabled");
@@ -1525,10 +1525,14 @@ MainAsMemberScreen.prototype.updPrivateBtn = function() {
         this.launchBtn.style.color = "yellow";
         this.launchBtn.classList.add("tooltip");
 
-        var elem = document.createElement("span");
-        elem.classList.add("tooltiptext");
-        elem.innerText = "You're joining to a private room!"
-        this.launchBtn.appendChild(elem);
+        var elem = document.getElementById("mainAsMember-launch-tooltip");
+        if (!elem) {
+            elem = document.createElement("span");
+            elem.setAttribute("id", "mainAsMember-launch-tooltip");
+            elem.classList.add("tooltiptext");
+            elem.innerText = "You're joining a private room!"
+            this.launchBtn.appendChild(elem);
+        }
     }
 };
 MainAsMemberScreen.prototype.updMusicBtn = function() {
