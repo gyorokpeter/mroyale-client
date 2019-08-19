@@ -130,9 +130,27 @@ var VERSION = (function() {
     return myScript.src.split("?v=").slice(-1)[0];
 })();
 
+var jsons = ["assets.json"]
 var scripts = ["js/server.js", "js/url.js", "js/game.js"]
+var resources = {}
 
 function loadNext() {
+    if (jsons.length) {
+        var next = jsons.shift();
+        print("loading "+next.split("/").pop()+" started");
+        $.ajax({
+            type: "GET",
+            url: next + '?v=' + VERSION, 
+            success: function(result) {
+                resources[next] = result;
+                print("loading "+next.split("/").pop()+" finishhed");
+                loadNext();
+            },
+            dataType: "json",
+            cache: true
+        });
+        return;
+    }
     if (scripts.length == 0) return;
     var next = scripts.shift();
     print("loading "+next.split("/").pop()+" started");

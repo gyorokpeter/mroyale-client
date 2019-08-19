@@ -3,13 +3,7 @@ var MENU_MUSIC_URL = "audio/music/menu.mp3";
 var SKINCOUNT = 1;
 var SKIN_MUSIC_URL = {};
 (function() {
-    $.ajax({
-        url: "assets.json",
-        success: function (result) {
-            assetData = result;
-        },
-        async: false
-    });
+    var assetData = resources["assets.json"];
     if (assetData.skins.count != undefined)
         SKINCOUNT=assetData.skins.count;
     for (i in assetData.skins.properties) {
