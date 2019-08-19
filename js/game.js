@@ -16,7 +16,8 @@ var levelSelectors = [
                    {shortId: 'D', longId:'world-d' },
                    {shortId: 'X', longId:'world-xexyz' },
                    {shortId: 'F', longId:'world-fireman' },
-                   {shortId: 'MC', longId:'world-minecraft' }// Really, we need to automate this
+                   {shortId: 'MC', longId:'world-minecraft' },
+                   {shortId: 'LV', longId:'world-level' }// Really, we need to automate this
                  ];
 var util = {},
     vec2 = {
