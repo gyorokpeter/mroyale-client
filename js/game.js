@@ -6318,32 +6318,32 @@ AudioData.prototype.ready = function() {
 AudioData.prototype.destroy = function() {};
 "use strict";
 
-function SoundFile(_0x180462, _0x8d00db, _0x52fdb8, _0x50d225, _0x2664ab, _0x57e822) {
-    this.context = _0x180462;
-    this.path = _0x8d00db;
-    this.data = _0x52fdb8;
+function SoundFile(context, path, data, gainValue, playbackRateDeviation, destination) {
+    this.context = context;
+    this.path = path;
+    this.data = data;
     this.playing = this.played = this.ready = false;
     if (this.data.ready()) {
-        this.create(_0x50d225, _0x2664ab, _0x57e822)
+        this.create(gainValue, playbackRateDeviation, destination)
     }
     else {
         this.partialLoad = true;
-        app.menu.warn.show("Attempted to instance partially loaded sound data: '" + _0x8d00db + '\x27');
+        app.menu.warn.show("Attempted to instance partially loaded sound data: '" + path + '\x27');
     }
 }
-SoundFile.prototype.create = function(_0x59934b, _0x3f74fb, _0x1b83d9) {
+SoundFile.prototype.create = function(gainValue, playbackRateDeviation, destination) {
     this.partialLoad = false;
-    var _0x71d7c1 = this;
+    var that = this;
     this.source = this.context.createBufferSource();
     this.source.buffer = this.data.buffer;
     this.source.onended = function() {
-        _0x71d7c1.playing = false;
+        that.playing = false;
     };
-    this.source.playbackRate.value = 0x1 + (_0x3f74fb * Math.random() - 0.5 * _0x3f74fb);
+    this.source.playbackRate.value = 0x1 + (playbackRateDeviation * Math.random() - 0.5 * playbackRateDeviation);
     this.gain = this.context.createGain();
-    this.gain.gain.value = _0x59934b;
+    this.gain.gain.value = gainValue;
     this.source.connect(this.gain);
-    this.gain.connect(_0x1b83d9);
+    this.gain.connect(destination);
     this.ready = true;
 };
 SoundFile.prototype.position = function() {};
@@ -6363,10 +6363,10 @@ SoundFile.prototype.done = function() {
     return this.played && !this.playing;
 };
 
-function _0x551ffe(_0x195314, _0x43959a, _0x2632aa, _0x1a68bc, _0x1a6dde, _0x55dfff) {
-    SoundFile.call(this, _0x195314, _0x43959a, _0x2632aa, _0x1a68bc, _0x1a6dde, _0x55dfff);
+function SpatialSoundFile(context, path, data, gainValue, playbackRateDeviation, destination) {
+    SoundFile.call(this, context, path, data, gainValue, playbackRateDeviation, destination);
 }
-_0x551ffe.prototype.create = function(_0x515fcc, _0x3aa7bf, _0x2989cc) {
+SpatialSoundFile.prototype.create = function(_0x515fcc, _0x3aa7bf, _0x2989cc) {
     var _0x543ac8 = this;
     this.source = this.context.createBufferSource();
     this.source.buffer = this.data.buffer;
@@ -6392,18 +6392,18 @@ _0x551ffe.prototype.create = function(_0x515fcc, _0x3aa7bf, _0x2989cc) {
     this.panner.setOrientation(0x1, 0x0, 0x0);
     this.ready = true;
 };
-_0x551ffe.prototype.position = function(_0x17cf71) {
+SpatialSoundFile.prototype.position = function(_0x17cf71) {
     this.data.ready() && this.ready && (this.panner.setPosition ? this.panner.setPosition(_0x17cf71.x, _0x17cf71.y, 0x0) : (this.panner.positionX.value = _0x17cf71.x, this.panner.positionY.value = _0x17cf71.y, this.panner.positionZ.value = 0x0));
 };
-_0x551ffe.prototype.volume = SoundFile.prototype.volume;
-_0x551ffe.prototype.play = function(_0x3ce877) {
+SpatialSoundFile.prototype.volume = SoundFile.prototype.volume;
+SpatialSoundFile.prototype.play = function(_0x3ce877) {
     this.position(_0x3ce877);
     this.ready && !this.played ? (this.source.start(0x0), this.playing = true) : this.played && app.menu.warn.show("Attempted to replay sound instance: '" + this.path + '\x27');
     this.played = true;
 };
-_0x551ffe.prototype.stop = SoundFile.prototype.stop;
-_0x551ffe.prototype.loop = SoundFile.prototype.loop;
-_0x551ffe.prototype.done = SoundFile.prototype.done;
+SpatialSoundFile.prototype.stop = SoundFile.prototype.stop;
+SpatialSoundFile.prototype.loop = SoundFile.prototype.loop;
+SpatialSoundFile.prototype.done = SoundFile.prototype.done;
 "use strict";
 
 function Audio(_0x2ddf7f) {
@@ -6515,21 +6515,22 @@ Audio.prototype.getAudio = function(path, _0x1ecf0c, _0x35680c, category) {
     app.menu.warn.show("Failed to load sound: '" + path + '\x27');
     return this.getAudio("default.wav");
 };
-Audio.prototype.getSpatialAudio = function(_0x22c6ba, _0x4fe2b6, _0x2762d7, _0x4ab031) {
-    switch (_0x4ab031) {
+Audio.prototype.getSpatialAudio = function(path, gainValue, playbackRateDeviation, category) {
+    var volume;
+    switch (category) {
         case "effect":
-            _0x4ab031 = this.effectVolume;
+            volume = this.effectVolume;
             break;
         case "music":
-            _0x4ab031 = this.musicVolume;
+            volume = this.musicVolume;
             break;
         default:
-            _0x4ab031 = this.effectVolume;
+            volume = this.effectVolume;
     }
-    for (var _0x3e091b = 0x0; _0x3e091b < this.sounds.length; _0x3e091b++)
-        if (this.sounds[_0x3e091b].path === _0x22c6ba) return new _0x551ffe(this.context, _0x22c6ba, this.sounds[_0x3e091b], _0x4fe2b6, _0x2762d7, _0x4ab031);
-    if (this.createAudio(_0x22c6ba)) return this.getSpatialAudio(_0x22c6ba);
-    app.menu.warn.show("Failed to load sound: '" + _0x22c6ba + '\x27');
+    for (var i = 0x0; i < this.sounds.length; i++)
+        if (this.sounds[i].path === path) return new SpatialSoundFile(this.context, path, this.sounds[i], gainValue, playbackRateDeviation, volume);
+    if (this.createAudio(path)) return this.getSpatialAudio(path);
+    app.menu.warn.show("Failed to load sound: '" + path + '\x27');
     return this.getSpatialAudio("multi/default.wav");
 };
 Audio.prototype.destroy = function() {
@@ -6969,14 +6970,14 @@ Zone.prototype.tile = function(_0x3d68a7, _0x43d1f3) {
     _0x43d1f3 = this.dimensions().y - 0x1 - _0x43d1f3;
     return this.data[_0x43d1f3][_0x3d68a7];
 };
-Zone.prototype.bump = function(_0x711a6b, _0x38eb82) {
-    var _0x9935da = this.dimensions().y - 0x1 - _0x38eb82;
-    this.data[_0x9935da][_0x711a6b] = td32.bump(this.data[_0x9935da][_0x711a6b], 0xf);
+Zone.prototype.bump = function(x, y) {
+    var y2 = this.dimensions().y - 0x1 - y;
+    this.data[y2][x] = td32.bump(this.data[y2][x], 0xf);
     this.bumped.push({
-        'x': _0x711a6b,
-        'y': _0x9935da
+        'x': x,
+        'y': y2
     });
-    this.play(_0x711a6b, _0x38eb82, "sfx/bump.wav", 0.5, 0.04);
+    this.play(x, y, "sfx/bump.wav", 0.5, 0.04);
 };
 Zone.prototype.replace = function(_0x139748, _0x19c939, _0x2533dc) {
     _0x19c939 = this.dimensions().y - 0x1 - _0x19c939;
@@ -7001,8 +7002,12 @@ Zone.prototype.coin = function(_0x18c8cf, _0x32068f) {
     this.dimensions();
     this.effects.push(new _0x108200(vec2.make(_0x18c8cf, _0x32068f)));
 };
-Zone.prototype.play = function(_0x2b2620, _0xc0aea9, _0x4929f8, _0x50094d, _0x1de44d) {
-    this.game.getZone() === this && (_0x4929f8 = this.game.audio.getSpatialAudio(_0x4929f8, _0x50094d, _0x1de44d, "effect"), _0x4929f8.play(vec2.make(_0x2b2620, _0xc0aea9)), this.sounds.push(_0x4929f8));
+Zone.prototype.play = function(x, y, path, gainValue, playbackRateDeviation) {
+    if (this.game.getZone() === this) {
+        var audio = this.game.audio.getSpatialAudio(path, gainValue, playbackRateDeviation, "effect");
+        audio.play(vec2.make(x, y));
+        this.sounds.push(audio);
+    }
 };
 Zone.prototype.dimensions = function() {
     return vec2.make(this.data[0x0].length, this.data.length);
@@ -7208,15 +7213,15 @@ Game.prototype.doUpdate = function(data) {
     for(var i=0;i<data.length;i++) {
         var n = data[i];
         switch(n.designation) {
-            case 0x02 : { this.doNET002(n); break; }
-            case 0x10 : { this.doNET010(n); break; }
-            case 0x11 : { this.doNET011(n); break; }
-            case 0x12 : { this.doNET012(n); break; }
-            case 0x13 : { this.doNET013(n); break; }
-            case 0x17 : { this.doNET017(n); break; }
-            case 0x18 : { this.doNET018(n); break; }
-            case 0x20 : { this.doNET020(n); break; }
-            case 0x30 : { this.doNET030(n); break; }
+            case 0x02 : { this.doNET002(n); break; }    //ASSIGN_PID
+            case 0x10 : { this.doNET010(n); break; }    //CREATE_PLAYER_OBJECT
+            case 0x11 : { this.doNET011(n); break; }    //KILL_PLAYER_OBJECT
+            case 0x12 : { this.doNET012(n); break; }    //UPDATE_PLAYER_OBJECT
+            case 0x13 : { this.doNET013(n); break; }    //PLAYER_OBJECT_EVENT
+            case 0x17 : { this.doNET017(n); break; }    //PLAYER_KILL_EVENT
+            case 0x18 : { this.doNET018(n); break; }    //PLAYER_RESULT_REQUEST
+            case 0x20 : { this.doNET020(n); break; }    //OBJECT_EVENT_TRIGGER
+            case 0x30 : { this.doNET030(n); break; }    //TILE_EVENT_TRIGGER
         }
     }
 };
