@@ -269,12 +269,12 @@ util.intersection.lineNearestPoint = function(_0x5a6af6, _0x4deaa7) {
 util.time.now = function() {
     return Date.now();
 };
-util.sprite.getSprite = function(_0xcf938f, _0x3feac1) {
-    var _0x3f655d = _0xcf938f.width;
-    _0xcf938f = _0xcf938f.height;
-    _0x3feac1 *= Display.TEXRES;
-    var _0x31166d = parseInt(Math.floor(_0x3feac1 / _0x3f655d) * Display.TEXRES);
-    return _0x31166d > _0xcf938f ? [0x0, 0x0] : [_0x3feac1 % _0x3f655d, _0x31166d];
+util.sprite.getSprite = function(spriteMap, index) {
+    var width = spriteMap.width;
+    var height = spriteMap.height;
+    index *= Display.TEXRES;
+    var row = parseInt(Math.floor(index / width) * Display.TEXRES);
+    return row > height ? [0x0, 0x0] : [index % width, row];
 };
 var requestAnimFrameFunc = function() {
         return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(_0x42507e) {
@@ -2406,6 +2406,7 @@ function PlayerObject(game, level, zone, pos, pid, skin, isDev) {
     GameObject.call(this, game, level, zone, pos);
     this.pid = pid;
     this.skin = skin;
+    game.display.ensureSkin(skin);
     this.isDev = isDev;
     this.anim = 0x0;
     this.reverse = false;
@@ -6226,26 +6227,39 @@ _0x2406bb.prototype.destroy=function(){
 function Resource(resource){
     this.texture={};
     this.texture.cache={};
+    this.pendingTexture=[];
     this.texture.load=0x0;
     this.load(resource);
 }
 Resource.prototype.load=function(resource){
     for(var i=0x0;i<resource.length;i++){
-        var res=resource[i],ext=res.src.split('.').pop().toLowerCase();
-        switch(ext){
-            case "png":this.loadTexture(res);break;
-            case "gif":this.loadTexture(res);break;
-            default:app.menu.warn.show("Failed to load resource with unknown extension: "+ext);
-        }
+        var res=resource[i];
+        this.addTexture(res);
     }
 };
+Resource.prototype.addTexture=function(res) {
+    var ext=res.src.split('.').pop().toLowerCase();
+    switch(ext){
+        case "png":this.loadTexture(res);break;
+        case "gif":this.loadTexture(res);break;
+        default:app.menu.warn.show("Failed to load resource with unknown extension: "+ext);
+    }
+}
 Resource.prototype.loadTexture=function(res){
     var texture=this.texture;
-    if(!texture.cache[res.id]){
+    if(!texture.cache[res.id] && !this.pendingTexture.includes(res.id)){
+        this.pendingTexture.push(res.id);
         var img=new Image();
+        var that = this;
         img.onload=function(){
             texture.cache[res.id]=img;
             texture.load--;
+            that.pendingTexture = that.pendingTexture.filter(x=>x != res.id);
+        };
+        img.onerror=function(){
+            console.error("failed to load resource: "+res.id+" from "+res.src);
+            texture.load--;
+            //we don't remove it from pendingTexture, so it won't hammer the server with re-requests
         };
         img.src=res.src+"?v="+VERSION;
         texture.load++;
@@ -6551,11 +6565,8 @@ function Display(game, container, canvas, resource) {
     this.container = container;
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d');
-    //add skin resources
-    for (var i=0; i<SKINCOUNT; ++i) {
-        var res = { id: "skin" + i, src: "img/game/smb_skin"+i+".png"};
-        resource.push(res);
-    }
+    //add default skin
+    resource.push({ id: "skin0", src: "img/game/smb_skin0.png"});
     //add ui texture
     resource.push({ id: "ui", src: "img/game/smb_ui.png" });
     this.resource = new Resource(resource);
@@ -6563,6 +6574,12 @@ function Display(game, container, canvas, resource) {
     this.misteryAnim = 0;
 }
 Display.TEXRES = 0x10;
+Display.prototype.ensureSkin = function(skin) {
+    var spriteMap = this.resource.getTexture("skin"+skin);
+    if (spriteMap === undefined) {
+        this.resource.addTexture({id:"skin" + skin, src:"img/game/smb_skin" + skin +".png"});
+    }
+}
 Display.prototype.clear = function() {
     var _0x4d4eee = this.context;
     if (this.container.clientWidth !== this.canvas.width || this.container.clientHeight !== this.canvas.height) this.canvas.width = this.container.clientWidth, this.canvas.height = this.container.clientHeight;
@@ -6646,16 +6663,20 @@ Display.prototype.drawObject = function() {
         player.write(textList);
     } 
     var objTexture = this.resource.getTexture("obj");
-    var skinTextures = [];
-    for (var i=0; i<SKINCOUNT; i++)
-        skinTextures.push(this.resource.getTexture("skin"+i));
+    var skinTextures = {};
+    skinTextures[0] = this.resource.getTexture("skin0");
     for (var i = 0x0; i < spriteList.length; i++) {
-        var sprite = spriteList[i],
-            currObjTexture = (sprite.skin != undefined) ? skinTextures[sprite.skin] : objTexture,
+        var sprite = spriteList[i];
+        if (sprite.skin && !(sprite.skin in skinTextures))
+            skinTextures[sprite.skin] = this.resource.getTexture("skin"+sprite.skin);
+        var currObjTexture = (sprite.skin != undefined) ? skinTextures[sprite.skin] : objTexture;
+        if (sprite.skin && currObjTexture === undefined) currObjTexture = skinTextures[0];
+        var
             texture = util.sprite.getSprite(currObjTexture, sprite.index),
             reverse = !!sprite.reverse,
             upsideDown = false,
             contextSaved = false;
+
         switch (sprite.mode) {
             case 0x0:
                 break;
@@ -6730,7 +6751,9 @@ Display.prototype.drawUI = function() {
         nameIconIndex = [0xcb, 0xca],
         coinIconIndex = coinIconIndices[parseInt(this.game.frame / 0x3) % coinIconIndices.length],
         objTexture = this.resource.getTexture("obj"),
-        skinTexture = this.game.skin != undefined ? this.resource.getTexture("skin" + this.game.skin) : objTexture,
+        skinTexture = this.game.skin != undefined ? this.resource.getTexture("skin" + this.game.skin) : objTexture;
+    if (this.game.skin && skinTexture === undefined) skinTexture = this.resource.getTexture("skin0");
+    var
         playerInfo = this.game.getPlayerInfo(this.game.pid),
         level;
     undefined !== this.game.levelWarpId ?
@@ -7037,6 +7060,7 @@ function Game(data) {
     this.canvas = document.getElementById("game-canvas");
     this.input = new _0x2406bb(this, this.canvas);
     this.display = new Display(this, this.container, this.canvas, data.resource);
+    this.display.ensureSkin(app.net.skin);
     this.audio = new Audio(this);
     if (!(this instanceof LobbyGame) && !(this instanceof JailGame) && app.charMusic && app.net.skin in SKIN_MUSIC_URL) {
         this.audio.muteMusic = true;
