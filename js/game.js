@@ -6253,16 +6253,16 @@ Resource.prototype.loadTexture=function(res){
         var that = this;
         img.onload=function(){
             texture.cache[res.id]=img;
-            texture.load--;
+            if(!res.isSkin) texture.load--;
             that.pendingTexture = that.pendingTexture.filter(x=>x != res.id);
         };
         img.onerror=function(){
             console.error("failed to load resource: "+res.id+" from "+res.src);
-            texture.load--;
+            if(!res.isSkin) texture.load--;
             //we don't remove it from pendingTexture, so it won't hammer the server with re-requests
         };
         img.src=res.src+"?v="+VERSION;
-        texture.load++;
+        if(!res.isSkin) texture.load++; //we don't count skins otherwise loading image would flash on new player entry
     }
 };
 Resource.prototype.getTexture=function(name){
@@ -6577,7 +6577,7 @@ Display.TEXRES = 0x10;
 Display.prototype.ensureSkin = function(skin) {
     var spriteMap = this.resource.getTexture("skin"+skin);
     if (spriteMap === undefined) {
-        this.resource.addTexture({id:"skin" + skin, src:"img/game/smb_skin" + skin +".png"});
+        this.resource.addTexture({id:"skin" + skin, src:"img/game/smb_skin" + skin +".png", isSkin:true});
     }
 }
 Display.prototype.clear = function() {
