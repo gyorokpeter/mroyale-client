@@ -7512,7 +7512,7 @@ Game.prototype.doStep = function() {
         this.doSpawn();
         this.levelWarp(_0x504fb1);
         this.lives--;
-    } else if (0x2d < ++this.gameOverTimer && !this instanceof JailGame) {
+    } else if (0x2d < ++this.gameOverTimer && !(this instanceof JailGame)) {
         this.gameOver = true;
         this.gameOverTimer = 0x0;
     }
