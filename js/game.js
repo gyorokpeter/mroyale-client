@@ -1,24 +1,8 @@
 var GAMEMODES = ["vanilla", "pvp", "hell"];
 var DEV_SKINS = [52];
 var DEFAULT_PLAYER_NAME="INFRINGIO";
-var levelSelectors = [
-                   {shortId: '?', longId:''}, 
-                   {shortId: '1', longId:'world-1' },
-                   {shortId: '2', longId:'world-2' },
-                   {shortId: '3', longId:'world-3' },
-                   {shortId: '5', longId:'world-5' },
-                   {shortId: '6', longId:'world-6' },
-                   {shortId: 'L', longId:'world-l1'},
-                   {shortId: 'P', longId:'world-p' },
-                   {shortId: 'S', longId:'world-s' },
-                   {shortId: 'M', longId:'world-m' },
-                   {shortId: 'YI', longId:'world-yi' },
-                   {shortId: 'D', longId:'world-d' },
-                   {shortId: 'X', longId:'world-xexyz' },
-                   {shortId: 'F', longId:'world-fireman' },
-                   {shortId: 'MC', longId:'world-minecraft' },
-                   {shortId: 'LV', longId:'world-level' }// Really, we need to automate this
-                 ];
+var levelSelectors = [];    //received from server
+
 var util = {},
     vec2 = {
         'make': function(_0x9b9cda, _0x4101d1) {
@@ -1610,15 +1594,6 @@ function NameScreen() {
     this.padLoop = undefined;
     this.skinButtonPrefix = "skin-select";
     var that = this;
-    for (var i=0; i<levelSelectors.length; i++) {
-        var k = levelSelectors[i];
-        var elem = document.createElement("div")
-        elem.setAttribute("class", "levelSelectButton");
-        elem.innerText = k.shortId;
-        elem.addEventListener("click", (function(a){return function() {that.selectLevel(a);};})(k.longId));
-        document.getElementById("levelSelectStandard").appendChild(elem);
-        levelSelectors[i].elem = elem;
-    }
     var elem = document.getElementById("levelSelectInput");
     elem.addEventListener("change", (function(){return function(event) {that.customLevelFileChangeHandler(this, event);};})());
     this.launchBtn.onclick = function() {
@@ -2288,6 +2263,8 @@ GameState.prototype.handlePacket = function(data) {
             return this.globalWarn(data), true;
         case "g21":
             return this.recievePing(data), true;
+        case "gll":
+            return this.receiveLevelList(data), true;
         case "gsl":
             return this.recieveLevelSelectResult(data), true;
         default:
@@ -2342,6 +2319,20 @@ GameState.prototype.recievePing = function(_0x5bdfa8) {
     app.net.ping = _0x3162e8 - _0x5bdfa8.delta;
     this.pingOut = false;
 };
+GameState.prototype.receiveLevelList = function(data) {
+    levelSelectors = data.levels;
+    levelSelectors.unshift({shortId:"?", longId:""});
+    for (var i=0; i<levelSelectors.length; i++) {
+        var k = levelSelectors[i];
+        var elem = document.createElement("div")
+        elem.setAttribute("class", "levelSelectButton");
+        elem.innerText = k.shortId;
+        elem.addEventListener("click", (function(a){return function() {app.menu.name.selectLevel(a);};})(k.longId));
+        document.getElementById("levelSelectStandard").appendChild(elem);
+        levelSelectors[i].elem = elem;
+    }
+    document.getElementById("privLobby").style.display = "";
+}
 GameState.prototype.recieveLevelSelectResult = function(data) {
     if(data.status == "error") {
         var elem = document.getElementById("levelSelectCustomResult");
@@ -7521,7 +7512,7 @@ Game.prototype.doStep = function() {
         this.doSpawn();
         this.levelWarp(_0x504fb1);
         this.lives--;
-    } else if (0x2d < ++this.gameOverTimer) {
+    } else if (0x2d < ++this.gameOverTimer && !this instanceof JailGame) {
         this.gameOver = true;
         this.gameOverTimer = 0x0;
     }
@@ -7753,12 +7744,7 @@ LobbyGame.prototype.handleBinary = Game.prototype.handleBinary;
 LobbyGame.prototype.updatePacket = Game.prototype.updatePacket;
 LobbyGame.prototype.doUpdate = Game.prototype.doUpdate;
 LobbyGame.prototype.doNET002 = Game.prototype.doNET002;
-LobbyGame.prototype.doNET010 = function(packet) {
-    Game.prototype.doNET010.call(this, packet);
-    if(packet.pid == this.pid && app.net.prefTeam.trim() == "" && app.net.isPrivate) {
-        document.getElementById("privLobby").style.display = "";
-    }
-}
+LobbyGame.prototype.doNET010 = Game.prototype.doNET010;
 LobbyGame.prototype.doNET011 = Game.prototype.doNET011;
 LobbyGame.prototype.doNET012 = Game.prototype.doNET012;
 LobbyGame.prototype.doNET013 = Game.prototype.doNET013;
