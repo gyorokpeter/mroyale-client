@@ -358,8 +358,11 @@ td32.GEN_FUNC.BUMP = function(game, pid, td, level, zone, x, y, type) {
                 else if(obj.bounce) { obj.bounce(); }
                 else if(obj.bonk) { obj.bonk(); }
                 else if(obj instanceof CoinObject) {
-                    if(game.pid === pid) { obj.playerCollide(game.getPlayer()); }
-                    game.world.getZone(level, zone).coin(obj.pos.x, obj.pos.y);
+                    //this happens when you hit a bumpable block with a coin above
+                    if(game.pid === pid) {
+                        obj.jump = true;
+                        obj.playerCollide(game.getPlayer());
+                    }
                 }
             }
         }
@@ -380,8 +383,11 @@ td32.GEN_FUNC.BREAK = function(game, pid, td, level, zone, x, y, type) {
                 else if(obj.bounce) { obj.bounce(); }
                 else if(obj.bonk) { obj.bonk(); }
                 else if(obj instanceof CoinObject) {
-                    if(game.pid === pid) { obj.playerCollide(game.getPlayer()); }
-                    game.world.getZone(level, zone).coin(obj.pos.x, obj.pos.y);
+                    //this happens when you break a brick as non-small Mario with a coin above
+                    if(game.pid === pid) {
+                        obj.jump = true;
+                        obj.playerCollide(game.getPlayer());
+                    }
                 }
             }
         }
@@ -395,7 +401,7 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
     },
     /* Solid Standard */
     0x01: {
@@ -403,7 +409,7 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
     },
     /* Solid Bumpable */
     0x02: {
@@ -411,18 +417,14 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    break;
-                }
                 /* Big bump */
+                case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if(remoteTrigger) td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     break;
                 }
             }
@@ -434,18 +436,18 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
                 case 0x10 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if(remoteTrigger) td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     break;
                 }
                 /* Big bump */
                 case 0x11 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    td32.GEN_FUNC.BREAK(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if(remoteTrigger) td32.GEN_FUNC.BREAK(game, pid, td, level, zone, x, y, type);
                     break;
                 }
             }
@@ -457,11 +459,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         game.getPlayer().damage();
                     }
                 }
@@ -475,7 +477,7 @@ td32.TILE_PROPERTIES = {
         PLATFORM: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
     },
     /* Semisolid Weak */
     0x06: {
@@ -484,7 +486,7 @@ td32.TILE_PROPERTIES = {
         PLATFORM: "WEAK",
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
     },
     /* Item Block Normal */
     0x11: {
@@ -492,27 +494,21 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-                    break;
-                }
                 /* Big bump */
+                case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if (remoteTrigger) {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                        game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    }
                     break;
                 }
             }
@@ -524,24 +520,21 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.world.getZone(level, zone).coin(x,y+1);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    break;
-                }
                 /* Big bump */
-                case 0x11 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.world.getZone(level, zone).coin(x,y+1);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                case 0x10:
+                case 0x11: {
+                    if(game.pid === pid && !remoteTrigger)
+                        game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type));
+                    if(remoteTrigger) {
+                        if (game.pid === pid) game.coinage(); 
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                    }
                     break;
                 }
             }
@@ -553,41 +546,29 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if(td.data > 0) {
-                        var raw = game.world.getZone(level, zone).tile(x,y);
-                        var rep = td32.data(raw, td.data-1);                                            // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.world.getZone(level, zone).coin(x,y+1);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    }
-                    else {
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.world.getZone(level, zone).coin(x,y+1);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    }
-                    break;
-                }
                 /* Big bump */
+                case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if(td.data > 0) {
-                        var raw = game.world.getZone(level, zone).tile(x,y);
-                        var rep = td32.data(raw, td.data-1);                                            // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.world.getZone(level, zone).coin(x,y+1);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    }
-                    else {
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.world.getZone(level, zone).coin(x,y+1);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid && !remoteTrigger) 
+                        game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type));
+                    if(remoteTrigger) {
+                        if(game.pid === pid) game.coinage();
+                        if(td.data > 1) {
+                            var raw = game.world.getZone(level, zone).tile(x,y);
+                            var rep = td32.data(raw, td.data-1);                                            // Replacement td32 data for tile.
+                            game.world.getZone(level, zone).replace(x,y,rep);
+                            game.world.getZone(level, zone).coin(x,y+1);
+                            td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                        }
+                        else {
+                            var rep = 98331; // Replacement td32 data for tile.
+                            game.world.getZone(level, zone).replace(x,y,rep);
+                            game.world.getZone(level, zone).coin(x,y+1);
+                            td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                        }
                     }
                     break;
                 }
@@ -600,28 +581,21 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.world.getZone(level, zone).grow(x,y+1,vin);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
-                    break;
-                }
                 /* Big bump */
+                case 0x10 : 
                 case 0x11 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.world.getZone(level, zone).grow(x,y+1,vin);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if (remoteTrigger) {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).grow(x,y+1,vin);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                        game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
+                    }
                     break;
                 }
             }
@@ -633,27 +607,21 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: true,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-                    break;
-                }
                 /* Big bump */
+                case 0x10 : 
                 case 0x11 : {
-                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if (remoteTrigger) {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                        game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    }
                     break;
                 }
             }
@@ -665,24 +633,20 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: true,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.world.getZone(level, zone).coin(x,y+1);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    break;
-                }
                 /* Big bump */
+                case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid) { game.coinage(); game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.world.getZone(level, zone).coin(x,y+1);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    if (remoteTrigger) {
+                        if (game.pid === pid) game.coinage();
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
                     break;
                 }
             }
@@ -694,11 +658,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         game.getPlayer().warp(td.data);
                     }
                 }
@@ -711,11 +675,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Down */
                 case 0x01 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         var ply = game.getPlayer();
                         var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
                         var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
@@ -737,11 +701,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Push */
                 case 0x02 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         game.getPlayer().pipe(4, td.data, 50);
                     }
                 }
@@ -754,11 +718,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Down */
                 case 0x01 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         var ply = game.getPlayer();
                         var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
                         var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
@@ -780,11 +744,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Push */
                 case 0x02 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         game.getPlayer().pipe(4, td.data, 0);
                     }
                 }
@@ -797,11 +761,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         game.levelWarp(td.data);
                     }
                 }
@@ -814,11 +778,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         var ply = game.getPlayer();
                         if(ply.pos.x >= x) { ply.pole(vec2.make(x,y)); }
                     }
@@ -832,11 +796,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid) {
+                    if(game.pid === pid && !remoteTrigger) {
                         var ply = game.getPlayer();
                         if(ply.pos.x >= x && ply.pos.x <= x+1.) { ply.vine(vec2.make(x,y), td.data); }
                     }
@@ -850,24 +814,19 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
             switch(type) {
                 /* Small bump */
-                case 0x10 : {
-                    if(game.pid === pid) { game.send({type: "g50"}); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    break;
-                }
                 /* Big bump */
+                case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid) { game.send({type: "g50"}); }
-                    var rep = 98331; // Replacement td32 data for tile.
-                    game.world.getZone(level, zone).replace(x,y,rep);
-                    game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
-                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid && !remoteTrigger) { game.send({type: "g50"}); }
+                    if (remoteTrigger) {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
                     break;
                 }
             }
@@ -1352,15 +1311,8 @@ MainScreen.prototype.show = function() {
     app.menu.hideAll();
     app.menu.navigation("main", "main");
     app.menu.background('a');
-    var wins = Cookies.get("epic_gamer_moments");
-    var deaths = Cookies.get("sad_gamer_moments"),
-        kills = Cookies.get("heated_gamer_moments"),
-        coins = Cookies.get("dosh");
     this.winElement.style.display = "block";
-    this.winElement.innerHTML = "Wins x" + (wins ? wins : '0') + 
-        "<span class='death'>Deaths x" + (deaths ? deaths : '0') +"</span>"+
-        "<span class='kill'>Kills x" + (kills ? kills : '0') + "</span>"+
-        "<span class='kill'>Coins x" + (coins ? coins : '0') + "</span>";
+    this.winElement.innerHTML = "Login to track statistics";
     this.startPad();
     this.linkElement.style.display = "block";
     this.element.style.display = "block";
@@ -1439,6 +1391,10 @@ MainAsMemberScreen.prototype.show = function(data) {
     }
     var savedPriv = Cookies.get("mpriv");
     var savedGm = Cookies.get("gamemode");
+    this.coins = data.coins || 0;
+    this.kills = data.kills || 0;
+    this.wins = data.wins || 0;
+    this.deaths = data.deaths || 0;
     this.nickname = data.nickname;
     this.squad = data.squad;
     this.skin = data.skin;
@@ -1470,6 +1426,7 @@ MainAsMemberScreen.prototype.show = function(data) {
         updateStatus();
         app.statusUpdater = setInterval(updateStatus, 1000);
     }
+    app.menu.main.winElement.innerText = "wins x"+this.wins+" deaths x"+this.deaths+" kills x"+this.kills+" coins x"+this.coins;
 };
 MainAsMemberScreen.prototype.hide = function() {
     this.linkElement.style.display = "none";
@@ -3142,10 +3099,6 @@ PlayerObject.prototype.kill = function() {
     if (this.game.getPlayer() === this) {
         this.game.stopGameTimer();
         this.game.out.push(NET011.encode());
-        var _0x27d445 = Cookies.get("sad_gamer_moments");
-        !app.net.isPrivate && Cookies.set("sad_gamer_moments", _0x27d445 ? parseInt(_0x27d445) + 0x1 : 0x1, {
-            'expires': 0x16d
-        });
     }
 };
 PlayerObject.prototype.destroy = function() {
@@ -4831,7 +4784,7 @@ _0x4a8773.SOFFSET = vec2.make(0.15, 0.15);
 _0x4a8773.SPRITE = {};
 _0x4a8773.SPRITE_LIST = [{
     'NAME': "IDLE",
-    'ID': 0x0,
+    'ID': 0x0,  
     'INDEX': 0xdb
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < _0x4a8773.SPRITE_LIST.length; _0x1bec55++) _0x4a8773.SPRITE[_0x4a8773.SPRITE_LIST[_0x1bec55].NAME] = _0x4a8773.SPRITE_LIST[_0x1bec55], _0x4a8773.SPRITE[_0x4a8773.SPRITE_LIST[_0x1bec55].ID] = _0x4a8773.SPRITE_LIST[_0x1bec55];
@@ -5778,13 +5731,15 @@ _0x5010c8.prototype.draw = _0x2e2bc3.prototype.draw;
 GameObject.REGISTER_OBJECT(_0x5010c8);
 "use strict";
 
-function CoinObject(_0x52a861, _0x4a48fc, _0x331cc6, _0x11bbb6, _0x11c124) {
-    GameObject.call(this, _0x52a861, _0x4a48fc, _0x331cc6, _0x11bbb6);
-    this.oid = _0x11c124;
+function CoinObject(game, level, zone, pos, oid) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.state = CoinObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
+    this.collected = false;
+    this.jump = false;
 }
 CoinObject.ASYNC = false;
 CoinObject.ID = 0x61;
@@ -5816,18 +5771,28 @@ CoinObject.STATE_LIST = [{
     'SPRITE': [CoinObject.SPRITE.IDLE0, CoinObject.SPRITE.IDLE1, CoinObject.SPRITE.IDLE2, CoinObject.SPRITE.IDLE3]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < CoinObject.STATE_LIST.length; _0x1bec55++) CoinObject.STATE[CoinObject.STATE_LIST[_0x1bec55].NAME] = CoinObject.STATE_LIST[_0x1bec55], CoinObject.STATE[CoinObject.STATE_LIST[_0x1bec55].ID] = CoinObject.STATE_LIST[_0x1bec55];
-CoinObject.prototype.update = function(_0x376de4) {
-    switch (_0x376de4) {
-        case 0x0:
+CoinObject.prototype.update = function(type, isLocalPlayer) {
+    if (isLocalPlayer) {
+        this.game.getPlayer().powerup(this);
+    }
+    switch (type) {
+        case 0xa0:
             this.kill();
+            break;
+        case 0xa1:
+            this.kill();
+            this.game.world.getZone(this.level, this.zone).coin(this.pos.x, this.pos.y);
+            break;
     }
 };
 CoinObject.prototype.step = function() {
     this.anim++;
     this.sprite = this.state.SPRITE[parseInt(this.anim / CoinObject.ANIMATION_RATE) % this.state.SPRITE.length];
 };
-CoinObject.prototype.playerCollide = function(_0x143dba) {
-    this.dead || this.garbage || (_0x143dba.powerup(this), this.kill(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0)));
+CoinObject.prototype.playerCollide = function(player, type) {
+    if (this.dead || this.garbage || this.collected) return;
+    this.collected = true;
+    this.game.out.push(NET020.encode(this.level, this.zone, this.oid, this.jump ? 0xa1 : 0xa0));
 };
 CoinObject.prototype.playerStomp = function(_0x423f28) {
     this.playerCollide(_0x423f28);
@@ -5947,21 +5912,21 @@ _0x3db18a.prototype.write = function(_0x237c30) {
 GameObject.REGISTER_OBJECT(_0x3db18a);
 "use strict";
 
-function _0x403fef(_0x30fe8a) {
-    this.pos = _0x30fe8a;
+function TempEffect(position/*: vec2*/) {
+    this.pos = position;
     this.garbage = false;
 }
-_0x403fef.prototype.step = function() {
+TempEffect.prototype.step = function() {
     0x1 > this.life-- && this.destroy();
 };
-_0x403fef.prototype.destroy = function() {
+TempEffect.prototype.destroy = function() {
     this.garbage = true;
 };
-_0x403fef.prototype.draw = function(_0x47aa2d) {};
+TempEffect.prototype.draw = function(_0x47aa2d) {};
 "use strict";
 
 function _0x5296e0(_0x4363a0, _0x2e3146) {
-    _0x403fef.call(this, _0x4363a0);
+    TempEffect.call(this, _0x4363a0);
     this.sprite = _0x2e3146;
     this.life = 0x19;
     this.bits = [{
@@ -6009,9 +5974,9 @@ _0x5296e0.prototype.step = function() {
         _0xa08f70.ang *= _0x5296e0.DRAG;
         _0xa08f70.rot += _0xa08f70.ang;
     }
-    _0x403fef.prototype.step.call(this);
+    TempEffect.prototype.step.call(this);
 };
-_0x5296e0.prototype.destroy = _0x403fef.prototype.destroy;
+_0x5296e0.prototype.destroy = TempEffect.prototype.destroy;
 _0x5296e0.prototype.draw = function(_0x13ece1) {
     for (var _0x45d009 = 0x0; _0x45d009 < this.bits.length; _0x45d009++) {
         var _0x34d3ce = this.bits[_0x45d009];
@@ -6028,9 +5993,9 @@ _0x5296e0.prototype.draw = function(_0x13ece1) {
 };
 "use strict";
 
-function _0x108200(_0x364c40) {
-    _0x403fef.call(this, _0x364c40);
-    this.life = _0x108200.UP_TIME + _0x108200.DOWN_TIME;
+function JumpingCoinEffect(position) {  //position : vec2
+    TempEffect.call(this, position);
+    this.life = JumpingCoinEffect.UP_TIME + JumpingCoinEffect.DOWN_TIME;
     this.anim = this.sprite = 0x0;
     this.bits = [{
         'pos': vec2.add(this.pos, vec2.make(0x0, 0x0)),
@@ -6039,18 +6004,18 @@ function _0x108200(_0x364c40) {
         'so': vec2.make(0x0, 0x0)
     }];
 }
-_0x108200.SPRITE = [0xf4, 0xf5, 0xf6, 0xf7];
-_0x108200.ANIMATION_RATE = 0x2;
-_0x108200.MOVE_SPEED = 0.375;
-_0x108200.UP_TIME = 0x8;
-_0x108200.DOWN_TIME = 0x6;
-_0x108200.prototype.step = function() {
-    _0x403fef.prototype.step.call(this);
-    this.sprite = _0x108200.SPRITE[parseInt(this.anim++/_0x108200.ANIMATION_RATE)%_0x108200.SPRITE.length];
-    this.bits[0x0].pos.y=this.life>=_0x108200.DOWN_TIME?this.bits[0x0].pos.y+_0x108200.MOVE_SPEED:this.bits[0x0].pos.y-_0x108200.MOVE_SPEED;
+JumpingCoinEffect.SPRITE = [0xf4, 0xf5, 0xf6, 0xf7];
+JumpingCoinEffect.ANIMATION_RATE = 0x2;
+JumpingCoinEffect.MOVE_SPEED = 0.375;
+JumpingCoinEffect.UP_TIME = 0x8;
+JumpingCoinEffect.DOWN_TIME = 0x6;
+JumpingCoinEffect.prototype.step = function() {
+    TempEffect.prototype.step.call(this);
+    this.sprite = JumpingCoinEffect.SPRITE[parseInt(this.anim++/JumpingCoinEffect.ANIMATION_RATE)%JumpingCoinEffect.SPRITE.length];
+    this.bits[0x0].pos.y=this.life>=JumpingCoinEffect.DOWN_TIME?this.bits[0x0].pos.y+JumpingCoinEffect.MOVE_SPEED:this.bits[0x0].pos.y-JumpingCoinEffect.MOVE_SPEED;
 };
-_0x108200.prototype.destroy=_0x403fef.prototype.destroy;
-_0x108200.prototype.draw=function(_0x198af3){
+JumpingCoinEffect.prototype.destroy=TempEffect.prototype.destroy;
+JumpingCoinEffect.prototype.draw=function(_0x198af3){
     for(var _0x148e46=0x0;_0x148e46<this.bits.length;_0x148e46++){
         var _0x50b29b=this.bits[_0x148e46];
         _0x198af3.push({'tex':"obj",'ind':this.sprite,'pos':_0x50b29b.pos,'off':_0x50b29b.so,'rot':0x0,'sp':_0x50b29b.sp,'ss':_0x50b29b.ss});
@@ -6109,7 +6074,7 @@ _0x2406bb.prototype.load=function(){
 _0x2406bb.prototype.pad={};
 _0x2406bb.prototype.pad.pad=undefined;
 _0x2406bb.prototype.pad.ax=vec2.make(0x0,0x0);
-_0x2406bb.prototype.pad.update=function(){
+_0x2406bb.prototype.pad.update = function(){
     this.pad=navigator?navigator.getGamepads()[0x0]:undefined;
     this.analog();
 };
@@ -6964,10 +6929,10 @@ function Zone(_0x4ec59c, _0x22aa6b, _0x42b6c1) {
     this.vines = [];
     this.sounds = [];
 }
-Zone.prototype.update = function(_0x56c974, _0x203ebe, _0x453702, _0x9efab7, _0x1f768e, _0x1478c6, _0x16a842) {
-    var _0x14b697 = this.dimensions().y - 0x1 - _0x1478c6,
-        _0x14b697 = td32.decode(this.data[_0x14b697][_0x1f768e]);
-    _0x14b697.definition.TRIGGER(_0x56c974, _0x203ebe, _0x14b697, _0x453702, _0x9efab7, _0x1f768e, _0x1478c6, _0x16a842);
+Zone.prototype.update = function(game, pid, level, zone, x, y, type, remoteTrigger) {
+    var y2 = this.dimensions().y - 0x1 - y,
+        td = td32.decode(this.data[y2][x]);
+    td.definition.TRIGGER(game, pid, td, level, zone, x, y, type, remoteTrigger);
 };
 Zone.prototype.step = function() {
     for (var _0x4a391d = 0x0; _0x4a391d < this.bumped.length; _0x4a391d++) {
@@ -7012,9 +6977,9 @@ Zone.prototype.break = function(_0x4aded4, _0x3d82ec, _0x544718) {
     this.effects.push(new _0x5296e0(vec2.make(_0x4aded4, _0x3d82ec), _0x1aa33b.index));
     this.play(_0x4aded4, _0x3d82ec, "sfx/break.wav", 1.5, 0.04);
 };
-Zone.prototype.coin = function(_0x18c8cf, _0x32068f) {
+Zone.prototype.coin = function(x, y) {
     this.dimensions();
-    this.effects.push(new _0x108200(vec2.make(_0x18c8cf, _0x32068f)));
+    this.effects.push(new JumpingCoinEffect(vec2.make(x, y)));
 };
 Zone.prototype.play = function(x, y, path, gainValue, playbackRateDeviation) {
     if (this.game.getZone() === this) {
@@ -7280,10 +7245,6 @@ Game.prototype.doNET013 = function(_0x3c0ee3) {
 
 Game.prototype.doNET017 = function(_0x17186e) {
     this.playersKilled++;
-    _0x17186e = Cookies.get("heated_gamer_moments");
-    !app.net.isPrivate && Cookies.set("heated_gamer_moments", _0x17186e ? parseInt(_0x17186e) + 0x1 : 0x1, {
-        'expires': 0x16d
-    });
 };
 
 Game.prototype.doNET018 = function(_0xb678cc) {
@@ -7297,9 +7258,6 @@ Game.prototype.doNET018 = function(_0xb678cc) {
         if (_0xb678cc.pid === this.pid && (_0x11f856 = this.getPlayer())) {
             _0x11f856.axe(_0xb678cc.result);
             this.victory = _0xb678cc.result;
-            0x1 === _0xb678cc.result && (_0xb678cc = Cookies.get("epic_gamer_moments"), !app.net.isPrivate && Cookies.set("epic_gamer_moments", _0xb678cc ? parseInt(_0xb678cc) + 0x1 : 0x1, {
-                'expires': 0x16d
-            }));
             var that = this;
             setTimeout(function() {
                 document.getElementById('return').style.display = "block";
@@ -7309,15 +7267,16 @@ Game.prototype.doNET018 = function(_0xb678cc) {
     }
 };
 
-Game.prototype.doNET020 = function(_0x279410) {
-    if (!(_0x279410.pid === this.pid && 0xa0 > _0x279410.type)) {
-        var _0x3f57fe = this.getObject(_0x279410.level, _0x279410.zone, _0x279410.oid);
-        _0x3f57fe && _0x3f57fe.update(_0x279410.type);
+Game.prototype.doNET020 = function(data) {
+    var isLocalPlayer = data.pid === this.pid;
+    if (!(isLocalPlayer && 0xa0 > data.type)) {
+        var obj = this.getObject(data.level, data.zone, data.oid);
+        obj && obj.update(data.type, isLocalPlayer);
     }
 };
 
-Game.prototype.doNET030 = function(_0x31e1c0) {
-    _0x31e1c0.pid !== this.pid && this.world.getZone(_0x31e1c0.level, _0x31e1c0.zone).update(this, _0x31e1c0.pid, _0x31e1c0.level, _0x31e1c0.zone, _0x31e1c0.pos.x, _0x31e1c0.pos.y, _0x31e1c0.type);
+Game.prototype.doNET030 = function(data) {
+    this.world.getZone(data.level, data.zone).update(this, data.pid, data.level, data.zone, data.pos.x, data.pos.y, data.type, true);
 };
 
 Game.prototype.doStart = function() {
@@ -7682,20 +7641,12 @@ Game.prototype.levelWarp = function(_0x4fb258) {
 Game.prototype.coinage = function(jackpot) {
     if (jackpot) {
         this.play("sfx/gold.wav", 1, 0x0);
-        var _0x27d445 = Cookies.get("dosh");
-        !app.net.isPrivate && (this.coinsCollected+=50000,Cookies.set("dosh", _0x27d445 ? parseInt(_0x27d445) + 50000 : 50000, {
-            'expires': 0x16d
-        }));
         return;
     }
     this.coinsCollected += 1;
     this.coins = Math.min(0x63, this.coins + 0x1);
     this.coins >= Game.COINS_TO_LIFE && (this.lifeage(), this.coins = 0x0);
     this.play("sfx/coin.wav", 0.4, 0x0);
-    var _0x27d445 = Cookies.get("dosh");
-    !app.net.isPrivate && Cookies.set("dosh", _0x27d445 ? parseInt(_0x27d445) + 0x1 : 0x1, {
-        'expires': 0x16d
-    });
 };
 
 Game.prototype.lifeage = function() {
