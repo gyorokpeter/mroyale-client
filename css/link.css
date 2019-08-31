@@ -295,23 +295,30 @@ background-color: rgba(0, 0, 0, 0.0);
 }
 
 
+.link-leaderboard 
+{
+cursor: pointer;
+display:inline-block;
+margin: 4px;
+font-family: SmbWeb;
+font-size: 18px;
+color: white;
+text-shadow: 0 0 5px rgba(255,255,255,0.5);
+z-index:1;
+margin-left: 12px;
+}
+
+
 .win 
 {
-  
+display:inline-block;
 margin: 4px;
-  
 font-family: SmbWeb;
-  
 font-size: 18px;
-  
 color: white;
-  
 text-shadow: 0 0 5px rgba(255,255,255,0.5);
-  
 z-index:1;
-  
 margin-left: 12px;
-
 }
 
 

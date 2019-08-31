@@ -1142,7 +1142,7 @@ function Menu() {
         'obj': new RegisterScreen()
     }, {
         'id': "game",
-        'obj': new GameScren()
+        'obj': new GameScreen()
     }];
     this.menus = [];
     for (var i = 0x0; i < screens.length; i++) this.menus[i] = screens[i].obj, this[screens[i].id] = screens[i].obj;
@@ -1957,19 +1957,19 @@ RegisterScreen.prototype.launch = function() {
 };
 
 
-function GameScren() {
+function GameScreen() {
     this.element = document.getElementById("game");
 }
-GameScren.prototype.show = function() {
+GameScreen.prototype.show = function() {
     app.menu.hideAll();
     app.menu.navigation("game", "game");
     app.menu.background('c');
     this.element.style.display = "block";
 };
-GameScren.prototype.hide = function() {
+GameScreen.prototype.hide = function() {
     this.element.style.display = "none";
 };
-GameScren.prototype.onBack = function() {
+GameScreen.prototype.onBack = function() {
     app.close();
 };
 "use strict";

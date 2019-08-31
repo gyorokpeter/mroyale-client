@@ -78,7 +78,10 @@
         </div>
         <div class="link-b">
           <div class="rtfpn"></div>
-          <div class="link-con" onclick="window.open('./control.html?v=3.3.4')"></div>
+          <div>
+              <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
+              <div class="link-con" onclick="window.open('./control.html?v=3.3.4')"></div>
+          </div>
         </div>
           <div class="link-s">
           <div class="rtfpn4"></div>
@@ -241,6 +244,18 @@
             </div>
             <div id="registerResult" class="login-result">&nbsp;</div>
         </form>
+      </div>
+
+      <!-- Leader board -->
+      <div id='leaderboard' class='container-privLobby' style='display: none;'>
+        <div class='dis-lg'>Leader boards</div>
+        <div class='launch' onclick="setLeaderBoard('coins')">coins</div>
+        <div class='launch' onclick="setLeaderBoard('wins')">wins</div>
+        <div id="leaderboard-content-coins"></div>
+        <div id="leaderboard-content-wins" style="display:none"></div>
+        <div class="container-launch">
+          <span id='mainAsMember-logout' class='launch' onclick="hideLeaderBoard()">Close</span>
+        </div>
       </div>
 
       <!-- Game -->
