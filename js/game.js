@@ -66,8 +66,8 @@ var util = {},
                 'y': 0x1
             };
         },
-        'distance': function(_0x438721, _0x20692a) {
-            return vec2.magnitude(vec2.subtract(_0x438721, _0x20692a));
+        'distance': function(u, v) {
+            return vec2.magnitude(vec2.subtract(u, v));
         },
         'dot': function(_0x1a1c3f, _0x5d048a) {
             return _0x1a1c3f.x * _0x5d048a.x + _0x1a1c3f.y * _0x5d048a.y;
@@ -100,8 +100,8 @@ var util = {},
         'chop': function(_0x4413bf) {
             return vec2.make(parseInt(_0x4413bf.x), parseInt(_0x4413bf.y));
         },
-        'equals': function(_0x102b7d, _0x20a20c) {
-            return _0x102b7d.x === _0x20a20c.x && _0x102b7d.y === _0x20a20c.y;
+        'equals': function(u, v) {
+            return u.x === v.x && u.y === v.y;
         },
         'toArray': function(_0xfa2c05) {
             return [_0xfa2c05.x, _0xfa2c05.y];
@@ -156,8 +156,8 @@ vec4.multiply = function(_0x181caa, _0x1d5e43) {
         w: _0x181caa.w * _0x1d5e43.w
     };
 };
-vec4.lerp = function(_0x98c2ee, _0x2014a1, _0x21e83c) {
-    return vec4.add(vec4.scale(_0x98c2ee, 0x1 - _0x21e83c), vec4.scale(_0x2014a1, _0x21e83c));
+vec4.lerp = function(u, v, alpha) {
+    return vec4.add(vec4.scale(u, 0x1 - alpha), vec4.scale(v, alpha));
 };
 vec4.toArray = function(_0x583eb8) {
     return [_0x583eb8.x, _0x583eb8.y, _0x583eb8.z, _0x583eb8.w];
@@ -360,8 +360,8 @@ td32.GEN_FUNC.BUMP = function(game, pid, td, level, zone, x, y, type) {
                 else if(obj instanceof CoinObject) {
                     //this happens when you hit a bumpable block with a coin above
                     if(game.pid === pid) {
-                        obj.jump = true;
                         obj.playerCollide(game.getPlayer());
+                        game.world.getZone(level, zone).coin(obj.pos.x, obj.pos.y);
                     }
                 }
             }
@@ -385,8 +385,8 @@ td32.GEN_FUNC.BREAK = function(game, pid, td, level, zone, x, y, type) {
                 else if(obj instanceof CoinObject) {
                     //this happens when you break a brick as non-small Mario with a coin above
                     if(game.pid === pid) {
-                        obj.jump = true;
                         obj.playerCollide(game.getPlayer());
+                        game.world.getZone(level, zone).coin(obj.pos.x, obj.pos.y);
                     }
                 }
             }
@@ -401,7 +401,7 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
     },
     /* Solid Standard */
     0x01: {
@@ -409,7 +409,7 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
     },
     /* Solid Bumpable */
     0x02: {
@@ -417,14 +417,14 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if(remoteTrigger) td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     break;
                 }
             }
@@ -436,18 +436,18 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 case 0x10 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if(remoteTrigger) td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     break;
                 }
                 /* Big bump */
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if(remoteTrigger) td32.GEN_FUNC.BREAK(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    td32.GEN_FUNC.BREAK(game, pid, td, level, zone, x, y, type);
                     break;
                 }
             }
@@ -459,11 +459,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         game.getPlayer().damage();
                     }
                 }
@@ -477,7 +477,7 @@ td32.TILE_PROPERTIES = {
         PLATFORM: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
     },
     /* Semisolid Weak */
     0x06: {
@@ -486,7 +486,7 @@ td32.TILE_PROPERTIES = {
         PLATFORM: "WEAK",
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {}
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
     },
     /* Item Block Normal */
     0x11: {
@@ -494,21 +494,19 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if (remoteTrigger) {
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                        game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-                    }
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
                     break;
                 }
             }
@@ -520,21 +518,20 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10:
                 case 0x11: {
-                    if(game.pid === pid && !remoteTrigger)
+                    if(game.pid === pid) {
                         game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type));
-                    if(remoteTrigger) {
-                        if (game.pid === pid) game.coinage(); 
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                        game.world.getZone(level, zone).coin(x,y+1);
+                        game.addCoin(false, true);
                     }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).coin(x,y+1);
                     break;
                 }
             }
@@ -546,29 +543,28 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) 
+                    if(game.pid === pid) {
                         game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type));
-                    if(remoteTrigger) {
-                        if(game.pid === pid) game.coinage();
-                        if(td.data > 1) {
-                            var raw = game.world.getZone(level, zone).tile(x,y);
-                            var rep = td32.data(raw, td.data-1);                                            // Replacement td32 data for tile.
-                            game.world.getZone(level, zone).replace(x,y,rep);
-                            game.world.getZone(level, zone).coin(x,y+1);
-                            td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                        }
-                        else {
-                            var rep = 98331; // Replacement td32 data for tile.
-                            game.world.getZone(level, zone).replace(x,y,rep);
-                            game.world.getZone(level, zone).coin(x,y+1);
-                            td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                        }
+                        game.addCoin(false, true);
+                    }
+                    if(td.data > 1) {
+                        var raw = game.world.getZone(level, zone).tile(x,y);
+                        var rep = td32.data(raw, td.data-1);    // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    }
+                    else {
+                        var rep = 98331; // Replacement td32 data for tile.
+                        game.world.getZone(level, zone).replace(x,y,rep);
+                        game.world.getZone(level, zone).coin(x,y+1);
+                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     }
                     break;
                 }
@@ -581,21 +577,19 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 : 
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if (remoteTrigger) {
-                        var rep = 98331; // Replacement td32 data for tile.
-                        var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.world.getZone(level, zone).grow(x,y+1,vin);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                        game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
-                    }
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    var vin = td32.data(10813796, td.data); // Vine td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).grow(x,y+1,vin);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
                     break;
                 }
             }
@@ -607,21 +601,19 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: true,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 : 
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if (remoteTrigger) {
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                        game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
-                    }
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
                     break;
                 }
             }
@@ -633,20 +625,20 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: true,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
-                    if (remoteTrigger) {
-                        if (game.pid === pid) game.coinage();
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.world.getZone(level, zone).coin(x,y+1);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    if(game.pid === pid) {
+                        game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type));
+                        game.addCoin(false, true);
                     }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.world.getZone(level, zone).coin(x,y+1);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     break;
                 }
             }
@@ -658,11 +650,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         game.getPlayer().warp(td.data);
                     }
                 }
@@ -675,11 +667,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Down */
                 case 0x01 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         var ply = game.getPlayer();
                         var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
                         var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
@@ -701,11 +693,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Push */
                 case 0x02 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         game.getPlayer().pipe(4, td.data, 50);
                     }
                 }
@@ -718,11 +710,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Down */
                 case 0x01 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         var ply = game.getPlayer();
                         var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
                         var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
@@ -744,11 +736,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Push */
                 case 0x02 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         game.getPlayer().pipe(4, td.data, 0);
                     }
                 }
@@ -761,11 +753,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         game.levelWarp(td.data);
                     }
                 }
@@ -778,11 +770,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         var ply = game.getPlayer();
                         if(ply.pos.x >= x) { ply.pole(vec2.make(x,y)); }
                     }
@@ -796,11 +788,11 @@ td32.TILE_PROPERTIES = {
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Touch */
                 case 0x00 : {
-                    if(game.pid === pid && !remoteTrigger) {
+                    if(game.pid === pid) {
                         var ply = game.getPlayer();
                         if(ply.pos.x >= x && ply.pos.x <= x+1.) { ply.vine(vec2.make(x,y), td.data); }
                     }
@@ -814,19 +806,17 @@ td32.TILE_PROPERTIES = {
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
-        TRIGGER: function(game, pid, td, level, zone, x, y, type, remoteTrigger) {
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
                 case 0x10 :
                 case 0x11 : {
-                    if(game.pid === pid && !remoteTrigger) { game.send({type: "g50"}); }
-                    if (remoteTrigger) {
-                        var rep = 98331; // Replacement td32 data for tile.
-                        game.world.getZone(level, zone).replace(x,y,rep);
-                        game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
-                        td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    }
+                    if(game.pid === pid) { game.send({type: "g50"}); }
+                    var rep = 98331; // Replacement td32 data for tile.
+                    game.world.getZone(level, zone).replace(x,y,rep);
+                    game.createObject(CheckObject.ID, level, zone, vec2.make(x,y+1), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
                     break;
                 }
             }
@@ -851,8 +841,9 @@ NETX.decode = function(/* Uint8Array */ data) {
             case 0x17 : { de.push(NET017.decode(data.slice(i, i+=NET017.BYTES-1))); break; }
             case 0x18 : { de.push(NET018.decode(data.slice(i, i+=NET018.BYTES-1))); break; }
             case 0x20 : { de.push(NET020.decode(data.slice(i, i+=NET020.BYTES-1))); break; }
+            case 0x21 : { de.push(NET021.decode(data.slice(i, i+=NET021.BYTES-1))); break; }
             case 0x30 : { de.push(NET030.decode(data.slice(i, i+=NET030.BYTES-1))); break; }
-            default : { if(app) { app.menu.warn.show("Error decoding binary data!"); } return de; }
+            default : { if(app) { app.menu.warn.show("Error decoding binary data! desig="+desig); } return de; }
         }
     }
     return de;
@@ -1047,6 +1038,19 @@ NET020.decode = function(/* NET020_SERV */ a) {
         zone: a[3],
         oid: (a[7] & 0xFF) | ((a[6] << 8) & 0xFF00) | ((a[5] << 16) & 0xFF0000) | ((a[4] << 24) & 0xFF0000),
         type: a[8]
+    };
+};
+
+var NET021 = {}; // GET_COIN [0x21] // As Uint8Array
+/* ======================================================================================== */
+NET021.DESIGNATION = 0x21;
+NET021.BYTES = 2;
+
+/* Server->>>Client */
+NET021.decode = function(/* NET021_SERV */ a) {
+    return {
+        designation: NET021.DESIGNATION,
+        type: a[0]
     };
 };
 
@@ -3030,8 +3034,38 @@ PlayerObject.prototype.damage = function(_0x782da0) {
 PlayerObject.prototype.invuln = function() {
     this.damageTimer = app.net.gameMode === 1 ? 120 : PlayerObject.DAMAGE_TIME;
 };
-PlayerObject.prototype.powerup = function(_0x316532) {
-    _0x316532 instanceof MushroomObject && 0x1 > this.power ? (this.tfm(0x1), this.rate = 0x73) : _0x316532 instanceof FlowerObject && 0x2 > this.power ? (this.tfm(0x2), this.rate = 0x71) : _0x316532 instanceof StarObject ? (this.star(), this.game.out.push(NET013.encode(0x2)), this.rate = 0x43) : _0x316532 instanceof LifeObject ? this.game.lifeage() : _0x316532 instanceof CoinObject ? this.game.coinage() : _0x316532 instanceof GoldFlowerObject ? this.game.coinage(true) : _0x316532 instanceof AxeObject ? (this.game.stopGameTimer(),this.game.out.push(NET018.encode())) : _0x316532 instanceof _0x5010c8 && this.damage(_0x316532);
+
+PlayerObject.prototype.powerupVisual = function(object) {
+    if (object instanceof CoinObject)
+        this.game.addCoin(false, true);
+};
+PlayerObject.prototype.powerup = function(object) {
+    if (object instanceof MushroomObject) {
+        if (0x1 > this.power) {
+            this.tfm(0x1);
+            this.rate = 0x73;
+        }
+    } else if (object instanceof FlowerObject) {
+        if (0x2 > this.power) {
+            this.tfm(0x2);
+            this.rate = 0x71;
+        }
+    } else if (object instanceof StarObject) {
+        this.star();
+        this.game.out.push(NET013.encode(0x2));
+        this.rate = 0x43
+    } else if (object instanceof LifeObject)
+        this.game.lifeage();
+    else if (object instanceof CoinObject) {
+        //this.game.addCoin(false, false);  //server side
+    } else if (object instanceof GoldFlowerObject) {
+        //this.game.addCoin(true, false);   //server side
+    }
+    else if (object instanceof AxeObject) {
+        this.game.stopGameTimer();
+        this.game.out.push(NET018.encode());
+    } else if (object instanceof PoisonMushroomObject)
+        this.damage(object);
 };
 PlayerObject.prototype.axe = function(_0x5050d5) {
     (_0x5050d5 = this.game.getText(this.level, this.zone, _0x5050d5.toString())) || (_0x5050d5 = this.game.getText(this.level, this.zone, "too bad"));
@@ -5293,7 +5327,7 @@ _0x1bc0ed.prototype.draw = function(_0x4db511) {
 GameObject.REGISTER_OBJECT(_0x1bc0ed);
 "use strict";
 
-function _0x2e2bc3(_0x23b738, _0x46c7a3, _0x118fd6, _0xb55197, _0x48d8ac) {
+function PowerUpObject(_0x23b738, _0x46c7a3, _0x118fd6, _0xb55197, _0x48d8ac) {
     GameObject.call(this, _0x23b738, _0x46c7a3, _0x118fd6, _0xb55197);
     this.oid = _0x48d8ac;
     this.anim = 0x0;
@@ -5309,32 +5343,32 @@ function _0x2e2bc3(_0x23b738, _0x46c7a3, _0x118fd6, _0xb55197, _0x48d8ac) {
         } this.dir = false;
     this.jump = -0x1;
 }
-_0x2e2bc3.ASYNC = true;
-_0x2e2bc3.ID = 0x50;
-_0x2e2bc3.ANIMATION_RATE = 0x3;
-_0x2e2bc3.MOVE_SPEED_MAX = 0.075;
-_0x2e2bc3.FALL_SPEED_MAX = 0.45;
-_0x2e2bc3.FALL_SPEED_ACCEL = 0.075;
-_0x2e2bc3.JUMP_DECEL = 0.015;
-_0x2e2bc3.JUMP_LENGTH = 0x3;
-_0x2e2bc3.RISE_RATE = 0.15;
-_0x2e2bc3.prototype.update = function(_0x210b40) {
+PowerUpObject.ASYNC = true;
+PowerUpObject.ID = 0x50;
+PowerUpObject.ANIMATION_RATE = 0x3;
+PowerUpObject.MOVE_SPEED_MAX = 0.075;
+PowerUpObject.FALL_SPEED_MAX = 0.45;
+PowerUpObject.FALL_SPEED_ACCEL = 0.075;
+PowerUpObject.JUMP_DECEL = 0.015;
+PowerUpObject.JUMP_LENGTH = 0x3;
+PowerUpObject.RISE_RATE = 0.15;
+PowerUpObject.prototype.update = function(_0x210b40) {
     switch (_0x210b40) {
         case 0x0:
             this.kill();
     }
 };
-_0x2e2bc3.prototype.step = function() {
+PowerUpObject.prototype.step = function() {
     this.anim++;
-    this.sprite = this.state.SPRITE[parseInt(this.anim / _0x2e2bc3.ANIMATION_RATE) % this.state.SPRITE.length];
+    this.sprite = this.state.SPRITE[parseInt(this.anim / PowerUpObject.ANIMATION_RATE) % this.state.SPRITE.length];
     this.control();
     this.physics();
     0x0 > this.pos.y && this.kill();
 };
-_0x2e2bc3.prototype.control = function() {
-    this.jump >= _0x2e2bc3.JUMP_LENGTH && (this.jump = -0x1);
+PowerUpObject.prototype.control = function() {
+    this.jump >= PowerUpObject.JUMP_LENGTH && (this.jump = -0x1);
 };
-_0x2e2bc3.prototype.physics = function() {
+PowerUpObject.prototype.physics = function() {
     if (this.rise) {
         this.rise = false;
         for (var _0x2d4761 = vec2.make(0x1, 0x1), _0x48762f = this.game.world.getZone(this.level, this.zone).getTiles(this.pos, this.dim), _0xae67e5 = 0x0; _0xae67e5 < _0x48762f.length; _0xae67e5++) {
@@ -5344,9 +5378,9 @@ _0x2e2bc3.prototype.physics = function() {
                 break;
             }
         }
-        this.rise && (this.pos.y += _0x2e2bc3.RISE_RATE);
+        this.rise && (this.pos.y += PowerUpObject.RISE_RATE);
     } else {
-        -0x1 !== this.jump ? (this.fallSpeed = _0x2e2bc3.FALL_SPEED_MAX - this.jump * _0x2e2bc3.JUMP_DECEL, this.jump++) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0x2e2bc3.FALL_SPEED_ACCEL, -_0x2e2bc3.FALL_SPEED_MAX));
+        -0x1 !== this.jump ? (this.fallSpeed = PowerUpObject.FALL_SPEED_MAX - this.jump * PowerUpObject.JUMP_DECEL, this.jump++) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - PowerUpObject.FALL_SPEED_ACCEL, -PowerUpObject.FALL_SPEED_MAX));
         var _0x17799f = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
             _0x7b593c = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
             _0x2d4761 = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
@@ -5361,29 +5395,29 @@ _0x2e2bc3.prototype.physics = function() {
         _0x32139c && (this.dir = !this.dir);
     }
 };
-_0x2e2bc3.prototype.bounce = function() {
+PowerUpObject.prototype.bounce = function() {
     this.grounded && (this.dir = !this.dir);
     this.jump = 0x0;
 };
-_0x2e2bc3.prototype.playerCollide = function(_0x25bc93) {
+PowerUpObject.prototype.playerCollide = function(_0x25bc93) {
     this.dead || this.garbage || (_0x25bc93.powerup(this), this.kill(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0)));
 };
-_0x2e2bc3.prototype.playerStomp = function(_0x3025ba) {
+PowerUpObject.prototype.playerStomp = function(_0x3025ba) {
     this.playerCollide(_0x3025ba);
 };
-_0x2e2bc3.prototype.playerBump = function(_0x25bf11) {
+PowerUpObject.prototype.playerBump = function(_0x25bf11) {
     this.playerCollide(_0x25bf11);
 };
-_0x2e2bc3.prototype.kill = function() {
+PowerUpObject.prototype.kill = function() {
     this.dead = true;
     this.destroy();
 };
-_0x2e2bc3.prototype.destroy = GameObject.prototype.destroy;
-_0x2e2bc3.prototype.isTangible = GameObject.prototype.isTangible;
-_0x2e2bc3.prototype.setState = function(_0x2a4aec) {
+PowerUpObject.prototype.destroy = GameObject.prototype.destroy;
+PowerUpObject.prototype.isTangible = GameObject.prototype.isTangible;
+PowerUpObject.prototype.setState = function(_0x2a4aec) {
     _0x2a4aec !== this.state && (this.state = _0x2a4aec, this.sprite = _0x2a4aec.SPRITE[0x0], this.anim = 0x0);
 };
-_0x2e2bc3.prototype.draw = function(_0x2ea1b4) {
+PowerUpObject.prototype.draw = function(_0x2ea1b4) {
     _0x2ea1b4.push({
         'pos': this.pos,
         'reverse': this.reverse,
@@ -5394,7 +5428,7 @@ _0x2e2bc3.prototype.draw = function(_0x2ea1b4) {
 "use strict";
 
 function MushroomObject(_0x1d612b, _0x30e50f, _0x5ea008, _0xaa5aa6, _0x2e3285) {
-    _0x2e2bc3.call(this, _0x1d612b, _0x30e50f, _0x5ea008, _0xaa5aa6, _0x2e3285);
+    PowerUpObject.call(this, _0x1d612b, _0x30e50f, _0x5ea008, _0xaa5aa6, _0x2e3285);
     this.state = MushroomObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -5415,27 +5449,27 @@ MushroomObject.STATE_LIST = [{
     'SPRITE': [MushroomObject.SPRITE.IDLE]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < MushroomObject.STATE_LIST.length; _0x1bec55++) MushroomObject.STATE[MushroomObject.STATE_LIST[_0x1bec55].NAME] = MushroomObject.STATE_LIST[_0x1bec55], MushroomObject.STATE[MushroomObject.STATE_LIST[_0x1bec55].ID] = MushroomObject.STATE_LIST[_0x1bec55];
-MushroomObject.prototype.update = _0x2e2bc3.prototype.update;
-MushroomObject.prototype.step = _0x2e2bc3.prototype.step;
+MushroomObject.prototype.update = PowerUpObject.prototype.update;
+MushroomObject.prototype.step = PowerUpObject.prototype.step;
 MushroomObject.prototype.control = function() {
-    _0x2e2bc3.prototype.control.call(this);
-    this.moveSpeed = this.dir ? -_0x2e2bc3.MOVE_SPEED_MAX : _0x2e2bc3.MOVE_SPEED_MAX;
+    PowerUpObject.prototype.control.call(this);
+    this.moveSpeed = this.dir ? -PowerUpObject.MOVE_SPEED_MAX : PowerUpObject.MOVE_SPEED_MAX;
 };
-MushroomObject.prototype.physics = _0x2e2bc3.prototype.physics;
-MushroomObject.prototype.bounce = _0x2e2bc3.prototype.bounce;
-MushroomObject.prototype.playerCollide = _0x2e2bc3.prototype.playerCollide;
-MushroomObject.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-MushroomObject.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-MushroomObject.prototype.kill = _0x2e2bc3.prototype.kill;
+MushroomObject.prototype.physics = PowerUpObject.prototype.physics;
+MushroomObject.prototype.bounce = PowerUpObject.prototype.bounce;
+MushroomObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+MushroomObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+MushroomObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+MushroomObject.prototype.kill = PowerUpObject.prototype.kill;
 MushroomObject.prototype.destroy = GameObject.prototype.destroy;
 MushroomObject.prototype.isTangible = GameObject.prototype.isTangible;
-MushroomObject.prototype.setState = _0x2e2bc3.prototype.setState;
-MushroomObject.prototype.draw = _0x2e2bc3.prototype.draw;
+MushroomObject.prototype.setState = PowerUpObject.prototype.setState;
+MushroomObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(MushroomObject);
 "use strict";
 
 function FlowerObject(_0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437) {
-    _0x2e2bc3.call(this, _0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437);
+    PowerUpObject.call(this, _0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437);
     this.state = FlowerObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -5468,23 +5502,23 @@ FlowerObject.STATE_LIST = [{
     'SPRITE': [FlowerObject.SPRITE.IDLE0, FlowerObject.SPRITE.IDLE1, FlowerObject.SPRITE.IDLE2, FlowerObject.SPRITE.IDLE3]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < FlowerObject.STATE_LIST.length; _0x1bec55++) FlowerObject.STATE[FlowerObject.STATE_LIST[_0x1bec55].NAME] = FlowerObject.STATE_LIST[_0x1bec55], FlowerObject.STATE[FlowerObject.STATE_LIST[_0x1bec55].ID] = FlowerObject.STATE_LIST[_0x1bec55];
-FlowerObject.prototype.update = _0x2e2bc3.prototype.update;
-FlowerObject.prototype.step = _0x2e2bc3.prototype.step;
+FlowerObject.prototype.update = PowerUpObject.prototype.update;
+FlowerObject.prototype.step = PowerUpObject.prototype.step;
 FlowerObject.prototype.control = function() {};
-FlowerObject.prototype.physics = _0x2e2bc3.prototype.physics;
-FlowerObject.prototype.playerCollide = _0x2e2bc3.prototype.playerCollide;
-FlowerObject.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-FlowerObject.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-FlowerObject.prototype.kill = _0x2e2bc3.prototype.kill;
+FlowerObject.prototype.physics = PowerUpObject.prototype.physics;
+FlowerObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+FlowerObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+FlowerObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+FlowerObject.prototype.kill = PowerUpObject.prototype.kill;
 FlowerObject.prototype.destroy = GameObject.prototype.destroy;
 FlowerObject.prototype.isTangible = GameObject.prototype.isTangible;
-FlowerObject.prototype.setState = _0x2e2bc3.prototype.setState;
-FlowerObject.prototype.draw = _0x2e2bc3.prototype.draw;
+FlowerObject.prototype.setState = PowerUpObject.prototype.setState;
+FlowerObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(FlowerObject);
 "use strict";
 
 function GoldFlowerObject(_0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437) {
-    _0x2e2bc3.call(this, _0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437);
+    PowerUpObject.call(this, _0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437);
     this.state = GoldFlowerObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -5517,23 +5551,23 @@ GoldFlowerObject.STATE_LIST = [{
     'SPRITE': [GoldFlowerObject.SPRITE.IDLE0, GoldFlowerObject.SPRITE.IDLE1, GoldFlowerObject.SPRITE.IDLE2, GoldFlowerObject.SPRITE.IDLE3]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < GoldFlowerObject.STATE_LIST.length; _0x1bec55++) GoldFlowerObject.STATE[GoldFlowerObject.STATE_LIST[_0x1bec55].NAME] = GoldFlowerObject.STATE_LIST[_0x1bec55], GoldFlowerObject.STATE[GoldFlowerObject.STATE_LIST[_0x1bec55].ID] = GoldFlowerObject.STATE_LIST[_0x1bec55];
-GoldFlowerObject.prototype.update = _0x2e2bc3.prototype.update;
-GoldFlowerObject.prototype.step = _0x2e2bc3.prototype.step;
+GoldFlowerObject.prototype.update = PowerUpObject.prototype.update;
+GoldFlowerObject.prototype.step = PowerUpObject.prototype.step;
 GoldFlowerObject.prototype.control = function() {};
-GoldFlowerObject.prototype.physics = _0x2e2bc3.prototype.physics;
-GoldFlowerObject.prototype.playerCollide = _0x2e2bc3.prototype.playerCollide;
-GoldFlowerObject.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-GoldFlowerObject.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-GoldFlowerObject.prototype.kill = _0x2e2bc3.prototype.kill;
+GoldFlowerObject.prototype.physics = PowerUpObject.prototype.physics;
+GoldFlowerObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+GoldFlowerObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+GoldFlowerObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+GoldFlowerObject.prototype.kill = PowerUpObject.prototype.kill;
 GoldFlowerObject.prototype.destroy = GameObject.prototype.destroy;
 GoldFlowerObject.prototype.isTangible = GameObject.prototype.isTangible;
-GoldFlowerObject.prototype.setState = _0x2e2bc3.prototype.setState;
-GoldFlowerObject.prototype.draw = _0x2e2bc3.prototype.draw;
+GoldFlowerObject.prototype.setState = PowerUpObject.prototype.setState;
+GoldFlowerObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(GoldFlowerObject);
 "use strict";
 
 function StarObject(_0x375784, _0x5a5c7c, _0xa508b, _0x131d1e, _0x44782e) {
-    _0x2e2bc3.call(this, _0x375784, _0x5a5c7c, _0xa508b, _0x131d1e, _0x44782e);
+    PowerUpObject.call(this, _0x375784, _0x5a5c7c, _0xa508b, _0x131d1e, _0x44782e);
     this.state = StarObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.groundTimer = 0x0;
@@ -5570,27 +5604,27 @@ StarObject.STATE_LIST = [{
     'SPRITE': [StarObject.SPRITE.IDLE0, StarObject.SPRITE.IDLE1, StarObject.SPRITE.IDLE2, StarObject.SPRITE.IDLE3]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < StarObject.STATE_LIST.length; _0x1bec55++) StarObject.STATE[StarObject.STATE_LIST[_0x1bec55].NAME] = StarObject.STATE_LIST[_0x1bec55], StarObject.STATE[StarObject.STATE_LIST[_0x1bec55].ID] = StarObject.STATE_LIST[_0x1bec55];
-StarObject.prototype.update = _0x2e2bc3.prototype.update;
-StarObject.prototype.step = _0x2e2bc3.prototype.step;
+StarObject.prototype.update = PowerUpObject.prototype.update;
+StarObject.prototype.step = PowerUpObject.prototype.step;
 StarObject.prototype.control = function() {
     this.moveSpeed = this.dir ? -StarObject.MOVE_SPEED_MAX : StarObject.MOVE_SPEED_MAX;
     this.grounded && ++this.groundTimer >= StarObject.JUMP_DELAY ? this.jump = 0x0 : this.jump > StarObject.JUMP_LENGTH && (this.jump = -0x1, this.groundTimer = 0x0);
 };
-StarObject.prototype.physics = _0x2e2bc3.prototype.physics;
-StarObject.prototype.bounce = _0x2e2bc3.prototype.bounce;
-StarObject.prototype.playerCollide = _0x2e2bc3.prototype.playerCollide;
-StarObject.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-StarObject.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-StarObject.prototype.kill = _0x2e2bc3.prototype.kill;
+StarObject.prototype.physics = PowerUpObject.prototype.physics;
+StarObject.prototype.bounce = PowerUpObject.prototype.bounce;
+StarObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+StarObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+StarObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+StarObject.prototype.kill = PowerUpObject.prototype.kill;
 StarObject.prototype.destroy = GameObject.prototype.destroy;
 StarObject.prototype.isTangible = GameObject.prototype.isTangible;
-StarObject.prototype.setState = _0x2e2bc3.prototype.setState;
-StarObject.prototype.draw = _0x2e2bc3.prototype.draw;
+StarObject.prototype.setState = PowerUpObject.prototype.setState;
+StarObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(StarObject);
 "use strict";
 
 function LifeObject(_0x1fd5d8, _0x3fd6ae, _0x16274e, _0x3cab6e, _0x53f924) {
-    _0x2e2bc3.call(this, _0x1fd5d8, _0x3fd6ae, _0x16274e, _0x3cab6e, _0x53f924);
+    PowerUpObject.call(this, _0x1fd5d8, _0x3fd6ae, _0x16274e, _0x3cab6e, _0x53f924);
     this.state = LifeObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -5611,27 +5645,27 @@ LifeObject.STATE_LIST = [{
     'SPRITE': [LifeObject.SPRITE.IDLE]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < LifeObject.STATE_LIST.length; _0x1bec55++) LifeObject.STATE[LifeObject.STATE_LIST[_0x1bec55].NAME] = LifeObject.STATE_LIST[_0x1bec55], LifeObject.STATE[LifeObject.STATE_LIST[_0x1bec55].ID] = LifeObject.STATE_LIST[_0x1bec55];
-LifeObject.prototype.update = _0x2e2bc3.prototype.update;
-LifeObject.prototype.step = _0x2e2bc3.prototype.step;
+LifeObject.prototype.update = PowerUpObject.prototype.update;
+LifeObject.prototype.step = PowerUpObject.prototype.step;
 LifeObject.prototype.control = function() {
-    _0x2e2bc3.prototype.control.call(this);
-    this.moveSpeed = this.dir ? -_0x2e2bc3.MOVE_SPEED_MAX : _0x2e2bc3.MOVE_SPEED_MAX;
+    PowerUpObject.prototype.control.call(this);
+    this.moveSpeed = this.dir ? -PowerUpObject.MOVE_SPEED_MAX : PowerUpObject.MOVE_SPEED_MAX;
 };
-LifeObject.prototype.physics = _0x2e2bc3.prototype.physics;
-LifeObject.prototype.bounce = _0x2e2bc3.prototype.bounce;
-LifeObject.prototype.playerCollide = _0x2e2bc3.prototype.playerCollide;
-LifeObject.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-LifeObject.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-LifeObject.prototype.kill = _0x2e2bc3.prototype.kill;
+LifeObject.prototype.physics = PowerUpObject.prototype.physics;
+LifeObject.prototype.bounce = PowerUpObject.prototype.bounce;
+LifeObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+LifeObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+LifeObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+LifeObject.prototype.kill = PowerUpObject.prototype.kill;
 LifeObject.prototype.destroy = GameObject.prototype.destroy;
 LifeObject.prototype.isTangible = GameObject.prototype.isTangible;
-LifeObject.prototype.setState = _0x2e2bc3.prototype.setState;
-LifeObject.prototype.draw = _0x2e2bc3.prototype.draw;
+LifeObject.prototype.setState = PowerUpObject.prototype.setState;
+LifeObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(LifeObject);
 "use strict";
 
 function AxeObject(_0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e) {
-    _0x2e2bc3.call(this, _0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e);
+    PowerUpObject.call(this, _0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e);
     this.state = AxeObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.used = false;
@@ -5667,9 +5701,9 @@ AxeObject.STATE_LIST = [{
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < AxeObject.STATE_LIST.length; _0x1bec55++) AxeObject.STATE[AxeObject.STATE_LIST[_0x1bec55].NAME] = AxeObject.STATE_LIST[_0x1bec55], AxeObject.STATE[AxeObject.STATE_LIST[_0x1bec55].ID] = AxeObject.STATE_LIST[_0x1bec55];
 AxeObject.prototype.update = function(_0x13d820) {};
-AxeObject.prototype.step = _0x2e2bc3.prototype.step;
+AxeObject.prototype.step = PowerUpObject.prototype.step;
 AxeObject.prototype.control = function() {};
-AxeObject.prototype.physics = _0x2e2bc3.prototype.physics;
+AxeObject.prototype.physics = PowerUpObject.prototype.physics;
 AxeObject.prototype.playerCollide = function(_0x250479) {
     if (!(this.dead || this.garbage || this.used))
         for (_0x250479.powerup(this), this.used = true, _0x250479 = 0x0; _0x250479 < this.game.objects.length; _0x250479++) {
@@ -5680,55 +5714,55 @@ AxeObject.prototype.playerCollide = function(_0x250479) {
             }
         }
 };
-AxeObject.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-AxeObject.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-AxeObject.prototype.kill = _0x2e2bc3.prototype.kill;
+AxeObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+AxeObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+AxeObject.prototype.kill = PowerUpObject.prototype.kill;
 AxeObject.prototype.isTangible = GameObject.prototype.isTangible;
 AxeObject.prototype.destroy = GameObject.prototype.destroy;
-AxeObject.prototype.setState = _0x2e2bc3.prototype.setState;
-AxeObject.prototype.draw = _0x2e2bc3.prototype.draw;
+AxeObject.prototype.setState = PowerUpObject.prototype.setState;
+AxeObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(AxeObject);
 "use strict";
 
-function _0x5010c8(_0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4) {
-    _0x2e2bc3.call(this, _0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4);
-    this.state = _0x5010c8.STATE.IDLE;
+function PoisonMushroomObject(_0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4) {
+    PowerUpObject.call(this, _0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4);
+    this.state = PoisonMushroomObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
-_0x5010c8.ASYNC = false;
-_0x5010c8.ID = 0x56;
-_0x5010c8.NAME = "POISON MUSHROOM";
-_0x5010c8.SPRITE = {};
-_0x5010c8.SPRITE_LIST = [{
+PoisonMushroomObject.ASYNC = false;
+PoisonMushroomObject.ID = 0x56;
+PoisonMushroomObject.NAME = "POISON MUSHROOM";
+PoisonMushroomObject.SPRITE = {};
+PoisonMushroomObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xea
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x5010c8.SPRITE_LIST.length; _0x1bec55++) _0x5010c8.SPRITE[_0x5010c8.SPRITE_LIST[_0x1bec55].NAME] = _0x5010c8.SPRITE_LIST[_0x1bec55], _0x5010c8.SPRITE[_0x5010c8.SPRITE_LIST[_0x1bec55].ID] = _0x5010c8.SPRITE_LIST[_0x1bec55];
-_0x5010c8.STATE = {};
-_0x5010c8.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < PoisonMushroomObject.SPRITE_LIST.length; _0x1bec55++) PoisonMushroomObject.SPRITE[PoisonMushroomObject.SPRITE_LIST[_0x1bec55].NAME] = PoisonMushroomObject.SPRITE_LIST[_0x1bec55], PoisonMushroomObject.SPRITE[PoisonMushroomObject.SPRITE_LIST[_0x1bec55].ID] = PoisonMushroomObject.SPRITE_LIST[_0x1bec55];
+PoisonMushroomObject.STATE = {};
+PoisonMushroomObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x5010c8.SPRITE.IDLE]
+    'SPRITE': [PoisonMushroomObject.SPRITE.IDLE]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x5010c8.STATE_LIST.length; _0x1bec55++) _0x5010c8.STATE[_0x5010c8.STATE_LIST[_0x1bec55].NAME] = _0x5010c8.STATE_LIST[_0x1bec55], _0x5010c8.STATE[_0x5010c8.STATE_LIST[_0x1bec55].ID] = _0x5010c8.STATE_LIST[_0x1bec55];
-_0x5010c8.prototype.update = _0x2e2bc3.prototype.update;
-_0x5010c8.prototype.step = _0x2e2bc3.prototype.step;
-_0x5010c8.prototype.control = function() {
-    _0x2e2bc3.prototype.control.call(this);
-    this.moveSpeed = this.dir ? -_0x2e2bc3.MOVE_SPEED_MAX : _0x2e2bc3.MOVE_SPEED_MAX;
+for (_0x1bec55 = 0x0; _0x1bec55 < PoisonMushroomObject.STATE_LIST.length; _0x1bec55++) PoisonMushroomObject.STATE[PoisonMushroomObject.STATE_LIST[_0x1bec55].NAME] = PoisonMushroomObject.STATE_LIST[_0x1bec55], PoisonMushroomObject.STATE[PoisonMushroomObject.STATE_LIST[_0x1bec55].ID] = PoisonMushroomObject.STATE_LIST[_0x1bec55];
+PoisonMushroomObject.prototype.update = PowerUpObject.prototype.update;
+PoisonMushroomObject.prototype.step = PowerUpObject.prototype.step;
+PoisonMushroomObject.prototype.control = function() {
+    PowerUpObject.prototype.control.call(this);
+    this.moveSpeed = this.dir ? -PowerUpObject.MOVE_SPEED_MAX : PowerUpObject.MOVE_SPEED_MAX;
 };
-_0x5010c8.prototype.physics = _0x2e2bc3.prototype.physics;
-_0x5010c8.prototype.bounce = _0x2e2bc3.prototype.bounce;
-_0x5010c8.prototype.playerCollide = _0x2e2bc3.prototype.playerCollide;
-_0x5010c8.prototype.playerStomp = _0x2e2bc3.prototype.playerStomp;
-_0x5010c8.prototype.playerBump = _0x2e2bc3.prototype.playerBump;
-_0x5010c8.prototype.kill = _0x2e2bc3.prototype.kill;
-_0x5010c8.prototype.destroy = GameObject.prototype.destroy;
-_0x5010c8.prototype.isTangible = GameObject.prototype.isTangible;
-_0x5010c8.prototype.setState = _0x2e2bc3.prototype.setState;
-_0x5010c8.prototype.draw = _0x2e2bc3.prototype.draw;
-GameObject.REGISTER_OBJECT(_0x5010c8);
+PoisonMushroomObject.prototype.physics = PowerUpObject.prototype.physics;
+PoisonMushroomObject.prototype.bounce = PowerUpObject.prototype.bounce;
+PoisonMushroomObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+PoisonMushroomObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
+PoisonMushroomObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
+PoisonMushroomObject.prototype.kill = PowerUpObject.prototype.kill;
+PoisonMushroomObject.prototype.destroy = GameObject.prototype.destroy;
+PoisonMushroomObject.prototype.isTangible = GameObject.prototype.isTangible;
+PoisonMushroomObject.prototype.setState = PowerUpObject.prototype.setState;
+PoisonMushroomObject.prototype.draw = PowerUpObject.prototype.draw;
+GameObject.REGISTER_OBJECT(PoisonMushroomObject);
 "use strict";
 
 function CoinObject(game, level, zone, pos, oid) {
@@ -5738,8 +5772,6 @@ function CoinObject(game, level, zone, pos, oid) {
     this.sprite = this.state.SPRITE[0x0];
     this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
-    this.collected = false;
-    this.jump = false;
 }
 CoinObject.ASYNC = false;
 CoinObject.ID = 0x61;
@@ -5771,17 +5803,10 @@ CoinObject.STATE_LIST = [{
     'SPRITE': [CoinObject.SPRITE.IDLE0, CoinObject.SPRITE.IDLE1, CoinObject.SPRITE.IDLE2, CoinObject.SPRITE.IDLE3]
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < CoinObject.STATE_LIST.length; _0x1bec55++) CoinObject.STATE[CoinObject.STATE_LIST[_0x1bec55].NAME] = CoinObject.STATE_LIST[_0x1bec55], CoinObject.STATE[CoinObject.STATE_LIST[_0x1bec55].ID] = CoinObject.STATE_LIST[_0x1bec55];
-CoinObject.prototype.update = function(type, isLocalPlayer) {
-    if (isLocalPlayer) {
-        this.game.getPlayer().powerup(this);
-    }
+CoinObject.prototype.update = function(type) {
     switch (type) {
-        case 0xa0:
+        case 0x0:
             this.kill();
-            break;
-        case 0xa1:
-            this.kill();
-            this.game.world.getZone(this.level, this.zone).coin(this.pos.x, this.pos.y);
             break;
     }
 };
@@ -5790,8 +5815,9 @@ CoinObject.prototype.step = function() {
     this.sprite = this.state.SPRITE[parseInt(this.anim / CoinObject.ANIMATION_RATE) % this.state.SPRITE.length];
 };
 CoinObject.prototype.playerCollide = function(player, type) {
-    if (this.dead || this.garbage || this.collected) return;
-    this.collected = true;
+    if (this.dead || this.garbage) return;
+    player.powerupVisual(this);
+    this.kill();
     this.game.out.push(NET020.encode(this.level, this.zone, this.oid, this.jump ? 0xa1 : 0xa0));
 };
 CoinObject.prototype.playerStomp = function(_0x423f28) {
@@ -6929,10 +6955,10 @@ function Zone(_0x4ec59c, _0x22aa6b, _0x42b6c1) {
     this.vines = [];
     this.sounds = [];
 }
-Zone.prototype.update = function(game, pid, level, zone, x, y, type, remoteTrigger) {
+Zone.prototype.update = function(game, pid, level, zone, x, y, type) {
     var y2 = this.dimensions().y - 0x1 - y,
         td = td32.decode(this.data[y2][x]);
-    td.definition.TRIGGER(game, pid, td, level, zone, x, y, type, remoteTrigger);
+    td.definition.TRIGGER(game, pid, td, level, zone, x, y, type);
 };
 Zone.prototype.step = function() {
     for (var _0x4a391d = 0x0; _0x4a391d < this.bumped.length; _0x4a391d++) {
@@ -7201,6 +7227,7 @@ Game.prototype.doUpdate = function(data) {
             case 0x17 : { this.doNET017(n); break; }    //PLAYER_KILL_EVENT
             case 0x18 : { this.doNET018(n); break; }    //PLAYER_RESULT_REQUEST
             case 0x20 : { this.doNET020(n); break; }    //OBJECT_EVENT_TRIGGER
+            case 0x21 : { this.doNET021(n); break; }    //GET_COIN
             case 0x30 : { this.doNET030(n); break; }    //TILE_EVENT_TRIGGER
         }
     }
@@ -7271,12 +7298,18 @@ Game.prototype.doNET020 = function(data) {
     var isLocalPlayer = data.pid === this.pid;
     if (!(isLocalPlayer && 0xa0 > data.type)) {
         var obj = this.getObject(data.level, data.zone, data.oid);
-        obj && obj.update(data.type, isLocalPlayer);
+        obj && obj.update(data.type);
     }
 };
 
+Game.prototype.doNET021 = function(data) {
+    this.addCoin(data.type, false);
+};
+
 Game.prototype.doNET030 = function(data) {
-    this.world.getZone(data.level, data.zone).update(this, data.pid, data.level, data.zone, data.pos.x, data.pos.y, data.type, true);
+    var isLocalPlayer = data.pid === this.pid;
+    if (!isLocalPlayer)
+        this.world.getZone(data.level, data.zone).update(this, data.pid, data.level, data.zone, data.pos.x, data.pos.y, data.type);
 };
 
 Game.prototype.doStart = function() {
@@ -7638,15 +7671,18 @@ Game.prototype.levelWarp = function(_0x4fb258) {
     this.getPlayer().hide();
 };
 
-Game.prototype.coinage = function(jackpot) {
-    if (jackpot) {
-        this.play("sfx/gold.wav", 1, 0x0);
-        return;
+Game.prototype.addCoin = function(jackpot, visual) {
+    if (visual) {
+        if (jackpot)
+            this.play("sfx/gold.wav", 1, 0x0);
+        else {
+            this.play("sfx/coin.wav", 0.4, 0x0);
+        }
+    } else {
+        this.coinsCollected += 1;
+        this.coins = Math.min(0x63, this.coins + 0x1);
+        this.coins >= Game.COINS_TO_LIFE && (this.lifeage(), this.coins = 0x0);
     }
-    this.coinsCollected += 1;
-    this.coins = Math.min(0x63, this.coins + 0x1);
-    this.coins >= Game.COINS_TO_LIFE && (this.lifeage(), this.coins = 0x0);
-    this.play("sfx/coin.wav", 0.4, 0x0);
 };
 
 Game.prototype.lifeage = function() {
@@ -7724,6 +7760,7 @@ LobbyGame.prototype.doNET011 = Game.prototype.doNET011;
 LobbyGame.prototype.doNET012 = Game.prototype.doNET012;
 LobbyGame.prototype.doNET013 = Game.prototype.doNET013;
 LobbyGame.prototype.doNET020 = Game.prototype.doNET020;
+LobbyGame.prototype.doNET021 = Game.prototype.doNET021;
 LobbyGame.prototype.doNET030 = Game.prototype.doNET030;
 LobbyGame.prototype.doStart = Game.prototype.doStart;
 LobbyGame.prototype.doDetermine = Game.prototype.doDetermine;
@@ -7747,7 +7784,7 @@ LobbyGame.prototype.getPlayerInfo = Game.prototype.getPlayerInfo;
 LobbyGame.prototype.getRemain = Game.prototype.getRemain;
 LobbyGame.prototype.play = Game.prototype.play;
 LobbyGame.prototype.levelWarp = Game.prototype.levelWarp;
-LobbyGame.prototype.coinage = Game.prototype.coinage;
+LobbyGame.prototype.addCoin = Game.prototype.addCoin;
 LobbyGame.prototype.lifeage = Game.prototype.lifeage;
 LobbyGame.prototype.loop = function() {
     0x0 < this.lobbyTimer ? this.lobbyTimer-- : undefined === this.startDelta && this.doStart();
@@ -7783,6 +7820,7 @@ JailGame.prototype.doNET011 = Game.prototype.doNET011;
 JailGame.prototype.doNET012 = Game.prototype.doNET012;
 JailGame.prototype.doNET013 = Game.prototype.doNET013;
 JailGame.prototype.doNET020 = Game.prototype.doNET020;
+JailGame.prototype.doNET021 = Game.prototype.doNET021;
 JailGame.prototype.doNET030 = Game.prototype.doNET030;
 JailGame.prototype.doStart = Game.prototype.doStart;
 JailGame.prototype.doDetermine = Game.prototype.doDetermine;
@@ -7805,7 +7843,7 @@ JailGame.prototype.getPlayerInfo = Game.prototype.getPlayerInfo;
 JailGame.prototype.getRemain = Game.prototype.getRemain;
 JailGame.prototype.play = Game.prototype.play;
 JailGame.prototype.levelWarp = Game.prototype.levelWarp;
-JailGame.prototype.coinage = Game.prototype.coinage;
+JailGame.prototype.addCoin = Game.prototype.addCoin;
 JailGame.prototype.lifeage = Game.prototype.lifeage;
 JailGame.prototype.loop = function() {
     0x0 < this.lobbyTimer ? this.lobbyTimer-- : undefined === this.startDelta && this.doStart();
