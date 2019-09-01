@@ -581,7 +581,7 @@ td32.TILE_PROPERTIES = {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
-                case 0x10 : 
+                case 0x10 :
                 case 0x11 : {
                     if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
                     var rep = 98331; // Replacement td32 data for tile.
@@ -606,7 +606,7 @@ td32.TILE_PROPERTIES = {
             switch(type) {
                 /* Small bump */
                 /* Big bump */
-                case 0x10 : 
+                case 0x10 :
                 case 0x11 : {
                     if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
                     var rep = 98331; // Replacement td32 data for tile.
@@ -675,12 +675,12 @@ td32.TILE_PROPERTIES = {
                         var ply = game.getPlayer();
                         var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
                         var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
-                        
+
                         var cx;
                         if(l.definition === this) { cx = x; }
                         else if(r.definition === this) { cx = x+1; }
                         else { return; }
-                        
+
                         if(Math.abs((ply.pos.x + (ply.dim.x*.5)) - cx) <= 0.45) { ply.pipe(2, td.data, 50); }
                     }
                 }
@@ -718,12 +718,12 @@ td32.TILE_PROPERTIES = {
                         var ply = game.getPlayer();
                         var l = game.world.getZone(level, zone).getTile(vec2.make(x-1,y));
                         var r = game.world.getZone(level, zone).getTile(vec2.make(x+1,y));
-                        
+
                         var cx;
                         if(l.definition === this) { cx = x; }
                         else if(r.definition === this) { cx = x+1; }
                         else { return; }
-                        
+
                         if(Math.abs((ply.pos.x + (ply.dim.x*.5)) - cx) <= 0.45) { ply.pipe(2, td.data, 0); }
                     }
                 }
@@ -928,7 +928,7 @@ NET012.decode = function(/* NET012_SERV */ a) {
     var b2 = new Uint8Array([a[8], a[9], a[10], a[11]]);
     var v1 = new DataView(b1.buffer);
     var v2 = new DataView(b2.buffer);
-    
+
     return {
         designation: NET012.DESIGNATION,
         pid: (a[1] & 0x00FF) | ((a[0] << 8) & 0xFF00),
@@ -1324,11 +1324,34 @@ MainScreen.prototype.show = function() {
     if (session != undefined) {
         app.resumeSession(session);
     }
+    var that = this;
+    var updateStatus = function(firstTry) {
+        $.ajax({
+            'url': "status.json",
+            'type': "GET",
+            'timeout': 0xbb8,
+            'success': function(data) {
+                if (data.result) {
+                    firstTry && that.menu.error.show(data.result);
+                } else {
+                    that.number.innerHTML = data.active;
+                }
+            },
+            cache: false
+        });
+    };
+
+    updateStatus(true);
+    app.statusUpdater = setInterval(updateStatus, 1000);
 };
 MainScreen.prototype.hide = function() {
     this.padLoop && clearTimeout(this.padLoop);
     this.linkElement.style.display = "none";
     this.element.style.display = "none";
+    if (app && app.statusUpdater) {
+        clearInterval(app.statusUpdater);
+        app.statusUpdater = null;
+    }
 };
 "use strict";
 
@@ -1415,7 +1438,7 @@ MainAsMemberScreen.prototype.show = function(data) {
         var that = this;
         var updateStatus = function() {
             $.ajax({
-                'url': "status",
+                'url': "status.json",
                 'type': "GET",
                 'timeout': 0xbb8,
                 'success': function(_0x497cbd) {
@@ -1426,7 +1449,7 @@ MainAsMemberScreen.prototype.show = function(data) {
                 cache: false
             });
         };
-    
+
         updateStatus();
         app.statusUpdater = setInterval(updateStatus, 1000);
     }
@@ -1563,7 +1586,7 @@ function NameScreen() {
     this.teamInput.onkeyup = function() {
         if (that.teamInput.value.trim() === "" && that.isPrivate) {
             that.teamInput.placeholder = "[ PRIVATE ]";
-        } else 
+        } else
             that.teamInput.placeholder = "Squad Code";
     }
     this.privateBtn.onclick = function() {
@@ -1574,7 +1597,7 @@ function NameScreen() {
         });
         if (that.teamInput.value.trim() === "" && that.isPrivate) {
             that.teamInput.placeholder = "[ PRIVATE ]";
-        } else 
+        } else
             that.teamInput.placeholder = "Squad Code";
     };
     this.charMusicToggle.onclick = function() {
@@ -1732,10 +1755,6 @@ NameScreen.prototype.hide = function() {
     this.padLoop && clearTimeout(this.padLoop);
     this.linkElement.style.display = "none";
     this.element.style.display = "none";
-    if (app && app.statusUpdater) {
-        clearInterval(app.statusUpdater);
-        app.statusUpdater = null;
-    }
 };
 NameScreen.prototype.onBack = function() {
     app.menu.main.show();
@@ -2012,7 +2031,7 @@ Network.prototype.connect = function(args) {
     this.pendingArgs = [];
     if (0 == args.length) {
         return;
-    } 
+    }
     if (!conn) {
         this.pendingArgs = args;
         this.openWs(args);
@@ -2936,7 +2955,7 @@ PlayerObject.prototype.physics = function() {
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x20e6e6.length; _0x5b32b0++) obj = _0x20e6e6[_0x5b32b0], squar.intersection(obj.pos, obj.dim, _0x57b791, this.dim) && _0x535e81.push(obj);
     for (_0x5b32b0 = 0x0; _0x5b32b0 < tilePlatform.length; _0x5b32b0++) obj = tilePlatform[_0x5b32b0], squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim) && tilePlatformColliding.push(obj);
     _0x20e6e6 = vec2.make(_0x57b791.x, this.pos.y);
-    for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27521c.length; _0x5b32b0++) { 
+    for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27521c.length; _0x5b32b0++) {
         obj = _0x27521c[_0x5b32b0];
         if (!obj.definition.HIDDEN && squar.intersection(obj.pos, _0x208a75, _0x20e6e6, this.dim)) {
             obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
@@ -2957,12 +2976,12 @@ PlayerObject.prototype.physics = function() {
         if (squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim)) {
             obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
             if (this.pos.y >= _0x57b791.y) {
-                if (!obj.definition.HIDDEN) { 
+                if (!obj.definition.HIDDEN) {
                     _0x57b791.y = obj.pos.y + _0x208a75.y;
                     this.fallSpeed = 0x0;
                     _0x58342b = true;
                 }
-            } 
+            }
             else {
                 _0x57b791.y = obj.pos.y - this.dim.y;
                 this.fallSpeed = 0;
@@ -2975,7 +2994,7 @@ PlayerObject.prototype.physics = function() {
             _0x58342b = true;
             _0x3f505e = obj;
             break;
-        } 
+        }
     for (_0x5b32b0 = 0x0; _0x5b32b0 < tilePlatformColliding.length; _0x5b32b0++) {
         obj = tilePlatformColliding[_0x5b32b0];
         if (squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim)) {
@@ -4818,7 +4837,7 @@ _0x4a8773.SOFFSET = vec2.make(0.15, 0.15);
 _0x4a8773.SPRITE = {};
 _0x4a8773.SPRITE_LIST = [{
     'NAME': "IDLE",
-    'ID': 0x0,  
+    'ID': 0x0,
     'INDEX': 0xdb
 }];
 for (_0x1bec55 = 0x0; _0x1bec55 < _0x4a8773.SPRITE_LIST.length; _0x1bec55++) _0x4a8773.SPRITE[_0x4a8773.SPRITE_LIST[_0x1bec55].NAME] = _0x4a8773.SPRITE_LIST[_0x1bec55], _0x4a8773.SPRITE[_0x4a8773.SPRITE_LIST[_0x1bec55].ID] = _0x4a8773.SPRITE_LIST[_0x1bec55];
@@ -6612,7 +6631,7 @@ Display.prototype.drawMap = function(_0x5eea15) {
                     var frame = parseInt((this.misteryAnim % 96) / 16);
                     frame = frame == 5 ? 0 : frame > 2 ? Math.abs(frame - 4) : frame;
                     _0x59ebb0 = util.sprite.getSprite(_0x3a22b2, _0x2d62c4.index + frame);
-                } 
+                }
                 // Water and Lava
                 else if (_0x2d62c4.index == 729 || _0x2d62c4.index == 795 || _0x2d62c4.index == 861) {
                     var frame = parseInt((this.game.frame % 60) / 30);
@@ -6633,18 +6652,18 @@ Display.prototype.drawObject = function() {
         zone = this.game.getZone(),
         zoneSize = zone.dimensions(),
         screenWidth = this.canvas.width / Display.TEXRES * 0.75 / this.camera.scale,
-        leftEdge = Math.max(0x0, Math.min(zoneSize.x, parseInt(this.camera.pos.x - screenWidth))), 
+        leftEdge = Math.max(0x0, Math.min(zoneSize.x, parseInt(this.camera.pos.x - screenWidth))),
         rightEdge = Math.max(0x0, Math.min(zoneSize.x, parseInt(this.camera.pos.x + screenWidth))),
         spriteList = [],
         textList = [],
         i = 0x0;
         i < this.game.objects.length; i++) {
         var obj = this.game.objects[i];
-        obj.level === zone.level && 
-            obj.zone === zone.id && 
-            obj.pid !== this.game.pid && 
-            obj.pos.x >= leftEdge && 
-            obj.pos.x <= rightEdge && 
+        obj.level === zone.level &&
+            obj.zone === zone.id &&
+            obj.pid !== this.game.pid &&
+            obj.pos.x >= leftEdge &&
+            obj.pos.x <= rightEdge &&
             (obj.write && !this.game.disableText && obj.write(textList),
             obj.draw && obj.draw(spriteList));
     }
@@ -6652,7 +6671,7 @@ Display.prototype.drawObject = function() {
     if (player && player.level === zone.level && player.zone === zone.id) {
         player.draw(spriteList);
         player.write(textList);
-    } 
+    }
     var objTexture = this.resource.getTexture("obj");
     var skinTextures = {};
     skinTextures[0] = this.resource.getTexture("skin0");
@@ -6824,7 +6843,7 @@ Display.prototype.drawUI = function() {
             txt = this.game.players.length + (this.game.touchMode ? '' : " / 30 PLAYERS"),
             txtWidth = context.measureText(txt).width,
             context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20)
-        ), 
+        ),
         sprite = util.sprite.getSprite(objTexture, musicIconIndex[this.game.audio.muteMusic ? 0x1 : 0x0]),
         context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8, 0x28, 0x18, 0x18),
         sprite = util.sprite.getSprite(objTexture, soundIconIndex[this.game.audio.muteSound ? 0x1 : 0x0]),
@@ -7889,25 +7908,6 @@ App.prototype.init = function() {
             that.join(name ? name : "", team ? team : "", priv === "true", skin ? parseInt(skin) : 0, gm ? parseInt(gm) : 0);
             return;
         }
-
-        var updateStatus = function(firstTry) {
-            $.ajax({
-                'url': "status",
-                'type': "GET",
-                'timeout': 0xbb8,
-                'success': function(_0x497cbd) {
-                    if (_0x497cbd.result) {
-                        firstTry && that.menu.error.show(_0x497cbd.result);
-                    } else {
-                        that.menu.main.number.innerHTML = _0x497cbd.active;
-                    }
-                },
-                cache: false
-            });
-        };
-
-        updateStatus(true);
-        that.statusUpdater = setInterval(updateStatus, 1000);
 
         that.menu.main.show();
     }, this.goToLobby ? 100 : 5000);

@@ -181,7 +181,7 @@ function showLeaderBoard() {
     elem.style.display = "";
         $.ajax({
             type: "GET",
-            url: "leaderboard", 
+            url: "leaderboard.json", 
             success: function(result) {
                 leaderBoard = result;
                 var updateLeaderBoard = function (type, values) {
