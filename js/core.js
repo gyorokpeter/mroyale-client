@@ -211,6 +211,7 @@ function showLeaderBoard() {
                 };
                 updateLeaderBoard("coins", result.coinLeaderBoard);
                 updateLeaderBoard("wins", result.winsLeaderBoard);
+                updateLeaderBoard("kills", result.killsLeaderBoard);
             },
             dataType: "json",
             cache: false

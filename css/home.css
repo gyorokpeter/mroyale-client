@@ -162,6 +162,13 @@ img {
   animation: glow 1s infinite alternate;
 }
 
+.leaderboard-select {
+  cursor: pointer;
+  margin-left: 6px;
+  display: inline-block;
+  animation: glow 1s infinite alternate;
+}
+
 @media only screen and (max-width: 769px) {
   .launch {
     margin-left: 2px;

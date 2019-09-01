@@ -249,10 +249,13 @@
       <!-- Leader board -->
       <div id='leaderboard' class='container-privLobby' style='display: none;'>
         <div class='dis-lg'>Leader boards</div>
-        <div class='launch' onclick="setLeaderBoard('coins')">coins</div>
-        <div class='launch' onclick="setLeaderBoard('wins')">wins</div>
+        Select:
+        <div class='leaderboard-select' onclick="setLeaderBoard('coins')">coins</div>
+        <div class='leaderboard-select' onclick="setLeaderBoard('wins')">wins</div>
+        <div class='leaderboard-select' onclick="setLeaderBoard('kills')">kills</div>
         <div id="leaderboard-content-coins"></div>
         <div id="leaderboard-content-wins" style="display:none"></div>
+        <div id="leaderboard-content-kills" style="display:none"></div>
         <div class="container-launch">
           <span id='mainAsMember-logout' class='launch' onclick="hideLeaderBoard()">Close</span>
         </div>
