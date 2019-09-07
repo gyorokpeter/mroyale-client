@@ -6836,7 +6836,7 @@ Display.prototype.drawUI = function() {
         skinTexture = this.game.skin != undefined ? this.resource.getTexture("skin" + this.game.skin) : objTexture;
     if (this.game.skin && skinTexture === undefined) skinTexture = this.resource.getTexture("skin0");
     var
-        playerInfo = this.game.getPlayerInfo(this.game.pid),
+        playerInfo = app.getPlayerInfo(this.game.pid),
         level;
     undefined !== this.game.levelWarpId ?
         level = this.game.world.getLevel(this.game.levelWarpId)
@@ -6912,7 +6912,7 @@ Display.prototype.drawUI = function() {
             txtWidth = context.measureText(txt).width,
             context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20))
         : this.game instanceof LobbyGame && (
-            txt = this.game.players.length + (this.game.touchMode ? '' : " / 30 PLAYERS"),
+            txt = app.players.length + (this.game.touchMode ? '' : " / 30 PLAYERS"),
             txtWidth = context.measureText(txt).width,
             context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20)
         ),
@@ -7149,7 +7149,6 @@ function Game(data) {
     }
     this.objects = [];
     this.team = this.pid = undefined;
-    this.players = [];
     this.sounds = [];
     this.load(data);
     this.lastDraw = this.frame = 0x0;
@@ -7239,10 +7238,10 @@ Game.prototype.handlePacket = function(packet) {
 
 /* G12 */
 Game.prototype.updatePlayerList = function(packet) {
-    this.players = packet.players;
+    app.players = packet.players;
     if(undefined === this.pid) { return; }
     this.updateTeam();
-    if (this.isDev) app.menu.game.updatePlayerList(this.players);
+    if (this.isDev) app.menu.game.updatePlayerList(app.players);
 };
 
 Game.prototype.getGameTimer = function(compact) {
@@ -7275,16 +7274,16 @@ Game.prototype.stopGameTimer = function() {
 /* G13 */
 Game.prototype.gameStartTimer = function(packet) {
     if(this.startTimer < 0) { this.play("sfx/alert.wav",1.,0.); }
-    if(packet.time > 0) { this.startTimer = packet.time; this.remain = this.players.length; }
+    if(packet.time > 0) { this.startTimer = packet.time; this.remain = app.players.length; }
     else { this.doStart(); }
 };
 
 Game.prototype.updateTeam = function() {
-    var playerInfo = this.getPlayerInfo(this.pid);
+    var playerInfo = app.getPlayerInfo(this.pid);
     if(undefined === playerInfo) { return; }
     if (this.team = playerInfo.team)
-        for (var i = 0x0; i < this.players.length; i++) {
-            var player = this.players[i];
+        for (var i = 0x0; i < app.players.length; i++) {
+            var player = app.players[i];
             if (player.id !== this.pid && (player.team === this.team || player.isDev)) {
                 var ghost = this.getGhost(player.id);
                 ghost && (ghost.name = player.name);
@@ -7341,10 +7340,10 @@ Game.prototype.doNET010 = function(n) {
         return;
     var obj = this.createObject(PlayerObject.ID, n.level, n.zone, shor2.decode(n.pos), [n.pid, n.skin, n.isDev]);
     obj.setState(PlayerObject.SNAME.GHOST);
-    if(n.isDev) obj.name = this.getPlayerInfo(n.pid).name;
+    if(n.isDev) obj.name = app.getPlayerInfo(n.pid).name;
     // TODO: Deobfuscate this part
     var _0x48cbe4;
-    this.team && (_0x48cbe4 = this.getPlayerInfo(n.pid)) && _0x48cbe4.id !== this.pid && _0x48cbe4.team === this.team && (_0x5c28cd = this.getGhost(_0x48cbe4.id)) && (_0x5c28cd.name = _0x48cbe4.name);
+    this.team && (_0x48cbe4 = app.getPlayerInfo(n.pid)) && _0x48cbe4.id !== this.pid && _0x48cbe4.team === this.team && (_0x5c28cd = this.getGhost(_0x48cbe4.id)) && (_0x5c28cd.name = _0x48cbe4.name);
 };
 
 Game.prototype.doNET011 = function(n) {
@@ -7371,7 +7370,7 @@ Game.prototype.doNET018 = function(_0xb678cc) {
         _0xb678cc.pid === this.pid ? this.rate = _0xb678cc.extra : 0x0 !== this.rate && _0xb678cc.result++;
         var _0x11f856 = this.getGhost(_0xb678cc.pid);
         if (_0x11f856 && (_0x11f856 = this.getText(_0x11f856.level, _0x11f856.zone, _0xb678cc.result.toString()))) {
-            var _0x36fadc = this.getPlayerInfo(_0xb678cc.pid).name;
+            var _0x36fadc = app.getPlayerInfo(_0xb678cc.pid).name;
             this.createObject(_0x3db18a.ID, _0x11f856.level, _0x11f856.zone, vec2.add(_0x11f856.pos, vec2.make(0x0, -0x3)), [undefined, -0.1, 0.25, "#FFFFFF", _0x36fadc]);
         }
         if (_0xb678cc.pid === this.pid && (_0x11f856 = this.getPlayer())) {
@@ -7736,19 +7735,12 @@ Game.prototype.getZone = function() {
     return _0x215d79 ? this.lastZone = this.world.getZone(_0x215d79.level, _0x215d79.zone) : this.lastZone ? this.lastZone : this.world.getInitialZone();
 };
 
-Game.prototype.getPlayerInfo = function(_0x45814e) {
-    for (var i = 0; i < this.players.length; i++) {
-        var obj = this.players[i];
-        if (obj.id === _0x45814e) return obj;
-    }
-};
-
 Game.prototype.getRemain = function() {
-    for (var _0x5ca02b = 0x0, _0x4d40d7 = 0x0; _0x4d40d7 < this.players.length; _0x4d40d7++) {
-        var _0xbb8caf = this.getGhost(this.players[_0x4d40d7].id);
-        _0xbb8caf && !_0xbb8caf.dead && _0x5ca02b++;
+    for (var result = 0x0, i = 0x0; i < app.players.length; i++) {
+        var ghost = this.getGhost(app.players[i].id);
+        ghost && !ghost.dead && result++;
     }
-    return _0x5ca02b;
+    return result;
 };
 
 Game.prototype.play = function(_0x5b2be8, _0x2c74b6, _0x4f5b18) {
@@ -7872,7 +7864,6 @@ LobbyGame.prototype.getPlatforms = Game.prototype.getPlatforms;
 LobbyGame.prototype.getGhost = Game.prototype.getGhost;
 LobbyGame.prototype.getPlayer = Game.prototype.getPlayer;
 LobbyGame.prototype.getZone = Game.prototype.getZone;
-LobbyGame.prototype.getPlayerInfo = Game.prototype.getPlayerInfo;
 LobbyGame.prototype.getRemain = Game.prototype.getRemain;
 LobbyGame.prototype.play = Game.prototype.play;
 LobbyGame.prototype.levelWarp = Game.prototype.levelWarp;
@@ -7931,7 +7922,6 @@ JailGame.prototype.getPlatforms = Game.prototype.getPlatforms;
 JailGame.prototype.getGhost = Game.prototype.getGhost;
 JailGame.prototype.getPlayer = Game.prototype.getPlayer;
 JailGame.prototype.getZone = Game.prototype.getZone;
-JailGame.prototype.getPlayerInfo = Game.prototype.getPlayerInfo;
 JailGame.prototype.getRemain = Game.prototype.getRemain;
 JailGame.prototype.play = Game.prototype.play;
 JailGame.prototype.levelWarp = Game.prototype.levelWarp;
@@ -7957,6 +7947,7 @@ function App() {
     this.audioElement.load;
     this.audioElement.volume = 0.2;
     this.audioElement.loop = true;
+    this.players = [];
     if (0x1 !== parseInt(Cookies.get("music")))
         this.audioElement.play();
     this.statusUpdater = null;
@@ -8028,6 +8019,12 @@ App.prototype.close = function() {
     this.menu.load.show();
     this.ingame() && this.net.close();
     location.reload();
+};
+App.prototype.getPlayerInfo = function(id) {
+    for (var i = 0; i < app.players.length; i++) {
+        var obj = app.players[i];
+        if (obj.id === id) return obj;
+    }
 };
 var app = new App();
 print("loading game.min.js finished");
