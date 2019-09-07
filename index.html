@@ -39,15 +39,15 @@
 
         <meta name="og:site_name" content="Mario Royale" />
         <meta property="og:site_name" content="Mario Royale" />
-        
+
         <meta name="og:type" content="website" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@realMarioRoyale" />
 
-        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.3.5'>
-        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.3.5'>
-        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.3.5'>
+        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.3.6'>
+        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.3.6'>
+        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.3.6'>
         <script>
           /* Prevent phones from zooming screen. The webapp handles this. */
           document.addEventListener('touchmove', function(event) {
@@ -56,12 +56,12 @@
           }, false);
         </script>
     </head>
-    
+
     <body id='body' ondragstart="return false;" ondrop="return false;">
       <div id="log">
         <p class="debugLog">loading core.js started</p>
       </div>
-      
+
       <!-- Links -->
       <div id='link'>
         <div class="link-r">
@@ -71,7 +71,7 @@
         </div>
         <div class="link-l">
           <div class="rtfpn2"></div>
-          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.3.5')" style="display:none;">v3.3.5 Patch Notes</div>
+          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.3.6')" style="display:none;">v3.3.6 Patch Notes</div>
         </div>
         <div class="link-w">
           <div id='win' class="win" style="display:none;"></div>
@@ -80,22 +80,22 @@
           <div class="rtfpn"></div>
           <div>
               <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
-              <div class="link-con" onclick="window.open('./control.html?v=3.3.5')"></div>
+              <div class="link-con" onclick="window.open('./control.html?v=3.3.6')"></div>
           </div>
         </div>
           <div class="link-s">
           <div class="rtfpn4"></div>
       </div>
       </div>
-            
+
       <!-- Warning -->
       <div id='warn' class='warn' style="display:none;"></div>
-      
+
       <!-- Error -->
       <div id='error' class='container-center'>
         <div id ='error-message' class='error'></div>
       </div>
-      
+
       <!-- Disclaimer -->
       <div id='disclaim' class='container-center'>
         <div class='dis-lg'>Hey! Listen!</div>
@@ -105,12 +105,12 @@
         <div class='dis-sm'>This game will be maintained and updated as deemed appropriate by those working behind the scenes.</div>
         <div></div>
       </div>
-      
+
       <!-- Loading Screen -->
       <div id='load' class='container-center'>
         <div id='loader'></div>
       </div>
-      
+
       <!-- Main Menu -->
       <div id='main' class='container-center'>
         <div class='title'>Mario Royale</div>
@@ -125,7 +125,7 @@
           <span id='main-register' class='launch'>Register</span>
         </div>
       </div>
-      
+
       <!-- Main Menu (logged in) -->
       <div id='mainAsMember' class='container-center' style='display: none;'>
         <div class='title'>Mario Royale</div>
@@ -267,7 +267,17 @@
             Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
           </canvas>
       </div>
-      
+
+      <!-- Dev Console -->
+      <div id='devConsole' class='container-devConsole' style='display: none;'>
+        <div class='launch' id="devConsole-showHide">DEV&gt;</div>
+        <div id="devConsole-main" style="display: none;">
+            <div class='leaderboard-select' id="devConsole-kick">kick</div>
+            <div class='leaderboard-select' id="devConsole-ban">ban</div>
+            <span id="devConsole-playerList"></div>
+        </div>
+      </div>
+
       <!-- Private match settings -->
       <div id='privLobby' class='container-privLobby' style='display: none;'>
         <div class='dis-lg'>World Select</div>
@@ -283,12 +293,12 @@
       <div id='return' class='container-return' style='display: none;'>
         <span id='return-lobby' class='launch' onclick='Cookies.set("go_to_lobby", "1");location.reload();'>Return to Lobby</span>
       </div>
-      
+
       <!-- Libs -->
       <script src='js/lib/jquery/jquery-3.1.1.min.js'></script>
       <script src='js/lib/cookie/js.cookie.min.js'></script>
-      
+
       <!-- Core -->
-      <script src='js/core.js?v=3.3.5'></script>
+      <script src='js/core.js?v=3.3.6'></script>
     </body>
 </html>

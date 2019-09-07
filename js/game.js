@@ -1978,12 +1978,34 @@ RegisterScreen.prototype.launch = function() {
 
 function GameScreen() {
     this.element = document.getElementById("game");
+    this.devConsoleToggle = document.getElementById("devConsole-showHide");
+    this.devConsoleMain = document.getElementById("devConsole-main");
+    this.devConsolePlayerList = document.getElementById("devConsole-playerList");
+    this.devConsoleOn = false;
+    this.selectedPlayerId = null;
+    this.selectedPlayerTr = null;
+    var that = this;
+    this.devConsoleToggle.onclick = function(e) {
+        if (that.devConsoleOn) {
+            that.devConsoleOn = false;
+            that.devConsoleMain.style.display = "none";
+            e.target.innerText = "DEV>";
+        } else {
+            that.devConsoleOn = true;
+            that.devConsoleMain.style.display = "";
+            e.target.innerText = "DEV<";
+        }
+    }
+    document.getElementById("devConsole-kick").onclick = function(){that.kickPlayer()};
+    document.getElementById("devConsole-ban").onclick = function(){that.banPlayer()};
 }
 GameScreen.prototype.show = function() {
     app.menu.hideAll();
     app.menu.navigation("game", "game");
     app.menu.background('c');
     this.element.style.display = "block";
+    if(app.game.isDev)
+        document.getElementById("devConsole").style.display = "";
 };
 GameScreen.prototype.hide = function() {
     this.element.style.display = "none";
@@ -1991,6 +2013,56 @@ GameScreen.prototype.hide = function() {
 GameScreen.prototype.onBack = function() {
     app.close();
 };
+GameScreen.prototype.updatePlayerList = function(playerList) {
+    this.selectedPlayerTr = null;
+    this.devConsolePlayerList.innerHTML = "";
+    var tbl = document.createElement("table");
+    tbl.style.color = "white";
+    this.devConsolePlayerList.appendChild(tbl);
+    var trh = document.createElement("tr");
+    tbl.appendChild(trh);
+    ["id", "account", "sqd", "nickname"].map(x => {var th = document.createElement("th"); th.innerText = x; trh.appendChild(th);});
+    var that = this;
+    for (var player of playerList) {
+        var tr = document.createElement("tr");
+        tbl.append(tr);
+        [player.id, player.username, player.team, player.name].map(x => { var td = document.createElement("td"); td.innerText = ""+x; tr.appendChild(td); });
+        tr.playerId = player.id;
+        if (this.selectedPlayerId == player.id) {
+            tr.style.color = "yellow";
+            this.selectedPlayerTr = tr;
+        }
+        tr.onclick = (function(tr) {return function(e) {
+            if (that.selectedPlayerTr) {
+                that.selectedPlayerTr.style.color = "";
+            }
+            tr.style.color = "yellow";
+            that.selectedPlayerId = tr.playerId;
+            that.selectedPlayerTr = tr;
+        }})(tr);
+    }
+};
+
+GameScreen.prototype.kickPlayer = function() {
+    if (this.selectedPlayerId === null) return;
+    app.game.send({
+        'type': "gbn",
+        'pid': this.selectedPlayerId,
+        'ban': false
+    });
+
+};
+
+GameScreen.prototype.banPlayer = function() {
+    if (this.selectedPlayerId === null) return;
+    app.game.send({
+        'type': "gbn",
+        'pid': this.selectedPlayerId,
+        'ban': true
+    });
+
+};
+
 "use strict";
 
 function Network() {
@@ -7170,6 +7242,7 @@ Game.prototype.updatePlayerList = function(packet) {
     this.players = packet.players;
     if(undefined === this.pid) { return; }
     this.updateTeam();
+    if (this.isDev) app.menu.game.updatePlayerList(this.players);
 };
 
 Game.prototype.getGameTimer = function(compact) {
