@@ -1,6 +1,6 @@
 var GAMEMODES = ["vanilla", "pvp", "hell"];
 var DEV_SKINS = [52];
-var DEFAULT_PLAYER_NAME="INFRINGIO";
+var DEFAULT_PLAYER_NAME = "INFRINGIO";
 var levelSelectors = [];    //received from server
 
 var util = {},
@@ -1982,7 +1982,10 @@ function GameScreen() {
     this.devConsoleMain = document.getElementById("devConsole-main");
     this.devConsolePlayerList = document.getElementById("devConsole-playerList");
     this.devConsoleOn = false;
+    this.devConsoleRenameForm = document.getElementById("devConsole-renameForm");
+    this.devConsoleRenameField = document.getElementById("devConsole-renameField");
     this.selectedPlayerId = null;
+    this.renamingPlayerId = null;
     this.selectedPlayerTr = null;
     var that = this;
     this.devConsoleToggle.onclick = function(e) {
@@ -1998,6 +2001,8 @@ function GameScreen() {
     }
     document.getElementById("devConsole-kick").onclick = function(){that.kickPlayer()};
     document.getElementById("devConsole-ban").onclick = function(){that.banPlayer()};
+    document.getElementById("devConsole-rename").onclick = function(){that.startRenamePlayer()};
+    document.getElementById("devConsole-renameDone").onclick = function(){that.finishRenamePlayer()};
 }
 GameScreen.prototype.show = function() {
     app.menu.hideAll();
@@ -2014,6 +2019,7 @@ GameScreen.prototype.onBack = function() {
     app.close();
 };
 GameScreen.prototype.updatePlayerList = function(playerList) {
+    var stillSelected = false;
     this.selectedPlayerTr = null;
     this.devConsolePlayerList.innerHTML = "";
     var tbl = document.createElement("table");
@@ -2026,9 +2032,10 @@ GameScreen.prototype.updatePlayerList = function(playerList) {
     for (var player of playerList) {
         var tr = document.createElement("tr");
         tbl.append(tr);
-        [player.id, player.username, player.team, player.name].map(x => { var td = document.createElement("td"); td.innerText = ""+x; tr.appendChild(td); });
+        [player.id, player.username, player.team, player.displayName].map(x => { var td = document.createElement("td"); td.innerText = ""+x; tr.appendChild(td); });
         tr.playerId = player.id;
         if (this.selectedPlayerId == player.id) {
+            stillSelected = true;
             tr.style.color = "yellow";
             this.selectedPlayerTr = tr;
         }
@@ -2041,6 +2048,7 @@ GameScreen.prototype.updatePlayerList = function(playerList) {
             that.selectedPlayerTr = tr;
         }})(tr);
     }
+    if(!stillSelected) this.selectedPlayerId = null;
 };
 
 GameScreen.prototype.kickPlayer = function() {
@@ -2050,7 +2058,6 @@ GameScreen.prototype.kickPlayer = function() {
         'pid': this.selectedPlayerId,
         'ban': false
     });
-
 };
 
 GameScreen.prototype.banPlayer = function() {
@@ -2060,7 +2067,26 @@ GameScreen.prototype.banPlayer = function() {
         'pid': this.selectedPlayerId,
         'ban': true
     });
+};
 
+GameScreen.prototype.startRenamePlayer = function() {
+    if (this.selectedPlayerId === null) return;
+    this.renamingPlayerId = this.selectedPlayerId;
+    this.devConsoleRenameField.value = app.getPlayerInfo(this.selectedPlayerId).name;
+    this.devConsoleRenameForm.style.display = "";
+};
+
+GameScreen.prototype.finishRenamePlayer = function() {
+    if (this.selectedPlayerId === null) return;
+    var newName = this.devConsoleRenameField.value;
+    if (newName === "") return;
+    app.game.send({
+        'type': "gnm",
+        'pid': this.renamingPlayerId,
+        'name': newName
+    });
+    this.renamingPlayerId = null;
+    this.devConsoleRenameForm.style.display = "none";
 };
 
 "use strict";
@@ -2085,13 +2111,13 @@ Network.prototype.openWs = function(args) {
     }
     this.webSocket = new WebSocket(WEBSOCKET_SERVER);
     this.webSocket.binaryType = "arraybuffer";
-    this.webSocket.onopen = function(name) {
-        "open" !== name.type && app.menu.error.show("Error. WS open event has unexpected result.");
+    this.webSocket.onopen = function(e) {
+        "open" !== e.type && app.menu.error.show("Error. WS open event has unexpected result.");
     };
-    this.webSocket.onmessage = function(name) {
-        name.data instanceof ArrayBuffer ? net.handleBinary(new Uint8Array(name.data)) : net.handlePacket(JSON.parse(name.data));
+    this.webSocket.onmessage = function(e) {
+        e.data instanceof ArrayBuffer ? net.handleBinary(new Uint8Array(e.data)) : net.handlePacket(JSON.parse(e.data));
     };
-    this.webSocket.onclose = function(name) {
+    this.webSocket.onclose = function(e) {
         net.webSocket = undefined;
         document.getElementById("privLobby").style.display = "none";
         app.menu.error.show("Connection Interrupted");
@@ -2319,6 +2345,8 @@ GameState.prototype.handlePacket = function(data) {
             return this.receiveLevelList(data), true;
         case "gsl":
             return this.recieveLevelSelectResult(data), true;
+        case "gnm":
+            return this.renamePlayer(data), true;
         default:
             return app.ingame() ? app.game.handlePacket(data) : false;
     }
@@ -2398,6 +2426,19 @@ GameState.prototype.recieveLevelSelectResult = function(data) {
         app.menu.name.updateLevelSelectButton(data.name);
     }
 };
+GameState.prototype.renamePlayer = function(data) {
+    var player = app.getPlayerInfo(data.pid);
+    player.name = data.name;
+    player.displayName = getPlayerDisplayName(player);
+    app.menu.game.updatePlayerList(app.players);
+    var ghost = app.game.getGhost(data.pid);
+    if (ghost && ghost.name !== undefined) {
+        ghost.name = player.displayName;
+    }
+    if (data.pid == app.game.pid && player.isGuest) {
+        Cookies.set("name", data.name, {'expires': 0x1e});
+    }
+};
 GameState.prototype.send = function(data) {
     app.net.send(data);
 };
@@ -2460,6 +2501,7 @@ function PlayerObject(game, level, zone, pos, pid, skin, isDev) {
     this.skin = skin;
     game.display.ensureSkin(skin);
     this.isDev = isDev;
+    this.isGuest = false;
     this.anim = 0x0;
     this.reverse = false;
     this.deadTimer = this.deadFreezeTimer = this.arrowFade = 0x0;
@@ -5983,42 +6025,42 @@ CheckObject.prototype.draw = function(_0x197f04) {
 GameObject.REGISTER_OBJECT(CheckObject);
 "use strict";
 
-function _0x3db18a(_0x289121, _0x27327c, _0x2b1dd0, _0x19f16d, _0x347488, _0xbb37f7, _0x23940a, _0x457c51, _0x10fe68) {
+function TextObject(_0x289121, _0x27327c, _0x2b1dd0, _0x19f16d, _0x347488, _0xbb37f7, _0x23940a, _0x457c51, _0x10fe68) {
     GameObject.call(this, _0x289121, _0x27327c, _0x2b1dd0, _0x19f16d);
     this.oid = _0x347488;
-    this.setState(_0x3db18a.STATE.IDLE);
+    this.setState(TextObject.STATE.IDLE);
     this.offset = vec2.make(0x0, parseFloat(_0xbb37f7));
     this.size = parseFloat(_0x23940a);
     this.color = _0x457c51;
     this.text = _0x10fe68;
 }
-_0x3db18a.ASYNC = true;
-_0x3db18a.ID = 0xfd;
-_0x3db18a.NAME = "TEXT";
-_0x3db18a.ANIMATION_RATE = 0x3;
-_0x3db18a.SPRITE = {};
-_0x3db18a.SPRITE_LIST = [{
+TextObject.ASYNC = true;
+TextObject.ID = 0xfd;
+TextObject.NAME = "TEXT";
+TextObject.ANIMATION_RATE = 0x3;
+TextObject.SPRITE = {};
+TextObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xff
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x3db18a.SPRITE_LIST.length; _0x1bec55++) _0x3db18a.SPRITE[_0x3db18a.SPRITE_LIST[_0x1bec55].NAME] = _0x3db18a.SPRITE_LIST[_0x1bec55], _0x3db18a.SPRITE[_0x3db18a.SPRITE_LIST[_0x1bec55].ID] = _0x3db18a.SPRITE_LIST[_0x1bec55];
-_0x3db18a.STATE = {};
-_0x3db18a.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < TextObject.SPRITE_LIST.length; _0x1bec55++) TextObject.SPRITE[TextObject.SPRITE_LIST[_0x1bec55].NAME] = TextObject.SPRITE_LIST[_0x1bec55], TextObject.SPRITE[TextObject.SPRITE_LIST[_0x1bec55].ID] = TextObject.SPRITE_LIST[_0x1bec55];
+TextObject.STATE = {};
+TextObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x3db18a.SPRITE.IDLE]
+    'SPRITE': [TextObject.SPRITE.IDLE]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x3db18a.STATE_LIST.length; _0x1bec55++) _0x3db18a.STATE[_0x3db18a.STATE_LIST[_0x1bec55].NAME] = _0x3db18a.STATE_LIST[_0x1bec55], _0x3db18a.STATE[_0x3db18a.STATE_LIST[_0x1bec55].ID] = _0x3db18a.STATE_LIST[_0x1bec55];
-_0x3db18a.prototype.update = function(_0x250c1c) {};
-_0x3db18a.prototype.step = function() {};
-_0x3db18a.prototype.kill = function() {};
-_0x3db18a.prototype.destroy = GameObject.prototype.destroy;
-_0x3db18a.prototype.isTangible = GameObject.prototype.isTangible;
-_0x3db18a.prototype.setState = function(_0x507fea) {
+for (_0x1bec55 = 0x0; _0x1bec55 < TextObject.STATE_LIST.length; _0x1bec55++) TextObject.STATE[TextObject.STATE_LIST[_0x1bec55].NAME] = TextObject.STATE_LIST[_0x1bec55], TextObject.STATE[TextObject.STATE_LIST[_0x1bec55].ID] = TextObject.STATE_LIST[_0x1bec55];
+TextObject.prototype.update = function(_0x250c1c) {};
+TextObject.prototype.step = function() {};
+TextObject.prototype.kill = function() {};
+TextObject.prototype.destroy = GameObject.prototype.destroy;
+TextObject.prototype.isTangible = GameObject.prototype.isTangible;
+TextObject.prototype.setState = function(_0x507fea) {
     _0x507fea !== this.state && (this.state = _0x507fea, this.sprite = _0x507fea.SPRITE[0x0], this.anim = 0x0);
 };
-_0x3db18a.prototype.write = function(_0x237c30) {
+TextObject.prototype.write = function(_0x237c30) {
     _0x237c30.push({
         'pos': vec2.add(this.pos, this.offset),
         'size': this.size,
@@ -6026,7 +6068,7 @@ _0x3db18a.prototype.write = function(_0x237c30) {
         'text': this.text
     });
 };
-GameObject.REGISTER_OBJECT(_0x3db18a);
+GameObject.REGISTER_OBJECT(TextObject);
 "use strict";
 
 function TempEffect(position/*: vec2*/) {
@@ -6625,7 +6667,7 @@ Audio.prototype.destroy = function() {
     this.stopMusic();
     this.sounds = [];
     this.context.close().catch(function(_0x344413) {
-        console.log("Error closing audio context.");
+        console.error("Error closing audio context.");
     });
 };
 "use strict";
@@ -6895,7 +6937,7 @@ Display.prototype.drawUI = function() {
     : (context.fillStyle = "white",
         context.font = "24px SmbWeb",
         context.textAlign = "left",
-        context.fillText(playerInfo ? playerInfo.name : DEFAULT_PLAYER_NAME, 0x8, 0x20),
+        context.fillText(playerInfo ? playerInfo.displayName : DEFAULT_PLAYER_NAME, 0x8, 0x20),
         sprite = util.sprite.getSprite(objTexture, coinIconIndex),
         txt = 'x' + (0x9 >= this.game.coins ? '0' + this.game.coins : this.game.coins),
         context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, 0x4, 0x28, 0x18, 0x18),
@@ -7239,6 +7281,7 @@ Game.prototype.handlePacket = function(packet) {
 /* G12 */
 Game.prototype.updatePlayerList = function(packet) {
     app.players = packet.players;
+    app.enrichPlayers();
     if(undefined === this.pid) { return; }
     this.updateTeam();
     if (this.isDev) app.menu.game.updatePlayerList(app.players);
@@ -7286,7 +7329,7 @@ Game.prototype.updateTeam = function() {
             var player = app.players[i];
             if (player.id !== this.pid && (player.team === this.team || player.isDev)) {
                 var ghost = this.getGhost(player.id);
-                ghost && (ghost.name = player.name);
+                ghost && (ghost.name = player.displayName);
             }
         }
 };
@@ -7341,9 +7384,13 @@ Game.prototype.doNET010 = function(n) {
     var obj = this.createObject(PlayerObject.ID, n.level, n.zone, shor2.decode(n.pos), [n.pid, n.skin, n.isDev]);
     obj.setState(PlayerObject.SNAME.GHOST);
     if(n.isDev) obj.name = app.getPlayerInfo(n.pid).name;
-    // TODO: Deobfuscate this part
-    var _0x48cbe4;
-    this.team && (_0x48cbe4 = app.getPlayerInfo(n.pid)) && _0x48cbe4.id !== this.pid && _0x48cbe4.team === this.team && (_0x5c28cd = this.getGhost(_0x48cbe4.id)) && (_0x5c28cd.name = _0x48cbe4.name);
+    if (this.team) {
+        var playerInfo = app.getPlayerInfo(n.pid);
+        if (playerInfo && playerInfo.id !== this.pid && playerInfo.team === this.team) {
+            var ghost = this.getGhost(playerInfo.id);
+            if (ghost) ghost.name = playerInfo.displayName;
+        }
+    }
 };
 
 Game.prototype.doNET011 = function(n) {
@@ -7365,22 +7412,28 @@ Game.prototype.doNET017 = function(_0x17186e) {
     this.playersKilled++;
 };
 
-Game.prototype.doNET018 = function(_0xb678cc) {
-    if (!(0x0 >= _0xb678cc.result)) {
-        _0xb678cc.pid === this.pid ? this.rate = _0xb678cc.extra : 0x0 !== this.rate && _0xb678cc.result++;
-        var _0x11f856 = this.getGhost(_0xb678cc.pid);
-        if (_0x11f856 && (_0x11f856 = this.getText(_0x11f856.level, _0x11f856.zone, _0xb678cc.result.toString()))) {
-            var _0x36fadc = app.getPlayerInfo(_0xb678cc.pid).name;
-            this.createObject(_0x3db18a.ID, _0x11f856.level, _0x11f856.zone, vec2.add(_0x11f856.pos, vec2.make(0x0, -0x3)), [undefined, -0.1, 0.25, "#FFFFFF", _0x36fadc]);
+Game.prototype.doNET018 = function(data) {
+    if (!(0x0 >= data.result)) {
+        data.pid === this.pid ? this.rate = data.extra : 0x0 !== this.rate && data.result++;
+        var ghost = this.getGhost(data.pid);
+        if (ghost) {
+            var txt = this.getText(ghost.level, ghost.zone, data.result.toString());
+            if (txt) {
+                var name = app.getPlayerInfo(data.pid).displayName;
+                this.createObject(TextObject.ID, txt.level, txt.zone, vec2.add(txt.pos, vec2.make(0x0, -0x3)), [undefined, -0.1, 0.25, "#FFFFFF", name]);
+            }
         }
-        if (_0xb678cc.pid === this.pid && (_0x11f856 = this.getPlayer())) {
-            _0x11f856.axe(_0xb678cc.result);
-            this.victory = _0xb678cc.result;
-            var that = this;
-            setTimeout(function() {
-                document.getElementById('return').style.display = "block";
-                that.padReturnToLobby = true;
-            }, 3000);
+        if (data.pid === this.pid) {
+            var player = this.getPlayer();
+            if (player) {
+                player.axe(data.result);
+                this.victory = data.result;
+                var that = this;
+                setTimeout(function() {
+                    document.getElementById('return').style.display = "block";
+                    that.padReturnToLobby = true;
+                }, 3000);
+            }
         }
     }
 };
@@ -7604,7 +7657,6 @@ Game.prototype.doStep = function() {
     this.doMusic();
     this.audio.update();
     if (undefined === this.startDelta || this.gameOver || player) {
-        //console.log("this.startDelta=" + this.startDelta + " this.gameOver=" + this.gameOver + " player="+player + " this.gameOverTimer="+this.gameOverTimer);
         if (this.gameOver) {
             ++this.gameOverTimer;
             if (this.gameOverTimer > Game.GAME_OVER_TIME && !this.gameoverReloading && !(this.game instanceof JailGame)) {
@@ -7704,7 +7756,7 @@ Game.prototype.getAxe = function(level, zone) {
 Game.prototype.getText = function(_0x684bab, _0x1988a8, _0x26b734) {
     for (var i = 0; i < this.objects.length; i++) {
         var obj = this.objects[i];
-        if (obj && obj.level === _0x684bab && obj.zone === _0x1988a8 && obj instanceof _0x3db18a && obj.text === _0x26b734.toString()) return obj;
+        if (obj && obj.level === _0x684bab && obj.zone === _0x1988a8 && obj instanceof TextObject && obj.text === _0x26b734.toString()) return obj;
     }
 };
 
@@ -8025,6 +8077,14 @@ App.prototype.getPlayerInfo = function(id) {
         var obj = app.players[i];
         if (obj.id === id) return obj;
     }
+};
+function getPlayerDisplayName(player) {
+    return (player.isDev?"【𝐃𝐄𝐕】":"") + (player.isGuest?"【G】":"") + player.name;
+}
+App.prototype.enrichPlayers = function(id) {
+    this.players.map(x=>{
+        x.displayName = getPlayerDisplayName(x);
+    });
 };
 var app = new App();
 print("loading game.min.js finished");

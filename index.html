@@ -45,9 +45,9 @@
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@realMarioRoyale" />
 
-        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.3.6'>
-        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.3.6'>
-        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.3.6'>
+        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.3.7'>
+        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.3.7'>
+        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.3.7'>
         <script>
           /* Prevent phones from zooming screen. The webapp handles this. */
           document.addEventListener('touchmove', function(event) {
@@ -71,7 +71,7 @@
         </div>
         <div class="link-l">
           <div class="rtfpn2"></div>
-          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.3.6')" style="display:none;">v3.3.6 Patch Notes</div>
+          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.3.7')" style="display:none;">v3.3.7 Patch Notes</div>
         </div>
         <div class="link-w">
           <div id='win' class="win" style="display:none;"></div>
@@ -80,7 +80,7 @@
           <div class="rtfpn"></div>
           <div>
               <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
-              <div class="link-con" onclick="window.open('./control.html?v=3.3.6')"></div>
+              <div class="link-con" onclick="window.open('./control.html?v=3.3.7')"></div>
           </div>
         </div>
           <div class="link-s">
@@ -216,7 +216,7 @@
             <div class='name'><input id='login-password-input' type='password' class='name-input' placeholder='Password'/></div>
             <div class='container-bottom'>
                 <div class="container-launch">
-                  <input id='login-do' type="submit" class='launchStrong' value="Login"></input>
+                  <input id='login-do' type="submit" class='launchStrong' value="Login" />
                   |
                   <span id='login-back' class='launch'>Cancel</span>
                 </div>
@@ -237,7 +237,7 @@
             </div>
             <div class='container-bottom'>
                 <div class="container-launch">
-                  <input id='register-do' type="submit" class='launchStrong' value="Register"></input>
+                  <input id='register-do' type="submit" class='launchStrong' value="Register" />
                   |
                   <span id='register-back' class='launch'>Cancel</span>
                 </div>
@@ -268,16 +268,6 @@
           </canvas>
       </div>
 
-      <!-- Dev Console -->
-      <div id='devConsole' class='container-devConsole' style='display: none;'>
-        <div class='launch' id="devConsole-showHide">DEV&gt;</div>
-        <div id="devConsole-main" style="display: none;">
-            <div class='leaderboard-select' id="devConsole-kick">kick</div>
-            <div class='leaderboard-select' id="devConsole-ban">ban</div>
-            <span id="devConsole-playerList"></div>
-        </div>
-      </div>
-
       <!-- Private match settings -->
       <div id='privLobby' class='container-privLobby' style='display: none;'>
         <div class='dis-lg'>World Select</div>
@@ -285,9 +275,24 @@
         </div>
         <div class="levelSelectRow">
             <div id="levelSelectCustom" class='levelSelectButton'>Custom</div>
-            <input type="file" id="levelSelectInput" name="levelSelectInput[]"></input>
+            <input type="file" id="levelSelectInput" name="levelSelectInput[]" />
         </div>
         <div id="levelSelectCustomResult" class="levelSelectRow">&nbsp;</div>
+      </div>
+
+      <!-- Dev Console -->
+      <div id='devConsole' class='container-devConsole' style='display: none;'>
+        <div class='leaderboard-select' id="devConsole-showHide">DEV&gt;</div>
+        <div id="devConsole-main" style="display: none;">
+            <div class='leaderboard-select' id="devConsole-kick">kick</div>
+            <div class='leaderboard-select' id="devConsole-ban">ban</div>
+            <div class='leaderboard-select' id="devConsole-rename">rename</div>
+            <div class="name" id="devConsole-renameForm" style="display: none;">
+                <input id="devConsole-renameField" type="text" class="devConsole-name-input" placeholder="new name" autocomplete="off" data-lpignore="true"/>
+                <div class='leaderboard-select' id="devConsole-renameDone">ok</div>
+            </div>
+            <span id="devConsole-playerList"></span>
+        </div>
       </div>
 
       <div id='return' class='container-return' style='display: none;'>
@@ -299,6 +304,6 @@
       <script src='js/lib/cookie/js.cookie.min.js'></script>
 
       <!-- Core -->
-      <script src='js/core.js?v=3.3.6a'></script>
+      <script src='js/core.js?v=3.3.7'></script>
     </body>
 </html>

@@ -440,6 +440,16 @@ img {
   white-space: nowrap;
 }
 
+.devConsole-name-input {
+  font-family: SmbWeb;
+  color: white;
+  text-align: center;
+
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #FFFFFF;
+}
+
 .levelSelectButton {
     display: inline-block;
     margin: 2px 2px 2px 2px;
