@@ -1272,7 +1272,9 @@ function MainScreen() {
     this.launchBtn = document.getElementById("main-launch");
     this.loginBtn = document.getElementById("main-login");
     this.registerBtn = document.getElementById("main-register");
-    this.number = document.getElementById("main-number");
+    this.onlineNum = document.getElementById("main-number");
+    this.numberFull = document.getElementById("main-numberFull");
+    this.maintenance = document.getElementById("main-maintenance");
     this.padLoop = undefined;
     var mainscreen = this;
     this.launchBtn.onclick = function() {
@@ -1311,6 +1313,30 @@ MainScreen.prototype.startPad = function() {
         };
     _0x4736e8();
 };
+function setUpdatePlayerNumber(target) {
+    target.updateStatus = function(firstTry) {
+        $.ajax({
+            'url': "status.json",
+            'type': "GET",
+            'timeout': 0xbb8,
+            'success': function(data) {
+                if (data.result) {
+                    firstTry && target.menu.error.show(data.result);
+                } else {
+                    if (data.maintenance) {
+                        target.numberFull.style.display = "none";
+                        target.maintenance.style.display = "";
+                    } else {
+                        target.onlineNum.innerHTML = data.active;
+                        target.maintenance.style.display = "none";
+                        target.numberFull.style.display = "";
+                    }
+                }
+            },
+            cache: false
+        });
+    };
+}
 MainScreen.prototype.show = function() {
     app.menu.hideAll();
     app.menu.navigation("main", "main");
@@ -1324,25 +1350,9 @@ MainScreen.prototype.show = function() {
     if (session != undefined) {
         app.resumeSession(session);
     }
-    var that = this;
-    var updateStatus = function(firstTry) {
-        $.ajax({
-            'url': "status.json",
-            'type': "GET",
-            'timeout': 0xbb8,
-            'success': function(data) {
-                if (data.result) {
-                    firstTry && that.menu.error.show(data.result);
-                } else {
-                    that.number.innerHTML = data.active;
-                }
-            },
-            cache: false
-        });
-    };
-
-    updateStatus(true);
-    app.statusUpdater = setInterval(updateStatus, 1000);
+    setUpdatePlayerNumber(this);
+    this.updateStatus(true);
+    app.statusUpdater = setInterval(this.updateStatus, 1000);
 };
 MainScreen.prototype.hide = function() {
     this.padLoop && clearTimeout(this.padLoop);
@@ -1366,6 +1376,8 @@ function MainAsMemberScreen() {
     this.privateBtn = document.getElementById("mainAsMember-private-toggle");
     this.gmBtn = document.getElementById("mainAsMember-gm-change");
     this.onlineNum = document.getElementById("mainAsMember-number");
+    this.numberFull = document.getElementById("mainAsMember-numberFull");
+    this.maintenance = document.getElementById("mainAsMember-maintenance");
     this.isPrivate = false;
     this.gameMode = 0;
     var that = this;
@@ -1435,23 +1447,9 @@ MainAsMemberScreen.prototype.show = function(data) {
     if (app.goToLobby) {
         this.launch();
     } else {
-        var that = this;
-        var updateStatus = function() {
-            $.ajax({
-                'url': "status.json",
-                'type': "GET",
-                'timeout': 0xbb8,
-                'success': function(_0x497cbd) {
-                    if (!_0x497cbd.result) {
-                        that.onlineNum.innerHTML = _0x497cbd.active;
-                    }
-                },
-                cache: false
-            });
-        };
-
-        updateStatus();
-        app.statusUpdater = setInterval(updateStatus, 1000);
+        setUpdatePlayerNumber(this);
+        this.updateStatus(true);
+        app.statusUpdater = setInterval(this.updateStatus, 1000);
     }
     app.menu.main.winElement.innerText = "wins x"+this.wins+" deaths x"+this.deaths+" kills x"+this.kills+" coins x"+this.coins;
 };
@@ -2347,6 +2345,8 @@ GameState.prototype.handlePacket = function(data) {
             return this.recieveLevelSelectResult(data), true;
         case "gnm":
             return this.renamePlayer(data), true;
+        case "ghu":
+            return app.hurryUp(data), true;
         default:
             return app.ingame() ? app.game.handlePacket(data) : false;
     }
@@ -6549,7 +6549,10 @@ Audio.prototype.initWebAudio = function() {
     } catch (exception) {
         return app.menu.warn.show("WebAudio not supported. Intializing fallback mode..."), false;
     }
-    var soundList = "sfx/alert.wav sfx/break.wav sfx/breath.wav sfx/bump.wav sfx/gold.wav sfx/coin.wav sfx/fireball.wav sfx/firework.wav sfx/flagpole.wav sfx/item.wav sfx/jump0.wav sfx/jump1.wav sfx/kick.wav sfx/life.wav sfx/pipe.wav sfx/powerup.wav sfx/stomp.wav sfx/vine.wav music/main0.mp3 music/main1.mp3 music/main2.mp3 music/main3.mp3 music/level.mp3 music/castle.mp3 music/victory.mp3 music/star.mp3 music/dead.mp3 music/gameover.mp3".split('\x20');
+    var soundList = ["sfx/alert.wav", "sfx/break.wav", "sfx/breath.wav", "sfx/bump.wav", "sfx/gold.wav", "sfx/coin.wav", "sfx/fireball.wav",
+        "sfx/firework.wav", "sfx/flagpole.wav", "sfx/item.wav", "sfx/jump0.wav", "sfx/jump1.wav", "sfx/kick.wav", "sfx/life.wav", "sfx/pipe.wav",
+        "sfx/powerup.wav", "sfx/stomp.wav", "sfx/vine.wav", "music/main0.mp3", "music/main1.mp3", "music/main2.mp3", "music/main3.mp3", "music/level.mp3",
+        "music/castle.mp3", "music/victory.mp3", "music/star.mp3", "music/dead.mp3", "music/gameover.mp3", "music/hurry.mp3"];
     this.sounds = [];
     for (var i = 0x0; i < soundList.length; i++)
         if (!this.createAudio(soundList[i])) return false;
@@ -6625,6 +6628,16 @@ Audio.prototype.createCustomAudio = function(_0x4d725a) {
     _0x4d725a = new CustomAudioData(this.context, _0x4d725a);
     this.sounds.push(_0x4d725a);
     return true;
+};
+Audio.prototype.hasAudio = function(path) {
+    for (var i = 0x0; i < this.sounds.length; i++)
+        if (this.sounds[i].path === path) return true;
+    return false;
+};
+Audio.prototype.getAudioLength = function(path) {
+    for (var i = 0x0; i < this.sounds.length; i++)
+        if (this.sounds[i].path === path) return this.sounds[i].buffer.duration;
+    return 1;
 };
 Audio.prototype.getAudio = function(path, _0x1ecf0c, _0x35680c, category) {
     var volume;
@@ -6904,71 +6917,90 @@ Display.prototype.drawUI = function() {
         )
     );
     var sprite, txt, txtWidth, vectoryTex, vicTexW, vicTexH, scale, vicAnim;
-    0x3 >= this.game.victory && 0 !== this.game.victory ? (
-        victoryTex = this.resource.getTexture("ui"),
-        vicTexW = Math.min(victoryTex.width, canvasWidth),
-        vicTexH = parseInt(vicTexW * 0.196),
-        context.drawImage(victoryTex, 0.5 * canvasWidth - vicTexW * 0.5, 0, vicTexW, vicTexH),
-        scale = vicTexH / victoryTex.height,
-        this.game.victory == 1 ? (
-            vicAnim = Math.max(195, Math.min(255, this.game.frame % 60 >= 30 ? 255 - parseInt(((this.game.frame % 30)*2)/10)*10 : 195 + parseInt(((this.game.frame % 30)*2)/10)*10)),
-            context.fillStyle = "rgba("+ vicAnim +","+ vicAnim +",0,1)"
-        ) : this.game.victory == 2 ? (context.fillStyle = "silver") : (context.fillStyle = "#B87333"),
-        context.font = parseInt(64 * scale) + "px SmbWeb",
-        context.textAlign = "left",
-        context.shadowOffsetY = 4,
-        context.shadowColor = "rgba(0,0,0,0.3)",
-        context.fillText("#" + this.game.victory, 0.5 * canvasWidth - vicTexW * 0.5 + 40 * scale, 60 * scale + 0.5 * vicTexH - 32 * scale),
-        context.shadowOffsetY = null,
-        context.shadowColor = null,
-        context.fillStyle = "white",
-        context.font = "24px SmbWeb",
-        context.textAlign = "center",
-        context.fillText(this.game.world.getLevel(this.game.getPlayer().level).name + " MATCH STATS:", 0.8 * canvasWidth, 0.3 * canvasHeight),
-        context.font = "16px SmbWeb",
-        context.fillText(this.game.getGameTimer() + " ELAPSED TIME", 0.8 * canvasWidth, 0.3 * canvasHeight + 24),
-        context.fillText(this.game.playersKilled + " PLAYERS KILLED", 0.8 * canvasWidth, 0.3 * canvasHeight + 28 + 16),
-        context.fillText(this.game.coinsCollected + " COINS COLLECTED", 0.8 * canvasWidth, 0.3 * canvasHeight + 32 + 16 + 16))
-    : (0x3 < this.game.victory ? (
-        context.fillStyle = "white",
-        context.font = "32px SmbWeb",
-        context.textAlign = "center",
-        context.fillText("TOO BAD #" + this.game.victory, 0.5 * canvasWidth, 0x28))
-    : (context.fillStyle = "white",
-        context.font = "24px SmbWeb",
-        context.textAlign = "left",
-        context.fillText(playerInfo ? playerInfo.displayName : DEFAULT_PLAYER_NAME, 0x8, 0x20),
-        sprite = util.sprite.getSprite(objTexture, coinIconIndex),
-        txt = 'x' + (0x9 >= this.game.coins ? '0' + this.game.coins : this.game.coins),
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, 0x4, 0x28, 0x18, 0x18),
-        context.fillText(txt, 0x1e, 0x40),
-        sprite = util.sprite.getSprite(skinTexture, 0xd),
-        txtWidth = context.measureText(txt).width + 0x1e,
-        context.drawImage(skinTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, 0x4 + txtWidth + 0x10, 0x28, 0x18, 0x18),
-        context.fillText('x' + (0x9 >= this.game.lives ? '0' + this.game.lives : this.game.lives), 0x4 + txtWidth + 0x10 + 0x1a, 0x40),
-        this.game instanceof Game ? (
-            txt = this.game.getGameTimer(this.game.touchMode),
-            txtWidth = context.measureText(txt).width,
-            context.fillText(txt, (canvasWidth / 2) - (txtWidth / 2), 0x20),
-            txt = this.game.remain + (this.game.touchMode ? '' : " PLAYERS REMAIN"),
-            txtWidth = context.measureText(txt).width,
-            context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20))
-        : this.game instanceof LobbyGame && (
-            txt = app.players.length + (this.game.touchMode ? '' : " / 30 PLAYERS"),
-            txtWidth = context.measureText(txt).width,
-            context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20)
-        ),
-        sprite = util.sprite.getSprite(objTexture, musicIconIndex[this.game.audio.muteMusic ? 0x1 : 0x0]),
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8, 0x28, 0x18, 0x18),
-        sprite = util.sprite.getSprite(objTexture, soundIconIndex[this.game.audio.muteSound ? 0x1 : 0x0]),
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18),
-        sprite = util.sprite.getSprite(objTexture, nameIconIndex[this.game.disableText ? 0x1 : 0x0]),
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18),
-        this.game.input.pad.connected() && (
-            sprite = util.sprite.getSprite(objTexture, 0xf8),
-            context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18)
-        )
-    ));
+    if (0x3 >= this.game.victory && 0 !== this.game.victory) {
+        victoryTex = this.resource.getTexture("ui");
+        vicTexW = Math.min(victoryTex.width, canvasWidth);
+        vicTexH = parseInt(vicTexW * 0.196);
+        context.drawImage(victoryTex, 0.5 * canvasWidth - vicTexW * 0.5, 0, vicTexW, vicTexH);
+        scale = vicTexH / victoryTex.height;
+        if (this.game.victory == 1) {
+            vicAnim = Math.max(195, Math.min(255, this.game.frame % 60 >= 30 ? 255 - parseInt(((this.game.frame % 30)*2)/10)*10 : 195 + parseInt(((this.game.frame % 30)*2)/10)*10));
+            context.fillStyle = "rgba("+ vicAnim +","+ vicAnim +",0,1)";
+        } else if ( this.game.victory == 2) {
+            context.fillStyle = "silver";
+        } else {
+            context.fillStyle = "#B87333";
+        }
+        context.font = parseInt(64 * scale) + "px SmbWeb";
+        context.textAlign = "left";
+        context.shadowOffsetY = 4;
+        context.shadowColor = "rgba(0,0,0,0.3)";
+        context.fillText("#" + this.game.victory, 0.5 * canvasWidth - vicTexW * 0.5 + 40 * scale, 60 * scale + 0.5 * vicTexH - 32 * scale);
+        context.shadowOffsetY = null;
+        context.shadowColor = null;
+        context.fillStyle = "white";
+        context.font = "24px SmbWeb";
+        context.textAlign = "center";
+        context.fillText(this.game.world.getLevel(this.game.getPlayer().level).name + " MATCH STATS:", 0.8 * canvasWidth, 0.3 * canvasHeight);
+        context.font = "16px SmbWeb";
+        context.fillText(this.game.getGameTimer() + " ELAPSED TIME", 0.8 * canvasWidth, 0.3 * canvasHeight + 24);
+        context.fillText(this.game.playersKilled + " PLAYERS KILLED", 0.8 * canvasWidth, 0.3 * canvasHeight + 28 + 16);
+        context.fillText(this.game.coinsCollected + " COINS COLLECTED", 0.8 * canvasWidth, 0.3 * canvasHeight + 32 + 16 + 16);
+    } else if (0x3 < this.game.victory) {
+        context.fillStyle = "white";
+        context.font = "32px SmbWeb";
+        context.textAlign = "center";
+        context.fillText("TOO BAD #" + this.game.victory, 0.5 * canvasWidth, 0x28);
+    } else {
+        context.fillStyle = "white";
+        context.font = "24px SmbWeb";
+        context.textAlign = "left";
+        context.fillText(playerInfo ? playerInfo.displayName : DEFAULT_PLAYER_NAME, 0x8, 0x20);
+        sprite = util.sprite.getSprite(objTexture, coinIconIndex);
+        txt = 'x' + (0x9 >= this.game.coins ? '0' + this.game.coins : this.game.coins);
+        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, 0x4, 0x28, 0x18, 0x18);
+        context.fillText(txt, 0x1e, 0x40);
+        sprite = util.sprite.getSprite(skinTexture, 0xd);
+        txtWidth = context.measureText(txt).width + 0x1e;
+        context.drawImage(skinTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, 0x4 + txtWidth + 0x10, 0x28, 0x18, 0x18);
+        context.fillText('x' + (0x9 >= this.game.lives ? '0' + this.game.lives : this.game.lives), 0x4 + txtWidth + 0x10 + 0x1a, 0x40);
+        if (this.game instanceof Game) {
+            //timer
+            txt = this.game.getGameTimer(this.game.touchMode);
+            txtWidth = context.measureText(txt).width;
+            context.fillText(txt, (canvasWidth / 2) - (txtWidth / 2), 0x20);
+            //players remaining
+            txt = this.game.remain + (this.game.touchMode ? '' : " PLAYERS REMAIN");
+            txtWidth = context.measureText(txt).width;
+            context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20);
+        } else if (this.game instanceof LobbyGame) {
+            txt = app.players.length + (this.game.touchMode ? '' : " / 30 PLAYERS");
+            txtWidth = context.measureText(txt).width;
+            context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20);
+        }
+        //hurry up
+        if (app.hurryingUp) {
+            var hurrySecLeft = Math.max(0,Math.floor((app.hurryUpTime-Date.now())/1000));
+            if (hurrySecLeft%2 == 1) {
+                txt = "HURRY UP!";
+                txtWidth = context.measureText(txt).width;
+                context.fillText(txt, (canvasWidth / 2) - (txtWidth / 2), 0x40);
+            }
+            txt = ""+hurrySecLeft;
+            txtWidth = context.measureText(txt).width;
+            context.fillText(txt, (canvasWidth / 2) - (txtWidth / 2), 0x60);
+        }
+        sprite = util.sprite.getSprite(objTexture, musicIconIndex[this.game.audio.muteMusic ? 0x1 : 0x0]);
+        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8, 0x28, 0x18, 0x18);
+        sprite = util.sprite.getSprite(objTexture, soundIconIndex[this.game.audio.muteSound ? 0x1 : 0x0]);
+        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
+        sprite = util.sprite.getSprite(objTexture, nameIconIndex[this.game.disableText ? 0x1 : 0x0]);
+        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
+        if (this.game.input.pad.connected()) {
+            sprite = util.sprite.getSprite(objTexture, 0xf8);
+            context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
+        }
+    }
 };
 Display.prototype.drawTouch = function() {
     if (this.game.touchMode) {
@@ -7073,16 +7105,19 @@ Level.prototype.getWarp = function(_0x35fc72) {
         }
 };
 
-function Zone(_0x4ec59c, _0x22aa6b, _0x42b6c1) {
-    this.game = _0x4ec59c;
-    this.id = _0x42b6c1.id;
-    this.level = _0x22aa6b;
-    this.initial = _0x42b6c1.initial;
-    this.color = _0x42b6c1.color;
-    this.music = _0x42b6c1.music ? _0x42b6c1.music : '';
-    this.data = _0x42b6c1.data;
-    this.obj = _0x42b6c1.obj;
-    this.warp = _0x42b6c1.warp;
+function Zone(game, level, input) {
+    this.game = game;
+    this.id = input.id;
+    this.level = level;
+    this.initial = input.initial;
+    this.color = input.color;
+    this.music = input.music ? input.music : '';
+    if (this.music && !this.game.audio.hasAudio(this.music)) this.game.audio.createAudio(this.music);
+    this.fastMusic = this.music ? this.music.replace(".mp3", "_fast.mp3") : "";
+    if (this.fastMusic && !this.game.audio.hasAudio(this.fastMusic)) this.game.audio.createAudio(this.fastMusic);
+    this.data = input.data;
+    this.obj = input.obj;
+    this.warp = input.warp;
     this.bumped = [];
     this.effects = [];
     this.vines = [];
@@ -7644,15 +7679,20 @@ Game.prototype.doStep = function() {
     player && this.cullSS && !vec2.equals(player.pos, this.cullSS) && this.out.push(NET015.encode());
     player && this.fillSS && this.fillSS !== player.fallSpeed && this.out.push(NET015.encode());
     for (var i = 0x0; i < this.objects.length; i++) {
-        var _0x617df4 = this.objects[i];
-        _0x617df4.step();
-        _0x617df4.garbage && this.objects.splice(i--, 0x1);
+        var obj = this.objects[i];
+        obj.step();
+        obj.garbage && this.objects.splice(i--, 0x1);
     }
     this.cullSS = player ? vec2.copy(player.pos) : undefined;
     this.fillSS = player ? player.fallSpeed : undefined;
     var zone = this.getZone();
     player && !player.dead && this.display.camera.position(vec2.make(player.pos.x, 0.5 * zone.dimensions().y));
     this.world.step();
+    if (app.hurryingUp && app.hurryUpTime <= Date.now() && 0>=this.levelWarpTimer) {
+        app.hurryingUp = false;
+        this.lives = 0;
+        if (player) player.kill();
+    }
     for (var i = 0x0; i < this.sounds.length; i++) this.sounds[i].done() && this.sounds.splice(i--, 0x1);
     this.doMusic();
     this.audio.update();
@@ -7694,22 +7734,31 @@ Game.prototype.doSpawn = function() {
 };
 
 Game.prototype.doMusic = function() {
-    var _0x1844d9 = this.getPlayer(),
-        _0x180f62 = this.getZone();
-    if (this.gameOver)
+    var player = this.getPlayer(),
+        zone = this.getZone();
+    if (this.gameOver) {
         this.audio.setMusic("music/gameover.mp3", false);
-    else if (_0x1844d9 && _0x1844d9.dead)
+    } else if (player && player.dead)
         this.audio.setMusic("music/dead.mp3", false);
-    else if (_0x1844d9 && _0x1844d9.autoTarget && 0x0 >= this.victory)
+    else if (player && player.autoTarget && 0x0 >= this.victory)
         this.audio.setMusic("music/level.mp3", false);
     else if (0x0 < this.victory && !this.victoryMusic) {
         this.audio.setMusic("music/castle.mp3", false);
         this.victoryMusic = true;
-    }else if (0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !this.audio.music.playing)
+    } else if (0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !this.audio.music.playing) {
         this.audio.setMusic("music/victory.mp3", false);
-    else if (_0x1844d9 && 0x0 >= this.levelWarpTimer && undefined !== this.startDelta && !this.victoryMusic) {
-        if ('' !== _0x180f62.music)
-            this.audio.setMusic(_0x180f62.music, true);
+    } else if (app.hurryingUp) {
+        if ((Date.now()-app.hurryUpStart) < 1000*this.audio.getAudioLength("music/hurry.mp3")) {
+            this.audio.setMusic("music/hurry.mp3", false);
+        } else {
+            if ('' !== zone.fastMusic)
+                this.audio.setMusic(zone.fastMusic, true);
+            else
+                this.audio.stopMusic();
+        }
+    } else if (player && 0x0 >= this.levelWarpTimer && undefined !== this.startDelta && !this.victoryMusic) {
+        if ('' !== zone.music)
+            this.audio.setMusic(zone.music, true);
         else
             this.audio.stopMusic();
     }
@@ -7830,17 +7879,17 @@ firstLoop = true;
 Game.prototype.loop = function() {
     try {
         if (this.ready && undefined !== this.startDelta) {
-            var _0x441773 = util.time.now(),
-                _0x3b488d = parseInt((_0x441773 - this.startDelta) / Game.TICK_RATE);
-            if (_0x3b488d > this.frame) {
-                for (var _0x32cb4e = true; this.buffer.length > Game.FDLC_TARGET || _0x32cb4e && 0x0 < this.buffer.length;) {
+            var time = util.time.now(),
+                frm = parseInt((time - this.startDelta) / Game.TICK_RATE);
+            if (frm > this.frame) {
+                for (var cont = true; this.buffer.length > Game.FDLC_TARGET || cont && 0x0 < this.buffer.length;) {
                     var data = this.buffer.shift();
                     this.doUpdate(data);
-                    _0x32cb4e = false;
+                    cont = false;
                 }
-                for (this.doDetermine(); _0x3b488d > this.frame;) this.doStep();
+                for (this.doDetermine(); frm > this.frame;) this.doStep();
                 this.doPush();
-                this.delta = _0x441773;
+                this.delta = time;
             }
         }
     } catch (e) {
@@ -7936,8 +7985,8 @@ LobbyGame.prototype.destroy = function() {
 }
 "use strict";
 
-function JailGame(_0x1425f8) {
-    Game.call(this, _0x1425f8);
+function JailGame(data) {
+    Game.call(this, data);
     this.lobbyTimer = 0x5a;
 }
 JailGame.prototype.load = Game.prototype.load;
@@ -7999,6 +8048,9 @@ function App() {
     this.audioElement.load;
     this.audioElement.volume = 0.2;
     this.audioElement.loop = true;
+    this.hurryingUp = false;
+    this.hurryUpStart = null;
+    this.hurryUpTime = null;
     this.players = [];
     if (0x1 !== parseInt(Cookies.get("music")))
         this.audioElement.play();
@@ -8026,7 +8078,7 @@ App.prototype.init = function() {
         }
 
         that.menu.main.show();
-    }, this.goToLobby ? 100 : 5000);
+    }, this.goToLobby ? 100 : DISCLAIMER_SCREEN_TIMEOUT);
 };
 App.prototype.load = function(data) {
     if (this.game instanceof Game) this.menu.error.show("State error. Game already loaded.");
@@ -8038,6 +8090,7 @@ App.prototype.load = function(data) {
             this.game = new LobbyGame(data);
             break;
         case "jail":
+        case "maintenance":
             this.game = new JailGame(data);
             break;
         default:
@@ -8076,6 +8129,13 @@ App.prototype.getPlayerInfo = function(id) {
     for (var i = 0; i < app.players.length; i++) {
         var obj = app.players[i];
         if (obj.id === id) return obj;
+    }
+};
+App.prototype.hurryUp = function(data) {
+    if (!this.hurryingUp) {
+        this.hurryingUp = true;
+        this.hurryUpStart = Date.now();
+        this.hurryUpTime = this.hurryUpStart+data.time*1000;
     }
 };
 function getPlayerDisplayName(player) {

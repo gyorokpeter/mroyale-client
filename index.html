@@ -45,9 +45,9 @@
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@realMarioRoyale" />
 
-        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.3.7'>
-        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.3.7'>
-        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.3.7'>
+        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.3.8'>
+        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.3.8'>
+        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.3.8'>
         <script>
           /* Prevent phones from zooming screen. The webapp handles this. */
           document.addEventListener('touchmove', function(event) {
@@ -71,7 +71,7 @@
         </div>
         <div class="link-l">
           <div class="rtfpn2"></div>
-          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.3.7')" style="display:none;">v3.3.7 Patch Notes</div>
+          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.3.8')" style="display:none;">v3.3.8 Patch Notes</div>
         </div>
         <div class="link-w">
           <div id='win' class="win" style="display:none;"></div>
@@ -80,7 +80,7 @@
           <div class="rtfpn"></div>
           <div>
               <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
-              <div class="link-con" onclick="window.open('./control.html?v=3.3.7')"></div>
+              <div class="link-con" onclick="window.open('./control.html?v=3.3.8')"></div>
           </div>
         </div>
           <div class="link-s">
@@ -116,7 +116,8 @@
         <div class='title'>Mario Royale</div>
         <div class='container-launch' style='margin-bottom: 20px'>
           <span id='main-launch' class='launch'>Play Now!</span>
-          <span class='players'><span id='main-number' class='player-number' style="display:none;">?</span> Online</span>
+          <span class='players' id='main-numberFull'><span id='main-number' class='player-number' style="display:none;">?</span> Online</span>
+          <span class='player-maintenance' id='main-maintenance' style="display:none;">Maintenance</span>
         </div>
         <div class="container-launch">
           <span id='main-login' class='launch'>Login</span>
@@ -130,7 +131,8 @@
       <div id='mainAsMember' class='container-center' style='display: none;'>
         <div class='title'>Mario Royale</div>
         <div class='container-launch'>
-          <span class='players'><span id='mainAsMember-number' class='player-number'>?</span> Online</span>
+          <span class='players' id='mainAsMember-numberFull'><span id='mainAsMember-number' class='player-number'>?</span> Online</span>
+          <span class='player-maintenance' id='mainAsMember-maintenance' style="display:none;">Maintenance</span>
           <div style='display:inline-block'>
             <span id='mainAsMember-launch' class='launch'>Play Now!</span>
             <div id='mainAsMember-gm-change' class="gm-change tooltip" style='margin-left: 10px'>
@@ -304,6 +306,6 @@
       <script src='js/lib/cookie/js.cookie.min.js'></script>
 
       <!-- Core -->
-      <script src='js/core.js?v=3.3.7'></script>
+      <script src='js/core.js?v=3.3.8'></script>
     </body>
 </html>

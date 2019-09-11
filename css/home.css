@@ -226,6 +226,13 @@ img {
   color: #00FF00;
 }
 
+.player-maintenance {
+  font-size: 20px;
+  margin-right: 4px;
+  float: right;
+  color: #FF0000;
+}
+
 @media only screen and (max-width: 769px) {
   .players {
     font-size: 16px;
