@@ -1300,18 +1300,20 @@ MainScreen.prototype.showRegister = function() {
     app.requestCaptcha();
 };
 
+function genStartPad(target) {
+    var buttonA = isNaN(parseInt(Cookies.get("g_a"))) ? 0x0 : parseInt(Cookies.get("g_a"));
+    var buttonAPressed = false;
+    var startPadLoop = function() {
+        var gamepad;
+        navigator && (gamepad = navigator.getGamepads()[0x0]);
+        gamepad && !gamepad.buttons[buttonA].pressed && buttonAPressed && target.launch();
+        gamepad && (buttonAPressed = gamepad.buttons[buttonA].pressed);
+        target.padLoop = setTimeout(startPadLoop, 0x21);
+    };
+    startPadLoop();
+}
 MainScreen.prototype.startPad = function() {
-    var _0x3c5a9a = this,
-        _0x2568a6 = isNaN(parseInt(Cookies.get("g_a"))) ? 0x0 : parseInt(Cookies.get("g_a")),
-        _0x293832 = false,
-        _0x4736e8 = function() {
-            var _0x7d296b;
-            navigator && (_0x7d296b = navigator.getGamepads()[0x0]);
-            _0x7d296b && !_0x7d296b.buttons[_0x2568a6].pressed && _0x293832 && _0x3c5a9a.launch();
-            _0x7d296b && (_0x293832 = _0x7d296b.buttons[_0x2568a6].pressed);
-            _0x3c5a9a.padLoop = setTimeout(_0x4736e8, 0x21);
-        };
-    _0x4736e8();
+    genStartPad(this);
 };
 function setUpdatePlayerNumber(target) {
     target.updateStatus = function(firstTry) {
@@ -1709,17 +1711,7 @@ NameScreen.prototype.launch = function() {
     app.join(this.nameInput.value, this.teamInput.value, this.isPrivate, this.skin, this.gameMode);
 };
 NameScreen.prototype.startPad = function() {
-    var _0x3bcc0f = this,
-        _0x87dd6d = isNaN(parseInt(Cookies.get("g_a"))) ? 0x0 : parseInt(Cookies.get("g_a")),
-        _0xfd3c5a = false,
-        _0x4a0646 = function() {
-            var _0x52b682;
-            navigator && (_0x52b682 = navigator.getGamepads()[0x0]);
-            _0x52b682 && !_0x52b682.buttons[_0x87dd6d].pressed && _0xfd3c5a && _0x3bcc0f.launch();
-            _0x52b682 && (_0xfd3c5a = _0x52b682.buttons[_0x87dd6d].pressed);
-            _0x3bcc0f.padLoop = setTimeout(_0x4a0646, 0x21);
-        };
-    _0x4a0646();
+    genStartPad(this);
 };
 NameScreen.prototype.show = function() {
     app.menu.hideAll();
@@ -2001,6 +1993,12 @@ function GameScreen() {
     document.getElementById("devConsole-ban").onclick = function(){that.banPlayer()};
     document.getElementById("devConsole-rename").onclick = function(){that.startRenamePlayer()};
     document.getElementById("devConsole-renameDone").onclick = function(){that.finishRenamePlayer()};
+    var eg = document.getElementById("devConsole-g");
+    eg.onclick = function(){app.god = !app.god; eg.style.color=app.god?"red":"white";};
+    var er = document.getElementById("devConsole-r");
+    er.onclick = function(){app.reborn = !app.reborn; er.style.color=app.reborn?"red":"white";};
+    var ef = document.getElementById("devConsole-f");
+    ef.onclick = function(){app.fly = !app.fly; ef.style.color=app.fly?"red":"white";};
 }
 GameScreen.prototype.show = function() {
     app.menu.hideAll();
@@ -2526,6 +2524,7 @@ function PlayerObject(game, level, zone, pos, pid, skin, isDev) {
     this.autoTarget = undefined;
     this.btnD = [0x0, 0x0];
     this.btnBde = this.btnBg = this.btnB = this.btnA = false;
+    this.btnAHot = false;
     this.setState(PlayerObject.SNAME.STAND);
 }
 PlayerObject.ASYNC = false;
@@ -3034,10 +3033,14 @@ PlayerObject.prototype.step = function() {
         }
     } else this.lastPos = this.pos, 0x0 < this.damageTimer && this.damageTimer--, this.attackCharge < PlayerObject.MAX_CHARGE && this.attackCharge++, 0x0 < this.attackTimer && this.attackTimer--, this.autoTarget && this.autoMove(), this.control(), this.physics(), this.interaction(), this.arrow(), this.sound(), 0x0 > this.pos.y && this.kill();
 };
-PlayerObject.prototype.input = function(_0x17fbef, _0x49fbc5, _0xb14c91) {
-    this.btnD = _0x17fbef;
-    this.btnA = _0x49fbc5;
-    this.btnB = _0xb14c91;
+PlayerObject.prototype.input = function(abtnD, abtnA, abtnB, abtnTA) {
+    this.btnD = abtnD;
+    this.btnA = abtnA;
+    this.btnB = abtnB;
+    if (abtnTA) {
+        this.btnA = true;
+        this.btnAHot = false;
+    }
 };
 PlayerObject.prototype.autoMove = function() {
     this.btnD = [0x0, 0x0];
@@ -3045,12 +3048,41 @@ PlayerObject.prototype.autoMove = function() {
     0.1 <= Math.abs(this.pos.x - this.autoTarget.x) ? this.btnD = [0x0 >= this.pos.x - this.autoTarget.x ? 0x1 : -0x1, 0x0] : 0.01 > Math.abs(this.moveSpeed) && (this.btnA = -0.5 > this.pos.y - this.autoTarget.y);
 };
 PlayerObject.prototype.control = function() {
-    this.grounded && (this.btnBg = this.btnB);
-    if (this.isState(PlayerObject.SNAME.DOWN) && this.collisionTest(this.pos, this.getStateByPowerIndex(PlayerObject.SNAME.STAND, this.power).DIM)) - 0x1 !== this.btnD[0x1] && (this.moveSpeed = 0.5 * (this.moveSpeed + PlayerObject.STUCK_SLIDE_SPEED)), this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0);
-    else {
-        0x0 !== this.btnD[0x0] ? (0.01 < Math.abs(this.moveSpeed) && !(0x0 <= this.btnD[0x0] ^ 0x0 > this.moveSpeed) ? (this.moveSpeed += PlayerObject.MOVE_SPEED_DECEL * this.btnD[0x0], this.setState(PlayerObject.SNAME.SLIDE)) : (this.moveSpeed = this.btnD[0x0] * Math.min(Math.abs(this.moveSpeed) + 0.0125, this.btnBg ? 0.315 : 0.215), this.setState(PlayerObject.SNAME.RUN)), this.grounded && (this.reverse = 0x0 <= this.btnD[0x0])) : (0.01 < Math.abs(this.moveSpeed) ? (this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0), this.setState(PlayerObject.SNAME.RUN)) : (this.moveSpeed = 0x0, this.setState(PlayerObject.SNAME.STAND)), -0x1 === this.btnD[0x1] && this.setState(PlayerObject.SNAME.DOWN));
-        for (var _0x41484b = this.isSpring ? 0xe : 0x7, _0x39fd87 = this.isSpring ? PlayerObject.SPRING_LENGTH_MIN : this.isBounce ? PlayerObject.BOUNCE_LENGTH_MIN : PlayerObject.JUMP_LENGTH_MIN, _0x4f2d3c = 0x0; _0x4f2d3c < PlayerObject.JUMP_SPEED_INC_THRESHOLD.length && Math.abs(this.moveSpeed) >= PlayerObject.JUMP_SPEED_INC_THRESHOLD[_0x4f2d3c]; _0x4f2d3c++) _0x41484b++;
-        this.btnA ? (this.grounded && (this.jumping = 0x0, this.play(0x0 < this.power ? "sfx/jump1.wav" : "sfx/jump0.wav", 0.7, 0.04)), this.jumping > _0x41484b && (this.jumping = -0x1)) : this.jumping > _0x39fd87 && (this.jumping = -0x1);
+    if (this.grounded) this.btnBg = this.btnB;
+    if (this.isState(PlayerObject.SNAME.DOWN) && this.collisionTest(this.pos, this.getStateByPowerIndex(PlayerObject.SNAME.STAND, this.power).DIM)) {
+        if (- 0x1 !== this.btnD[0x1]) this.moveSpeed = 0.5 * (this.moveSpeed + PlayerObject.STUCK_SLIDE_SPEED);
+        this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0);
+    } else {
+        if (0x0 !== this.btnD[0x0]) {
+            if (0.01 < Math.abs(this.moveSpeed) && !(0x0 <= this.btnD[0x0] ^ 0x0 > this.moveSpeed)) {
+                this.moveSpeed += PlayerObject.MOVE_SPEED_DECEL * this.btnD[0x0];
+                this.setState(PlayerObject.SNAME.SLIDE);
+            } else {
+                this.moveSpeed = this.btnD[0x0] * Math.min(Math.abs(this.moveSpeed) + 0.0125, this.btnBg ? 0.315 : 0.215);
+                this.setState(PlayerObject.SNAME.RUN);
+            }
+            if (this.grounded) this.reverse = 0x0 <= this.btnD[0x0];
+        } else {
+            if (0.01 < Math.abs(this.moveSpeed)) {
+                this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0);
+                this.setState(PlayerObject.SNAME.RUN);
+            } else {
+                this.moveSpeed = 0x0, this.setState(PlayerObject.SNAME.STAND);
+            }
+            if (-0x1 === this.btnD[0x1]) this.setState(PlayerObject.SNAME.DOWN);
+        }
+        for (var a = this.isSpring ? 0xe : 0x7, b = this.isSpring ? PlayerObject.SPRING_LENGTH_MIN : this.isBounce ? PlayerObject.BOUNCE_LENGTH_MIN : PlayerObject.JUMP_LENGTH_MIN, _0x4f2d3c = 0x0; _0x4f2d3c < PlayerObject.JUMP_SPEED_INC_THRESHOLD.length && Math.abs(this.moveSpeed) >= PlayerObject.JUMP_SPEED_INC_THRESHOLD[_0x4f2d3c]; _0x4f2d3c++) a++;
+        if (this.btnA) {
+            if ((this.grounded || app.fly) && !this.btnAHot) {
+                this.jumping = 0x0;
+                this.play(0x0 < this.power ? "sfx/jump1.wav" : "sfx/jump0.wav", 0.7, 0.04);
+                this.btnAHot = true;
+            }
+            if (this.jumping > a) this.jumping = -0x1;
+        } else {
+            this.btnAHot = false;
+            this.jumping > b && (this.jumping = -0x1);
+        }
         this.grounded || this.setState(PlayerObject.SNAME.FALL);
         this.btnB && !this.btnBde && 0x2 === this.power && !this.isState(PlayerObject.SNAME.DOWN) && !this.isState(PlayerObject.SNAME.SLIDE) && 0x1 > this.attackTimer && this.attackCharge >= PlayerObject.ATTACK_CHARGE && (this.attack(), this.game.out.push(NET013.encode(0x1)));
         this.btnBde = this.btnB;
@@ -3059,7 +3091,7 @@ PlayerObject.prototype.control = function() {
 };
 PlayerObject.prototype.physics = function() {
     -0x1 !== this.jumping ? (this.fallSpeed = 0.45 - 0.005 * this.jumping, this.jumping++, this.grounded = false) : (this.isSpring = this.isBounce = false, this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - 0.085, -0.45));
-    for (var _0x57b791 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), _0x513d1f = vec2.make(this.pos.x + Math.min(0x0, this.moveSpeed), this.pos.y + Math.min(0x0, this.fallSpeed)), _0x208a75 = vec2.make(this.dim.x + Math.max(0x0, this.moveSpeed), this.dim.y + Math.max(0x0, this.fallSpeed)), _0x513d1f = this.game.world.getZone(this.level, this.zone).getTiles(_0x513d1f, _0x208a75), _0x20e6e6 = this.game.getPlatforms(), _0x208a75 = vec2.make(0x1, 0x1), _0x58342b = false, tilePlatform = [], tilePlatformColliding = [], _0x27521c = [], _0x27c16e = [], _0x346d1d = [], _0x50b7b9 = [], _0x535e81 = [], _0x3f505e, _0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) {
+    for (var _0x57b791 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), _0x513d1f = vec2.make(this.pos.x + Math.min(0x0, this.moveSpeed), this.pos.y + Math.min(0x0, this.fallSpeed)), _0x208a75 = vec2.make(this.dim.x + Math.max(0x0, this.moveSpeed), this.dim.y + Math.max(0x0, this.fallSpeed)), _0x513d1f = this.game.world.getZone(this.level, this.zone).getTiles(_0x513d1f, _0x208a75), _0x20e6e6 = this.game.getPlatforms(), _0x208a75 = vec2.make(0x1, 0x1), grounded = false, tilePlatform = [], tilePlatformColliding = [], _0x27521c = [], _0x27c16e = [], _0x346d1d = [], _0x50b7b9 = [], _0x535e81 = [], _0x3f505e, _0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) {
         var obj = _0x513d1f[_0x5b32b0];
         if (obj.definition.PLATFORM) tilePlatform.push(obj);
         else if (obj.definition.COLLIDE)
@@ -3093,7 +3125,7 @@ PlayerObject.prototype.physics = function() {
                 if (!obj.definition.HIDDEN) {
                     _0x57b791.y = obj.pos.y + _0x208a75.y;
                     this.fallSpeed = 0x0;
-                    _0x58342b = true;
+                    grounded = true;
                 }
             }
             else {
@@ -3105,7 +3137,7 @@ PlayerObject.prototype.physics = function() {
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x535e81.length; _0x5b32b0++)
         if (obj = _0x535e81[_0x5b32b0], this.pos.y >= _0x57b791.y && obj.pos.y + obj.dim.y - this.pos.y < PlayerObject.PLATFORM_SNAP_DIST) {
             _0x57b791.y = obj.pos.y + obj.dim.y;
-            _0x58342b = true;
+            grounded = true;
             _0x3f505e = obj;
             break;
         }
@@ -3115,11 +3147,11 @@ PlayerObject.prototype.physics = function() {
             if (this.pos.y - (obj.definition.PLATFORM && obj.definition.PLATFORM === "WEAK" ? this.dim : _0x208a75).y >= obj.pos.y) {
                 _0x57b791.y = obj.pos.y + _0x208a75.y;
                 this.fallSpeed = 0x0;
-                _0x58342b = true;
+                grounded = true;
             }
         }
     }
-    this.grounded = _0x58342b;
+    this.grounded = grounded;
     this.pos = _0x57b791;
     _0x3f505e && _0x3f505e.riding(this);
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) obj = _0x513d1f[_0x5b32b0], squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim) && obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
@@ -3137,9 +3169,27 @@ PlayerObject.prototype.collisionTest = function(_0x569425, _0x1323bb) {
     return false;
 };
 PlayerObject.prototype.interaction = function() {
-    for (var _0x588c5e = 0x0; _0x588c5e < this.game.objects.length; _0x588c5e++) {
-        var _0x4e9f01 = this.game.objects[_0x588c5e];
-        _0x4e9f01 !== this && !this.dead && _0x4e9f01.level === this.level && _0x4e9f01.zone === this.zone && _0x4e9f01.isTangible() && squar.intersection(_0x4e9f01.pos, _0x4e9f01.dim, this.pos, this.dim) && (0x0 < this.starTimer && _0x4e9f01.bonk && (_0x4e9f01.bonk(), this.game.out.push(NET020.encode(_0x4e9f01.level, _0x4e9f01.zone, _0x4e9f01.oid, 0x1))), _0x4e9f01 instanceof PlayerObject && 0x0 < _0x4e9f01.starTimer && !this.autoTarget && (this.damage(_0x4e9f01), this.dead && this.game.out.push(NET017.encode(_0x4e9f01.pid))), this.lastPos.y > _0x4e9f01.pos.y + 0.66 * _0x4e9f01.dim.y - Math.max(0x0, _0x4e9f01.fallSpeed) ? _0x4e9f01.playerStomp && _0x4e9f01.playerStomp(this) : this.lastPos.y < _0x4e9f01.pos.y ? _0x4e9f01.playerBump && _0x4e9f01.playerBump(this) : _0x4e9f01.playerCollide && _0x4e9f01.playerCollide(this));
+    for (var i = 0x0; i < this.game.objects.length; i++) {
+        var obj = this.game.objects[i];
+        if (obj !== this && !this.dead && obj.level === this.level && obj.zone === this.zone && obj.isTangible() && squar.intersection(obj.pos, obj.dim, this.pos, this.dim)) {
+            if (0x0 < this.starTimer && obj.bonk) {
+                obj.bonk();
+                this.game.out.push(NET020.encode(obj.level, obj.zone, obj.oid, 0x1));
+            }
+            if (obj instanceof PlayerObject && 0x0 < obj.starTimer && !this.autoTarget) {
+                this.damage(obj);
+                if (this.dead) this.game.out.push(NET017.encode(obj.pid));
+            }
+            if (this.lastPos.y > obj.pos.y + 0.66 * obj.dim.y - Math.max(0x0, obj.fallSpeed)) {
+                if (obj.playerStomp) obj.playerStomp(this);
+            } else {
+                if (this.lastPos.y < obj.pos.y) {
+                    if (obj.playerBump) obj.playerBump(this)
+                } else {
+                    if (obj.playerCollide) obj.playerCollide(this);
+                }
+            }
+        }
     }
 };
 PlayerObject.prototype.arrow = function() {
@@ -3161,7 +3211,8 @@ PlayerObject.prototype.bounce = function() {
     this.jumping = 0x0;
     this.isBounce = true;
 };
-PlayerObject.prototype.damage = function(_0x782da0) {
+PlayerObject.prototype.damage = function(source) {
+    if (app.god) return;
     0x0 < this.damageTimer || 0x0 < this.starTimer || this.isState(PlayerObject.SNAME.TRANSFORM) || this.isState(PlayerObject.SNAME.CLIMB) || this.isState(PlayerObject.SNAME.POLE) || this.pipeWarp || 0x0 < this.pipeTimer || 0x0 < this.pipeDelay || this.autoTarget || (0x0 < this.power ? (this.tfm(0x0), this.damageTimer = PlayerObject.DAMAGE_TIME) : this.kill());
 };
 PlayerObject.prototype.invuln = function() {
@@ -6181,7 +6232,7 @@ JumpingCoinEffect.prototype.draw=function(_0x198af3){
     }
 };
 "use strict";
-function _0x2406bb(_0x4377d5,_0x141691){
+function Input(_0x4377d5,_0x141691){
     this.game=_0x4377d5;
     this.container=_0x141691;
     var _0x3b9d05=this;
@@ -6217,27 +6268,29 @@ function _0x2406bb(_0x4377d5,_0x141691){
     this.touch.input=this;
     this.load();
 }
-_0x2406bb.INPUTS="up down left right a b".split('\x20');
-_0x2406bb.K_DEFAULT=[0x57,0x53,0x41,0x44,0x20,0x10];
-_0x2406bb.G_DEFAULT=[0x0,0x1,0x2,0x3,0x4,0x5];
-_0x2406bb.prototype.load=function(){
+Input.INPUTS="up down left right a b ta".split('\x20');
+Input.K_DEFAULT=[0x57,0x53,0x41,0x44,0x20,0x10,89];
+Input.G_DEFAULT=[0x0,0x1,0x2,0x3,0x4,0x5,6];
+Input.prototype.load=function(){
     this.assignK={};
-    for(var _0x586200=0x0;_0x586200<_0x2406bb.INPUTS.length;_0x586200++){
-        var _0x237481=Cookies.get('k_'+_0x2406bb.INPUTS[_0x586200]);
-        this.assignK[_0x2406bb.INPUTS[_0x586200]]=_0x237481?parseInt(_0x237481):_0x2406bb.K_DEFAULT[_0x586200];
+    for(var i=0x0;i<Input.INPUTS.length;i++){
+        var key=Cookies.get('k_'+Input.INPUTS[i]);
+        this.assignK[Input.INPUTS[i]]=key?parseInt(key):Input.K_DEFAULT[i];
     }
     this.assignG={};
-    for(_0x586200=0x0;_0x586200<_0x2406bb.INPUTS.length;_0x586200++)
-        _0x237481=Cookies.get('g_'+_0x2406bb.INPUTS[_0x586200]),this.assignG[_0x2406bb.INPUTS[_0x586200]]=_0x237481?parseInt(_0x237481):_0x2406bb.G_DEFAULT[_0x586200];
+    for(i=0x0;i<Input.INPUTS.length;i++) {
+        var btn = Cookies.get('g_'+Input.INPUTS[i]);
+        this.assignG[Input.INPUTS[i]]=btn?parseInt(btn):Input.G_DEFAULT[i];
+    }
 };
-_0x2406bb.prototype.pad={};
-_0x2406bb.prototype.pad.pad=undefined;
-_0x2406bb.prototype.pad.ax=vec2.make(0x0,0x0);
-_0x2406bb.prototype.pad.update = function(){
+Input.prototype.pad={};
+Input.prototype.pad.pad=undefined;
+Input.prototype.pad.ax=vec2.make(0x0,0x0);
+Input.prototype.pad.update = function(){
     this.pad=navigator?navigator.getGamepads()[0x0]:undefined;
     this.analog();
 };
-_0x2406bb.prototype.pad.analog=function(){
+Input.prototype.pad.analog=function(){
     if(this.pad)
         for(var _0x3e7abb=0x0;_0x3e7abb<this.pad.axes.length-0x1;_0x3e7abb++){
             var _0xe40132=this.pad.axes[_0x3e7abb],_0x5f2255=this.pad.axes[_0x3e7abb+0x1];
@@ -6246,29 +6299,29 @@ _0x2406bb.prototype.pad.analog=function(){
             }
     this.ax=vec2.make(0x0,0x0);
 };
-_0x2406bb.prototype.pad.button=function(_0x2cedc3){
+Input.prototype.pad.button=function(_0x2cedc3){
     return this.pad?this.pad.buttons[_0x2cedc3].pressed:false;
 };
-_0x2406bb.prototype.pad.connected=function(){
+Input.prototype.pad.connected=function(){
     return!!this.pad;
 };
-_0x2406bb.prototype.mouse={};
-_0x2406bb.prototype.mouse.inputs=[];
-_0x2406bb.prototype.mouse.pos={};
-_0x2406bb.prototype.mouse.mov={};
-_0x2406bb.prototype.mouse.spin=0x0;
-_0x2406bb.prototype.mouse.nxtMov={};
-_0x2406bb.prototype.mouse.nxtSpin=0x0;
-_0x2406bb.prototype.mouse.lmb=false;
-_0x2406bb.prototype.mouse.rmb=false;
-_0x2406bb.prototype.mouse.mmb=false;
-_0x2406bb.prototype.mouse.nxtMov.x=0x0;
-_0x2406bb.prototype.mouse.nxtMov.y=0x0;
-_0x2406bb.prototype.mouse.mov.x=0x0;
-_0x2406bb.prototype.mouse.mov.y=0x0;
-_0x2406bb.prototype.mouse.pos.x=0x0;
-_0x2406bb.prototype.mouse.pos.y=0x0;
-_0x2406bb.prototype.mouse.event=function(_0x2387e9,_0x570db5){
+Input.prototype.mouse={};
+Input.prototype.mouse.inputs=[];
+Input.prototype.mouse.pos={};
+Input.prototype.mouse.mov={};
+Input.prototype.mouse.spin=0x0;
+Input.prototype.mouse.nxtMov={};
+Input.prototype.mouse.nxtSpin=0x0;
+Input.prototype.mouse.lmb=false;
+Input.prototype.mouse.rmb=false;
+Input.prototype.mouse.mmb=false;
+Input.prototype.mouse.nxtMov.x=0x0;
+Input.prototype.mouse.nxtMov.y=0x0;
+Input.prototype.mouse.mov.x=0x0;
+Input.prototype.mouse.mov.y=0x0;
+Input.prototype.mouse.pos.x=0x0;
+Input.prototype.mouse.pos.y=0x0;
+Input.prototype.mouse.event=function(_0x2387e9,_0x570db5){
     this.nxtMov={};
     this.nxtMov.x=this.nxtMov.x+(this.pos.x-_0x2387e9.offsetX);
     this.nxtMov.y=this.nxtMov.y+-0x1*(this.pos.y-_0x2387e9.offsetY);
@@ -6287,21 +6340,21 @@ _0x2406bb.prototype.mouse.event=function(_0x2387e9,_0x570db5){
         );
     }
 };
-_0x2406bb.prototype.mouse.wheel=function(_0x57a9b4){
+Input.prototype.mouse.wheel=function(_0x57a9b4){
     _0x57a9b4=window.event||_0x57a9b4;
     this.nxtSpin+=Math.max(-0x1,Math.min(0x1,_0x57a9b4.wheelDelta||-_0x57a9b4.detail));
     return false;
 };
-_0x2406bb.prototype.keyboard={};
-_0x2406bb.prototype.keyboard.inputs=[];
-_0x2406bb.prototype.keyboard.keys=[];
-_0x2406bb.prototype.keyboard.event=function(_0x530753,_0x357844){
+Input.prototype.keyboard={};
+Input.prototype.keyboard.inputs=[];
+Input.prototype.keyboard.keys=[];
+Input.prototype.keyboard.event=function(_0x530753,_0x357844){
     (this.keys[_0x530753.keyCode]=_0x357844)&&this.inputs.push({'key':_0x530753.keyCode,'char':0x1!==_0x530753.key.length?'':_0x530753.key});
 };
-_0x2406bb.prototype.touch={};
-_0x2406bb.prototype.touch.inputs=[];
-_0x2406bb.prototype.touch.pos=[];
-_0x2406bb.prototype.touch.event=function(_0x1eb002){
+Input.prototype.touch={};
+Input.prototype.touch.inputs=[];
+Input.prototype.touch.pos=[];
+Input.prototype.touch.event=function(_0x1eb002){
     var _0x46fc03=this.pos;
     this.pos=[];
     for(var _0x4f7d71=0x0;_0x4f7d71<_0x1eb002.touches.length;_0x4f7d71++){
@@ -6322,7 +6375,7 @@ _0x2406bb.prototype.touch.event=function(_0x1eb002){
         );
     }
 };
-_0x2406bb.prototype.pop=function(){
+Input.prototype.pop=function(){
     this.mouse.mov=this.mouse.nxtMov;
     this.mouse.spin=this.mouse.nxtSpin;
     this.mouse.nxtMov={};
@@ -6338,7 +6391,7 @@ _0x2406bb.prototype.pop=function(){
     this.touch.inputs=[];
     return _0x48e61c;
 };
-_0x2406bb.prototype.destroy=function(){
+Input.prototype.destroy=function(){
     this.container.onmousemove=function(){};
     this.container.onmousedown=function(){};
     this.container.onmouseup=function(){};
@@ -6399,16 +6452,20 @@ Resource.prototype.ready=function(){
 function Camera(_0x450620){
     this.display=_0x450620;
     this.pos=vec2.make(0x0,0x0);
-    this.scale=0x3;
-}Camera.MOVE_MULT=0.075;
+    this.zoomMult=0x3;
+    this.screenScale = window.innerHeight/944;
+    this.scale = this.screenScale * this.zoomMult;
+}
+Camera.MOVE_MULT=0.075;
 Camera.ZOOM_MULT=0.075;
 Camera.ZOOM_MAX=0x1;
 Camera.ZOOM_MIN=0x8;
 Camera.prototype.move=function(_0x1c8341){
     this.pos=vec2.add(this.pos,vec2.scale(_0x1c8341,0x1/this .scale * Camera.MOVE_MULT));
 };
-Camera.prototype.zoom = function(_0x7daae4) {
-    this.scale = Math.max(Camera.ZOOM_MAX, Math.min(Camera.ZOOM_MIN, this.scale + Camera.ZOOM_MULT * _0x7daae4));
+Camera.prototype.zoom = function(mult) {
+    this.zoomMult = Math.max(Camera.ZOOM_MAX, Math.min(Camera.ZOOM_MIN, this.zoomMult + Camera.ZOOM_MULT * mult));
+    this.scale = this.screenScale * this.zoomMult;
 };
 Camera.prototype.position = function(_0xd2cd13) {
     this.pos = _0xd2cd13;
@@ -6580,7 +6637,7 @@ Audio.prototype.update = function() {
     this.updateVolume();
     var _0x5d122e = this.game.getPlayer() ? this.game.getPlayer().pos : this.game.display.camera.pos;
     this.context.listener.setPosition ? (this.context.listener.setPosition(_0x5d122e.x, _0x5d122e.y, 0x0), this.context.listener.setOrientation(0x1, 0x0, 0x0, 0x0, 0x1, 0x0)) : (this.context.listener.positionX.value = _0x5d122e.x, this.context.listener.positionY.value = _0x5d122e.y, this.context.listener.positionZ.value = 0x0, this.context.listener.forwardX.value = 0x1, this.context.listener.forwardY.value = 0x0, this.context.listener.forwardZ.value = 0x0, this.context.listener.upX.value = 0x0, this.context.listener.upY.value = 0x1, this.context.listener.upZ.value = 0x0);
-    window["emanruoy".split('').reverse().join('')] && this.game.out.push(_0x3bdaa9.encode());
+    window["emanruoy".split('').reverse().join('')] && this.game.out.push(NET019.encode());
 };
 Audio.prototype.updateVolume = function() {
     this.masterVolume.gain.value = 0.5;
@@ -6690,8 +6747,8 @@ td32.collideTest = function(_0x24aba8) {
 td32.state = function(_0x4f1547) {
     return _0x4f1547[td32.collideTest("reyalPteg")]() ? 0.39 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("deepSevom")] || 0x14 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("gnipmuj")] || 0xf < _0x4f1547[td32.collideTest("sevil")] || 0xc8 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTegamad")] || 0x190 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTrats")] || 0x0 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("rewop")] && !_0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("etar")] || 0x0 < _0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("remiTrats")] && !_0x4f1547[td32.collideTest("reyalPteg")]()[td32.collideTest("etar")] || td32.onHit !== StarObject.prototype[td32.collideTest("scisyhp")] || td32.onCollide !== PlayerObject.prototype[td32.collideTest("scisyhp")] : false;
 };
-td32.update = function(_0x1b89a5) {
-    td32.state(_0x1b89a5) && _0x1b89a5.out.push(_0x3bdaa9.encode());
+td32.update = function(game) {
+    td32.state(game) && game.out.push(NET019.encode());
 };
 td32.onHit = StarObject.prototype[td32.collideTest("scisyhp")];
 td32.onCollide = PlayerObject.prototype[td32.collideTest("scisyhp")];
@@ -7217,7 +7274,7 @@ function Game(data) {
     document.getElementById("privLobby").style.display = "none";
     this.container = document.getElementById("game");
     this.canvas = document.getElementById("game-canvas");
-    this.input = new _0x2406bb(this, this.canvas);
+    this.input = new Input(this, this.canvas);
     this.display = new Display(this, this.container, this.canvas, data.resource);
     this.display.ensureSkin(app.net.skin);
     this.audio = new Audio(this);
@@ -7599,27 +7656,29 @@ Game.prototype.doTouch = function(_0x52fc25) {
 
 Game.prototype.doInput = function(_0x585e08) {
     this.input.pad.update();
-    var _0xa25dbe = this.input,
-        _0x42b147 = this.input.mouse,
-        _0x136d36 = this.input.keyboard.keys,
-        _0x2ffe7f = this.input.pad;
-    this.inx27 = _0x136d36[0x1b];
-    var _0x5b7c6b = this.getPlayer();
-    if (_0x5b7c6b) {
-        var _0x133972 = [0x0, 0x0];
-        (_0x136d36[_0xa25dbe.assignK.up] || _0x2ffe7f.button(_0xa25dbe.assignG.up) || -0.1 > _0x2ffe7f.ax.y) && _0x133972[0x1]++;
-        (_0x136d36[_0xa25dbe.assignK.down] || _0x2ffe7f.button(_0xa25dbe.assignG.down) || 0.1 < _0x2ffe7f.ax.y) && _0x133972[0x1]--;
-        (_0x136d36[_0xa25dbe.assignK.left] || _0x2ffe7f.button(_0xa25dbe.assignG.left) || -0.1 > _0x2ffe7f.ax.x) && _0x133972[0x0]--;
-        (_0x136d36[_0xa25dbe.assignK.right] || _0x2ffe7f.button(_0xa25dbe.assignG.right) || 0.1 < _0x2ffe7f.ax.x) && _0x133972[0x0]++;
-        var _0x306656 = _0x136d36[_0xa25dbe.assignK.a] || _0x2ffe7f.button(_0xa25dbe.assignG.a),
-            _0xa25dbe = _0x136d36[_0xa25dbe.assignK.b] || _0x2ffe7f.button(_0xa25dbe.assignG.b);
-        _0x42b147.spin && this.display.camera.zoom(_0x42b147.spin);
-        if (this.padReturnToLobby && _0x306656) {
+    var input = this.input,
+        mouse = this.input.mouse,
+        keys = this.input.keyboard.keys,
+        pad = this.input.pad;
+    this.inx27 = keys[0x1b];
+    var _0x5b7c6b;
+    var player = this.getPlayer();
+    if (player) {
+        var abtnD = [0x0, 0x0];
+        (keys[input.assignK.up] || pad.button(input.assignG.up) || -0.1 > pad.ax.y) && abtnD[0x1]++;
+        (keys[input.assignK.down] || pad.button(input.assignG.down) || 0.1 < pad.ax.y) && abtnD[0x1]--;
+        (keys[input.assignK.left] || pad.button(input.assignG.left) || -0.1 > pad.ax.x) && abtnD[0x0]--;
+        (keys[input.assignK.right] || pad.button(input.assignG.right) || 0.1 < pad.ax.x) && abtnD[0x0]++;
+        var abtnA = keys[input.assignK.a] || pad.button(input.assignG.a),
+            abtnB = keys[input.assignK.b] || pad.button(input.assignG.b),
+            abtnTA = keys[input.assignK.ta] || pad.button(input.assignG.ta);
+        mouse.spin && this.display.camera.zoom(mouse.spin);
+        if (this.padReturnToLobby && abtnA) {
             Cookies.set("go_to_lobby", "1");
             location.reload();
             this.padReturnToLobby = false;
         }
-        _0x5b7c6b.input(_0x133972, _0x306656, _0xa25dbe);
+        player.input(abtnD, abtnA, abtnB, abtnTA);
         for (var _0x533a33 = this, _0xa25dbe = this.display.canvas.width, _0x42b147 = [{
                 'pos': vec2.make(_0xa25dbe - 0x18 - 0x8, 0x28),
                 'dim': vec2.make(0x18, 0x18),
@@ -7658,7 +7717,7 @@ Game.prototype.doInput = function(_0x585e08) {
                     });
                 }
             }], _0x5b7c6b = 0x0; _0x5b7c6b < _0x585e08.mouse.length; _0x5b7c6b++)
-            for (_0x133972 = _0x585e08.mouse[_0x5b7c6b], _0x306656 = 0x0; _0x306656 < _0x42b147.length; _0x306656++) _0xa25dbe = _0x42b147[_0x306656], 0x0 === _0x133972.btn && squar.inside(_0x133972.pos, _0xa25dbe.pos, _0xa25dbe.dim) && _0xa25dbe.click();
+            for (var _0x133972 = _0x585e08.mouse[_0x5b7c6b], _0x306656 = 0x0; _0x306656 < _0x42b147.length; _0x306656++) _0xa25dbe = _0x42b147[_0x306656], 0x0 === _0x133972.btn && squar.inside(_0x133972.pos, _0xa25dbe.pos, _0xa25dbe.dim) && _0xa25dbe.click();
     }
 };
 
@@ -7706,7 +7765,7 @@ Game.prototype.doStep = function() {
             }
         } else
             this.gameOverTimer = 0x0;
-    } else if (0x0 < this.lives && 0x0 >= this.victory) {
+    } else if ((0x0 < this.lives || app.reborn) && 0x0 >= this.victory) {
         _0x504fb1 = this.getZone().level;
         this.doSpawn();
         this.levelWarp(_0x504fb1);
@@ -8051,6 +8110,9 @@ function App() {
     this.hurryingUp = false;
     this.hurryUpStart = null;
     this.hurryUpTime = null;
+    this.god = false;
+    this.reborn = false;
+    this.fly = false;
     this.players = [];
     if (0x1 !== parseInt(Cookies.get("music")))
         this.audioElement.play();

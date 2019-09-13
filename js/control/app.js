@@ -13,9 +13,9 @@
   }
 })();
 
-var INPUTS = ["up","down","left","right","a","b"];
-var K_DEFAULT = [87, 83, 65, 68, 32, 16];
-var G_DEFAULT = [0, 1, 2, 3, 4, 5];
+var INPUTS = ["up","down","left","right","a","b","ta"];
+var K_DEFAULT = [87, 83, 65, 68, 32, 16, 89];
+var G_DEFAULT = [0, 1, 2, 3, 4, 5, 6];
 
 function App() {
   var that = this;
