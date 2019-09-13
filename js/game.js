@@ -6453,8 +6453,12 @@ function Camera(_0x450620){
     this.display=_0x450620;
     this.pos=vec2.make(0x0,0x0);
     this.zoomMult=0x3;
-    this.screenScale = window.innerHeight/944;
-    this.scale = this.screenScale * this.zoomMult;
+    var that = this;
+    window.onresize = function(e) {
+        that.screenScale = window.innerHeight/770;
+        that.scale = that.screenScale * that.zoomMult;
+    }
+    window.onresize();
 }
 Camera.MOVE_MULT=0.075;
 Camera.ZOOM_MULT=0.075;
