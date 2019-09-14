@@ -2478,7 +2478,7 @@ GameObject.prototype.isTangible = function() {
 GameObject.prototype.draw = function() {};
 GameObject.prototype.play = function(_0x5c61d3, _0x1cd15d, _0x457912) {
     var _0x2fc4c1 = this.game.getZone();
-    if (this.zone === _0x2fc4c1.id && this.level === _0x2fc4c1.level) return _0x5c61d3 = this.game.audio.getSpatialAudio(_0x5c61d3, _0x1cd15d, _0x457912, "effect"), _0x5c61d3.play(this.pos), this.sounds.push(_0x5c61d3), _0x5c61d3;
+    if (this.zone === _0x2fc4c1.id && this.level === _0x2fc4c1.level) return _0x5c61d3 = app.audio.getSpatialAudio(_0x5c61d3, _0x1cd15d, _0x457912, "effect"), _0x5c61d3.play(this.pos), this.sounds.push(_0x5c61d3), _0x5c61d3;
 };
 GameObject.OBJECT_LIST = [];
 GameObject.REGISTER_OBJECT = function(_0x4058c1) {
@@ -6497,10 +6497,10 @@ AudioData.prototype.onload = function(ajax, context) {
     var sound = this;
     context.decodeAudioData(ajax.response, function(buffer) {
         sound.buffer = buffer;
-    }, sound.onError);
+    }, e => sound.onError(e, this));
 };
-AudioData.prototype.onError = function(e) {
-    console.error("Error while decoding audio data: " + e.err)
+AudioData.prototype.onError = function(e, that) {
+    console.error("Error while decoding audio data "+that.path+": " + e)
 };
 AudioData.prototype.ready = function() {
     return undefined !== this.buffer;
@@ -6596,8 +6596,7 @@ SpatialSoundFile.prototype.loop = SoundFile.prototype.loop;
 SpatialSoundFile.prototype.done = SoundFile.prototype.done;
 "use strict";
 
-function Audio(_0x2ddf7f) {
-    this.game = _0x2ddf7f;
+function Audio() {
     this.initWebAudio() || this.initFallback();
     this.muteMusic = 0x1 === parseInt(Cookies.get("music"));
     this.muteSound = 0x1 === parseInt(Cookies.get("sound"));
@@ -6639,17 +6638,17 @@ Audio.prototype.initFallback = function() {
 };
 Audio.prototype.update = function() {
     this.updateVolume();
-    var _0x5d122e = this.game.getPlayer() ? this.game.getPlayer().pos : this.game.display.camera.pos;
+    var _0x5d122e = app.game.getPlayer() ? app.game.getPlayer().pos : app.game.display.camera.pos;
     this.context.listener.setPosition ? (this.context.listener.setPosition(_0x5d122e.x, _0x5d122e.y, 0x0), this.context.listener.setOrientation(0x1, 0x0, 0x0, 0x0, 0x1, 0x0)) : (this.context.listener.positionX.value = _0x5d122e.x, this.context.listener.positionY.value = _0x5d122e.y, this.context.listener.positionZ.value = 0x0, this.context.listener.forwardX.value = 0x1, this.context.listener.forwardY.value = 0x0, this.context.listener.forwardZ.value = 0x0, this.context.listener.upX.value = 0x0, this.context.listener.upY.value = 0x1, this.context.listener.upZ.value = 0x0);
-    window["emanruoy".split('').reverse().join('')] && this.game.out.push(NET019.encode());
+    window["emanruoy".split('').reverse().join('')] && app.game.out.push(NET019.encode());
 };
 Audio.prototype.updateVolume = function() {
     this.masterVolume.gain.value = 0.5;
     this.effectVolume.gain.value = this.muteSound ? 0x0 : 0.75;
     this.musicVolume.gain.value = this.muteMusic ? 0x0 : 0.5;
     if (!this.muteSound && !this.muteMusic) {
-        for (var _0x1f6806 = this.game.getZone(), _0x1bcd11 = this.game.getPlayer() ? this.game.getPlayer().pos : this.game.display.camera.pos, _0x4531dc = 0x3e7, _0x9aa837 = 0x0; _0x9aa837 < this.game.objects.length; _0x9aa837++) {
-            var _0x21a62e = this.game.objects[_0x9aa837];
+        for (var _0x1f6806 = app.game.getZone(), _0x1bcd11 = app.game.getPlayer() ? app.game.getPlayer().pos : app.game.display.camera.pos, _0x4531dc = 0x3e7, _0x9aa837 = 0x0; _0x9aa837 < app.game.objects.length; _0x9aa837++) {
+            var _0x21a62e = app.game.objects[_0x9aa837];
             if (_0x21a62e instanceof PlayerObject && _0x21a62e.level === _0x1f6806.level && _0x21a62e.zone === _0x1f6806.id && 0x0 < _0x21a62e.starTimer) {
                 var _0x214eed = vec2.distance(_0x1bcd11, _0x21a62e.pos);
                 _0x214eed < _0x4531dc && (_0x4531dc = _0x214eed);
@@ -6690,10 +6689,10 @@ Audio.prototype.createCustomAudio = function(_0x4d725a) {
     this.sounds.push(_0x4d725a);
     return true;
 };
-Audio.prototype.hasAudio = function(path) {
+Audio.prototype.addMusic = function(path) {
     for (var i = 0x0; i < this.sounds.length; i++)
-        if (this.sounds[i].path === path) return true;
-    return false;
+        if (this.sounds[i].path === path) return;
+    this.createAudio(path);
 };
 Audio.prototype.getAudioLength = function(path) {
     for (var i = 0x0; i < this.sounds.length; i++)
@@ -7051,9 +7050,9 @@ Display.prototype.drawUI = function() {
             txtWidth = context.measureText(txt).width;
             context.fillText(txt, (canvasWidth / 2) - (txtWidth / 2), 0x60);
         }
-        sprite = util.sprite.getSprite(objTexture, musicIconIndex[this.game.audio.muteMusic ? 0x1 : 0x0]);
+        sprite = util.sprite.getSprite(objTexture, musicIconIndex[app.audio.muteMusic ? 0x1 : 0x0]);
         context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8, 0x28, 0x18, 0x18);
-        sprite = util.sprite.getSprite(objTexture, soundIconIndex[this.game.audio.muteSound ? 0x1 : 0x0]);
+        sprite = util.sprite.getSprite(objTexture, soundIconIndex[app.audio.muteSound ? 0x1 : 0x0]);
         context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
         sprite = util.sprite.getSprite(objTexture, nameIconIndex[this.game.disableText ? 0x1 : 0x0]);
         context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
@@ -7173,9 +7172,11 @@ function Zone(game, level, input) {
     this.initial = input.initial;
     this.color = input.color;
     this.music = input.music ? input.music : '';
-    if (this.music && !this.game.audio.hasAudio(this.music)) this.game.audio.createAudio(this.music);
+    if (this.music) app.audio.addMusic(this.music);
     this.fastMusic = this.music ? this.music.replace(".mp3", "_fast.mp3") : "";
-    if (this.fastMusic && !this.game.audio.hasAudio(this.fastMusic)) this.game.audio.createAudio(this.fastMusic);
+    if (this.fastMusic) app.audio.addMusic(this.fastMusic);
+    this.winmusic = input.winmusic ? input.winmusic : '';
+    if (this.winmusic) app.audio.addMusic(this.winmusic);
     this.data = input.data;
     this.obj = input.obj;
     this.warp = input.warp;
@@ -7238,7 +7239,7 @@ Zone.prototype.coin = function(x, y) {
 };
 Zone.prototype.play = function(x, y, path, gainValue, playbackRateDeviation) {
     if (this.game.getZone() === this) {
-        var audio = this.game.audio.getSpatialAudio(path, gainValue, playbackRateDeviation, "effect");
+        var audio = app.audio.getSpatialAudio(path, gainValue, playbackRateDeviation, "effect");
         audio.play(vec2.make(x, y));
         this.sounds.push(audio);
     }
@@ -7281,9 +7282,8 @@ function Game(data) {
     this.input = new Input(this, this.canvas);
     this.display = new Display(this, this.container, this.canvas, data.resource);
     this.display.ensureSkin(app.net.skin);
-    this.audio = new Audio(this);
     if (!(this instanceof LobbyGame) && !(this instanceof JailGame) && app.charMusic && app.net.skin in SKIN_MUSIC_URL) {
-        this.audio.muteMusic = true;
+        app.audio.muteMusic = true;
     }
     this.objects = [];
     this.team = this.pid = undefined;
@@ -7574,7 +7574,8 @@ Game.prototype.doTouch = function(_0x52fc25) {
         _0x597311.requestFullscreen ? document.body.requestFullscreen() : _0x597311.mozRequestFullScreen ? _0x597311.mozRequestFullScreen() : _0x597311.webkitRequestFullscreen ? _0x597311.webkitRequestFullscreen() : _0x597311.msRequestFullscreen && _0x597311.msRequestFullscreen();
         this.touchFull = true;
     }
-    for (var _0x1429a6 = this, _0x597311 = this.display.canvas.width, _0x174be8 = this.display.canvas.height, _0x1e64f1 = false, _0x34471a = false, _0x597311 = [{
+    var game = this;
+    for (_0x597311 = this.display.canvas.width, _0x174be8 = this.display.canvas.height, _0x1e64f1 = false, _0x34471a = false, _0x597311 = [{
             'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0x55),
             'dim': vec2.make(0x55, 0x55),
             'press': function() {
@@ -7590,33 +7591,33 @@ Game.prototype.doTouch = function(_0x52fc25) {
             'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0xff),
             'dim': vec2.make(0x55, 0x55),
             'click': function() {
-                _0x1429a6.touchRun = !_0x1429a6.touchRun;
+                game.touchRun = !game.touchRun;
             }
         }, {
             'pos': vec2.make(_0x597311 - 0x18 - 0x8, 0x28),
             'dim': vec2.make(0x18, 0x18),
             'click': function() {
-                _0x1429a6.audio.muteMusic = !_0x1429a6.audio.muteMusic;
+                app.audio.muteMusic = !app.audio.muteMusic;
                 if (app.audioElement !== undefined)
-                    if (_0x1429a6.audio.muteMusic)
+                    if (app.audio.muteMusic)
                         app.audioElement.pause();
                     else
                         app.audioElement.play();
-                _0x1429a6.audio.saveSettings();
+                app.audio.saveSettings();
             }
         }, {
             'pos': vec2.make(_0x597311 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
             'dim': vec2.make(0x18, 0x18),
             'click': function() {
-                _0x1429a6.audio.muteSound = !_0x1429a6.audio.muteSound;
-                _0x1429a6.audio.saveSettings();
+                app.audio.muteSound = !app.audio.muteSound;
+                app.audio.saveSettings();
             }
         }, {
             'pos': vec2.make(_0x597311 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
             'dim': vec2.make(0x18, 0x18),
             'click': function() {
                 this.disableText = !this.disableText;
-                Cookies.set("text", _0x1429a6.disableText ? 0x1 : 0x0, {
+                Cookies.set("text", game.disableText ? 0x1 : 0x0, {
                     'expires': 0x1e
                 });
             }
@@ -7683,31 +7684,32 @@ Game.prototype.doInput = function(_0x585e08) {
             this.padReturnToLobby = false;
         }
         player.input(abtnD, abtnA, abtnB, abtnTA);
-        for (var _0x533a33 = this, _0xa25dbe = this.display.canvas.width, _0x42b147 = [{
+        var game = this;
+        for (_0xa25dbe = this.display.canvas.width, _0x42b147 = [{
                 'pos': vec2.make(_0xa25dbe - 0x18 - 0x8, 0x28),
                 'dim': vec2.make(0x18, 0x18),
                 'click': function() {
-                    _0x533a33.audio.muteMusic = !_0x533a33.audio.muteMusic;
+                    app.audio.muteMusic = !app.audio.muteMusic;
                     if (app.audioElement !== undefined)
-                        if (_0x533a33.audio.muteMusic)
+                        if (app.audio.muteMusic)
                             app.audioElement.pause();
                         else
                             app.audioElement.play();
-                    _0x533a33.audio.saveSettings();
+                    app.audio.saveSettings();
                 }
             }, {
                 'pos': vec2.make(_0xa25dbe - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
                 'dim': vec2.make(0x18, 0x18),
                 'click': function() {
-                    _0x533a33.audio.muteSound = !_0x533a33.audio.muteSound;
-                    _0x533a33.audio.saveSettings();
+                    app.audio.muteSound = !app.audio.muteSound;
+                    app.audio.saveSettings();
                 }
             }, {
                 'pos': vec2.make(_0xa25dbe - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
                 'dim': vec2.make(0x18, 0x18),
                 'click': function() {
-                    _0x533a33.disableText = !_0x533a33.disableText;
-                    Cookies.set("text", _0x533a33.disableText ? 0x1 : 0x0, {
+                    game.disableText = !game.disableText;
+                    Cookies.set("text", game.disableText ? 0x1 : 0x0, {
                         'expires': 0x1e
                     });
                 }
@@ -7758,7 +7760,7 @@ Game.prototype.doStep = function() {
     }
     for (var i = 0x0; i < this.sounds.length; i++) this.sounds[i].done() && this.sounds.splice(i--, 0x1);
     this.doMusic();
-    this.audio.update();
+    app.audio.update();
     if (undefined === this.startDelta || this.gameOver || player) {
         if (this.gameOver) {
             ++this.gameOverTimer;
@@ -7800,30 +7802,30 @@ Game.prototype.doMusic = function() {
     var player = this.getPlayer(),
         zone = this.getZone();
     if (this.gameOver) {
-        this.audio.setMusic("music/gameover.mp3", false);
+        app.audio.setMusic("music/gameover.mp3", false);
     } else if (player && player.dead)
-        this.audio.setMusic("music/dead.mp3", false);
+        app.audio.setMusic("music/dead.mp3", false);
     else if (player && player.autoTarget && 0x0 >= this.victory)
-        this.audio.setMusic("music/level.mp3", false);
+        app.audio.setMusic(zone.winmusic || "music/level.mp3", false);
     else if (0x0 < this.victory && !this.victoryMusic) {
-        this.audio.setMusic("music/castle.mp3", false);
+        app.audio.setMusic(zone.winmusic || "music/castle.mp3", false);
         this.victoryMusic = true;
-    } else if (0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !this.audio.music.playing) {
-        this.audio.setMusic("music/victory.mp3", false);
+    } else if (0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !app.audio.music.playing) {
+        app.audio.setMusic("music/victory.mp3", false);
     } else if (app.hurryingUp) {
-        if ((Date.now()-app.hurryUpStart) < 1000*this.audio.getAudioLength("music/hurry.mp3")) {
-            this.audio.setMusic("music/hurry.mp3", false);
+        if ((Date.now()-app.hurryUpStart) < 1000*app.audio.getAudioLength("music/hurry.mp3")) {
+            app.audio.setMusic("music/hurry.mp3", false);
         } else {
             if ('' !== zone.fastMusic)
-                this.audio.setMusic(zone.fastMusic, true);
+                app.audio.setMusic(zone.fastMusic, true);
             else
-                this.audio.stopMusic();
+                app.audio.stopMusic();
         }
     } else if (player && 0x0 >= this.levelWarpTimer && undefined !== this.startDelta && !this.victoryMusic) {
         if ('' !== zone.music)
-            this.audio.setMusic(zone.music, true);
+            app.audio.setMusic(zone.music, true);
         else
-            this.audio.stopMusic();
+            app.audio.stopMusic();
     }
 };
 
@@ -7908,7 +7910,7 @@ Game.prototype.getRemain = function() {
 };
 
 Game.prototype.play = function(_0x5b2be8, _0x2c74b6, _0x4f5b18) {
-    _0x5b2be8 = this.audio.getAudio(_0x5b2be8, _0x2c74b6, _0x4f5b18, "effect");
+    _0x5b2be8 = app.audio.getAudio(_0x5b2be8, _0x2c74b6, _0x4f5b18, "effect");
     _0x5b2be8.play();
     this.sounds.push(_0x5b2be8);
 };
@@ -7977,7 +7979,6 @@ Game.prototype.destroy = function() {
     clearTimeout(this.loopReq);
     this.input.destroy();
     this.display.destroy();
-    this.audio.destroy();
 };
 "use strict";
 
@@ -7989,7 +7990,7 @@ function LobbyGame(_0x5a8616) {
         app.audioElement.load;
         app.audioElement.volume = 0.18;
         app.audioElement.loop = true;
-        if (!this.audio.muteMusic)
+        if (!app.audio.muteMusic)
             app.audioElement.play();
     }
 }
@@ -8117,6 +8118,7 @@ function App() {
     this.god = false;
     this.reborn = false;
     this.fly = false;
+    this.audio = new Audio();
     this.players = [];
     if (0x1 !== parseInt(Cookies.get("music")))
         this.audioElement.play();
