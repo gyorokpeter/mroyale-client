@@ -6455,7 +6455,7 @@ function Camera(_0x450620){
     this.zoomMult=0x3;
     var that = this;
     window.onresize = function(e) {
-        that.screenScale = window.innerHeight/770;
+        that.screenScale = window.innerHeight/768;
         that.scale = that.screenScale * that.zoomMult;
     }
     window.onresize();
@@ -6768,7 +6768,7 @@ function Display(game, container, canvas, resource) {
     resource.push({ id: "ui", src: "img/game/smb_ui.png" });
     this.resource = new Resource(resource);
     this.camera = new Camera(this);
-    this.misteryAnim = 0;
+    this.mysteryAnim = 0;
 }
 Display.TEXRES = 0x10;
 Display.prototype.ensureSkin = function(skin) {
@@ -6787,52 +6787,68 @@ Display.prototype.clear = function() {
     _0x4d4eee.imageSmoothingEnabled = false;
 };
 Display.prototype.draw = function() {
-    var _0xc7ecf9 = this.context;
+    var context = this.context;
     this.clear();
-    _0xc7ecf9.fillStyle = this.game.getZone().color;
-    _0xc7ecf9.fillRect(0x0, 0x0, this.canvas.width, this.canvas.height);
-    this.resource.ready() ? (
-        this.game.getZone().dimensions(),
-        _0xc7ecf9.save(),
-        _0xc7ecf9.translate(parseInt(0.5 * this.canvas.width), parseInt(0.5 * this.canvas.height)),
-        _0xc7ecf9.scale(this.camera.scale, this.camera.scale),
-        _0xc7ecf9.translate(parseInt(-this.camera.pos.x * Display.TEXRES), parseInt(-this.camera.pos.y * Display.TEXRES)),
-        this.drawMap(false),
-        this.drawObject(),
-        this.drawMap(true),
-        this.drawEffect(),
-        _0xc7ecf9.restore(),
-        this.drawTouch(),
-        this.drawUI()
-    ) : this.drawLoad();
-};
-Display.prototype.drawMap = function(_0x5eea15) {
-    this.misteryAnim++;
-    for (var _0x498ee4 = this.context, _0x3a22b2 = this.resource.getTexture("map"), _0x5432e0 = this.game.getZone(), _0x19d8bf = _0x5432e0.dimensions(), _0x366f4a = this.canvas.width / Display.TEXRES * 0.55 / this.camera.scale, _0x27c82d = Math.max(0x0, Math.min(_0x19d8bf.x, parseInt(this.camera.pos.x - _0x366f4a))), _0x19d8bf = Math.max(0x0, Math.min(_0x19d8bf.x, parseInt(this.camera.pos.x + _0x366f4a))), _0x366f4a = 0x0; _0x366f4a < _0x5432e0.data.length; _0x366f4a++)
-        for (var _0x2d4c21 = _0x5432e0.data[_0x366f4a], _0x4fb7c0 = _0x27c82d; _0x4fb7c0 < _0x19d8bf; _0x4fb7c0++) {
-            var _0x2d62c4 = td32.decode16(_0x2d4c21[_0x4fb7c0]);
-            if (_0x2d62c4.depth === _0x5eea15) {
-                var _0x59ebb0 = 0;
-                // Mistery Box
-                if (_0x2d62c4.index == 24 || _0x2d62c4.index == 90 || _0x2d62c4.index == 156 || _0x2d62c4.index == 288) {
-                    var frame = parseInt((this.misteryAnim % 96) / 16);
-                    frame = frame == 5 ? 0 : frame > 2 ? Math.abs(frame - 4) : frame;
-                    _0x59ebb0 = util.sprite.getSprite(_0x3a22b2, _0x2d62c4.index + frame);
-                }
-                // Water and Lava
-                else if (_0x2d62c4.index == 729 || _0x2d62c4.index == 795 || _0x2d62c4.index == 861) {
-                    var frame = parseInt((this.game.frame % 60) / 30);
-                    frame = frame == 0 ? 0 : 11;
-                    _0x59ebb0 = util.sprite.getSprite(_0x3a22b2, _0x2d62c4.index + frame);
-                }
-                else
-                    _0x59ebb0 = util.sprite.getSprite(_0x3a22b2, _0x2d62c4.index);
-                var _0x3acdc5 = 0x0,
-                    _0x2d62c4 = Math.max(0x0, _0x2d62c4.bump - 0x7);
-                0x0 < _0x2d62c4 && (_0x3acdc5 = 0.22 * Math.sin((0x1 - (_0x2d62c4 - 0x2) / 0x8) * Math.PI));
-                _0x498ee4.drawImage(_0x3a22b2, _0x59ebb0[0x0], _0x59ebb0[0x1], Display.TEXRES, Display.TEXRES, Display.TEXRES * _0x4fb7c0, Display.TEXRES * (_0x366f4a - _0x3acdc5), Display.TEXRES, Display.TEXRES);
+    context.fillStyle = this.game.getZone().color;
+    context.fillRect(0x0, 0x0, this.canvas.width, this.canvas.height);
+    if (this.resource.ready()) {
+        this.game.getZone().dimensions();
+        context.save();
+        context.translate(parseInt(0.5 * this.canvas.width), parseInt(0.5 * this.canvas.height));
+        context.scale(this.camera.scale, this.camera.scale);
+        context.translate(parseInt(-this.camera.pos.x * Display.TEXRES), parseInt(-this.camera.pos.y * Display.TEXRES));
+        var zone = this.game.getZone();
+        for (var i=0; i<zone.layers.length; i++) {
+            this.drawMap(zone.layers[i].data, false);
+            if (zone.layers[i].z == 0) {
+                this.drawObject();
+                this.drawMap(zone.layers[i].data, true);
             }
         }
+        this.drawEffect();
+        context.restore();
+        this.drawTouch();
+        this.drawUI();
+    } else {
+        this.drawLoad();
+    }
+};
+Display.prototype.drawMap = function(data, depth) {
+    this.mysteryAnim++;
+    var context = this.context;
+    var mapTexture = this.resource.getTexture("map");
+    var zone = this.game.getZone();
+    var dims = zone.dimensions();
+    var screenWidth = this.canvas.width / Display.TEXRES * 0.55 / this.camera.scale;
+    var screenLeft = Math.max(0x0, Math.min(dims.x, parseInt(this.camera.pos.x - screenWidth)));
+    var screenRight = Math.max(0x0, Math.min(dims.x, parseInt(this.camera.pos.x + screenWidth)))
+    for (var i = 0x0; i < data.length; i++) {
+        var tileRow = data[i];
+        for (var j = screenLeft; j < screenRight; j++) {
+            var tile = td32.decode16(tileRow[j]);
+            if (tile.depth === depth) {
+                var sprite = 0;
+                // Mystery Box
+                if (tile.index == 24 || tile.index == 90 || tile.index == 156 || tile.index == 288) {
+                    var frame = parseInt((this.mysteryAnim % 96) / 16);
+                    frame = frame == 5 ? 0 : frame > 2 ? Math.abs(frame - 4) : frame;
+                    sprite = util.sprite.getSprite(mapTexture, tile.index + frame);
+                }
+                // Water and Lava
+                else if (tile.index == 729 || tile.index == 795 || tile.index == 861) {
+                    var frame = parseInt((this.game.frame % 60) / 30);
+                    frame = frame == 0 ? 0 : 11;
+                    sprite = util.sprite.getSprite(mapTexture, tile.index + frame);
+                }
+                else
+                    sprite = util.sprite.getSprite(mapTexture, tile.index);
+                var t = 0x0,
+                    high = Math.max(0x0, tile.bump - 0x7);
+                0x0 < high && (t = 0.22 * Math.sin((0x1 - (high - 0x2) / 0x8) * Math.PI));
+                context.drawImage(mapTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, Display.TEXRES * j, Display.TEXRES * (i - t), Display.TEXRES, Display.TEXRES);
+            }
+        }
+    }
 };
 Display.prototype.drawObject = function() {
     for (var context = this.context,
@@ -7135,13 +7151,13 @@ World.prototype.getZone = function(_0x525a15, _0x36f94d) {
     }
 };
 
-function Level(_0xc37451, _0xf21ec7) {
-    this.game = _0xc37451;
-    this.id = _0xf21ec7.id;
-    this.name = _0xf21ec7.name;
-    this.initial = _0xf21ec7.initial;
+function Level(game, data) {
+    this.game = game;
+    this.id = data.id;
+    this.name = data.name;
+    this.initial = data.initial;
     this.zones = [];
-    for (var _0x344d78 = 0x0; _0x344d78 < _0xf21ec7.zone.length; _0x344d78++) this.zones.push(new Zone(_0xc37451, this.id, _0xf21ec7.zone[_0x344d78]));
+    for (var i = 0x0; i < data.zone.length; i++) this.zones.push(new Zone(game, this.id, data.zone[i]));
 }
 Level.prototype.step = function() {
     for (var _0x5d732a = 0x0; _0x5d732a < this.zones.length; _0x5d732a++) this.zones[_0x5d732a].step();
@@ -7177,7 +7193,16 @@ function Zone(game, level, input) {
     if (this.fastMusic) app.audio.addMusic(this.fastMusic);
     this.winmusic = input.winmusic ? input.winmusic : '';
     if (this.winmusic) app.audio.addMusic(this.winmusic);
-    this.data = input.data;
+    this.layers = input.layers || [];
+    if (input.data) {
+        for (var i=0; i<this.layers.length && this.layers[i].z < 0; i++);
+        this.layers.splice(i, 0, {z:0, data:input.data});
+    }
+    this.mainLayer = undefined;
+    for (var layer of this.layers) if (layer.z == 0) {
+        this.mainLayer = layer;
+        break;
+    }
     this.obj = input.obj;
     this.warp = input.warp;
     this.bumped = [];
@@ -7187,36 +7212,50 @@ function Zone(game, level, input) {
 }
 Zone.prototype.update = function(game, pid, level, zone, x, y, type) {
     var y2 = this.dimensions().y - 0x1 - y,
-        td = td32.decode(this.data[y2][x]);
+        td = td32.decode(this.mainLayer.data[y2][x]);
     td.definition.TRIGGER(game, pid, td, level, zone, x, y, type);
 };
 Zone.prototype.step = function() {
-    for (var _0x4a391d = 0x0; _0x4a391d < this.bumped.length; _0x4a391d++) {
-        var _0x4b09c3 = this.bumped[_0x4a391d],
-            _0x2c42b4 = td32.decode(this.data[_0x4b09c3.y][_0x4b09c3.x]);
-        0x0 < _0x2c42b4.bump ? this.data[_0x4b09c3.y][_0x4b09c3.x] = td32.bump(this.data[_0x4b09c3.y][_0x4b09c3.x], _0x2c42b4.bump - 0x1) : this.bumped.splice(_0x4a391d--, 0x1);
+    for (var i = 0x0; i < this.bumped.length; i++) {
+        var eff = this.bumped[i],
+            tile = td32.decode(this.mainLayer.data[eff.y][eff.x]);
+        0x0 < tile.bump ? this.mainLayer.data[eff.y][eff.x] = td32.bump(this.mainLayer.data[eff.y][eff.x], tile.bump - 0x1) : this.bumped.splice(i--, 0x1);
     }
-    for (_0x4a391d = 0x0; _0x4a391d < this.effects.length; _0x4a391d++) _0x4b09c3 = this.effects[_0x4a391d], _0x4b09c3.garbage ? this.effects.splice(_0x4a391d--, 0x1) : _0x4b09c3.step();
-    for (_0x4a391d = 0x0; _0x4a391d < this.vines.length; _0x4a391d++) _0x4b09c3 = this.vines[_0x4a391d], 0x0 > _0x4b09c3.y ? this.vines.splice(_0x4a391d--, 0x1) : this.data[_0x4b09c3.y--][_0x4b09c3.x] = _0x4b09c3.td;
-    for (_0x4a391d = 0x0; _0x4a391d < this.sounds.length; _0x4a391d++) this.sounds[_0x4a391d].done() && this.sounds.splice(_0x4a391d--, 0x1);
+    for (var i = 0x0; i < this.effects.length; i++) {
+        var eff = this.effects[i];
+        if (eff.garbage) {
+            this.effects.splice(i--, 0x1);
+        } else {
+            eff.step();
+        }
+    }
+    for (var i = 0x0; i < this.vines.length; i++) {
+        var vine = this.vines[i];
+        if (0x0 > vine.y) {
+            this.vines.splice(i--, 0x1);
+        } else {
+            this.mainLayer.data[vine.y--][vine.x] = vine.td;
+        }
+    }
+    for (var i = 0x0; i < this.sounds.length; i++) this.sounds[i].done() && this.sounds.splice(i--, 0x1);
     td32.update(this.game);
 };
-Zone.prototype.tile = function(_0x3d68a7, _0x43d1f3) {
-    _0x43d1f3 = this.dimensions().y - 0x1 - _0x43d1f3;
-    return this.data[_0x43d1f3][_0x3d68a7];
+Zone.prototype.tile = function(x, y) {
+    y = this.height() - 0x1 - y;
+    return this.mainLayer.data[y][x];
 };
 Zone.prototype.bump = function(x, y) {
     var y2 = this.dimensions().y - 0x1 - y;
-    this.data[y2][x] = td32.bump(this.data[y2][x], 0xf);
+    this.mainLayer.data[y2][x] = td32.bump(this.mainLayer.data[y2][x], 0xf);
     this.bumped.push({
         'x': x,
         'y': y2
     });
     this.play(x, y, "sfx/bump.wav", 0.5, 0.04);
 };
-Zone.prototype.replace = function(_0x139748, _0x19c939, _0x2533dc) {
-    _0x19c939 = this.dimensions().y - 0x1 - _0x19c939;
-    this.data[_0x19c939][_0x139748] = _0x2533dc;
+Zone.prototype.replace = function(x, y, rep) {
+    y = this.height() - 0x1 - y;
+    this.mainLayer.data[y][x] = rep;
 };
 Zone.prototype.grow = function(_0x34397d, _0x27a117, _0x5e09da) {
     _0x27a117 = this.dimensions().y - 0x1 - _0x27a117;
@@ -7226,12 +7265,12 @@ Zone.prototype.grow = function(_0x34397d, _0x27a117, _0x5e09da) {
         'td': _0x5e09da
     });
 };
-Zone.prototype.break = function(_0x4aded4, _0x3d82ec, _0x544718) {
-    var _0x415636 = this.dimensions().y - 0x1 - _0x3d82ec,
-        _0x1aa33b = td32.decode16(this.data[_0x415636][_0x4aded4]);
-    this.data[_0x415636][_0x4aded4] = _0x544718;
-    this.effects.push(new _0x5296e0(vec2.make(_0x4aded4, _0x3d82ec), _0x1aa33b.index));
-    this.play(_0x4aded4, _0x3d82ec, "sfx/break.wav", 1.5, 0.04);
+Zone.prototype.break = function(x, y, rep) {
+    var y2 = this.dimensions().y - 0x1 - y,
+        tile = td32.decode16(this.mainLayer.data[y2][x]);
+    this.mainLayer.data[y2][x] = rep;
+    this.effects.push(new _0x5296e0(vec2.make(x, y), tile.index));
+    this.play(x, y, "sfx/break.wav", 1.5, 0.04);
 };
 Zone.prototype.coin = function(x, y) {
     this.dimensions();
@@ -7244,31 +7283,38 @@ Zone.prototype.play = function(x, y, path, gainValue, playbackRateDeviation) {
         this.sounds.push(audio);
     }
 };
+Zone.prototype.width = function() {
+    return this.layers[0].data[0].length;
+};
+Zone.prototype.height = function() {
+    return this.layers[0].data.length;
+};
 Zone.prototype.dimensions = function() {
-    return vec2.make(this.data[0x0].length, this.data.length);
+    return vec2.make(this.width(), this.height());
 };
-Zone.prototype.getTile = function(_0x5712b7) {
-    var _0x5eee6f = this.dimensions();
-    _0x5712b7 = vec2.copy(_0x5712b7);
-    _0x5712b7.y = _0x5eee6f.y - _0x5712b7.y - 0x1;
-    return td32.decode(this.data[Math.max(0x0, Math.min(_0x5eee6f.y, Math.floor(_0x5712b7.y)))][Math.max(0x0, Math.min(_0x5eee6f.x, Math.floor(_0x5712b7.x)))]);
+Zone.prototype.getTile = function(pos) {
+    var dims = this.dimensions();
+    pos = vec2.copy(pos);
+    pos.y = dims.y - pos.y - 0x1;
+    return td32.decode(this.mainLayer.data[Math.max(0x0, Math.min(dims.y, Math.floor(pos.y)))][Math.max(0x0, Math.min(dims.x, Math.floor(pos.x)))]);
 };
-Zone.prototype.getTiles = function(_0x3ce841, _0x4afc27) {
-    var _0x525d97 = this.dimensions(),
-        _0x51d112 = vec2.copy(_0x3ce841);
-    _0x51d112.y = _0x525d97.y - _0x51d112.y;
-    _0x3ce841 = parseInt(Math.max(Math.min(Math.floor(_0x51d112.x) - 0x1, _0x525d97.x), 0x0));
-    var _0x5daf64 = parseInt(Math.max(Math.min(Math.ceil(_0x51d112.x + _0x4afc27.x) + 0x1, _0x525d97.x), 0x0)),
-        _0x5f4edb = parseInt(Math.max(Math.min(Math.floor(_0x51d112.y - _0x4afc27.y) - 0x1, _0x525d97.y), 0x0));
-    _0x4afc27 = parseInt(Math.max(Math.min(Math.ceil(_0x51d112.y) + 0x1, _0x525d97.y), 0x0));
-    for (_0x51d112 = []; _0x5f4edb < _0x4afc27; _0x5f4edb++)
-        for (var _0x5e6b1b = _0x3ce841; _0x5e6b1b < _0x5daf64; _0x5e6b1b++) {
-            var _0x556c14 = td32.decode(this.data[_0x5f4edb][_0x5e6b1b]);
-            _0x556c14.pos = vec2.make(_0x5e6b1b, _0x525d97.y - 0x1 - _0x5f4edb);
-            _0x556c14.ind = [_0x5f4edb, _0x5e6b1b];
-            _0x51d112.push(_0x556c14);
+Zone.prototype.getTiles = function(pos, dim) {
+    var dims = this.dimensions(),
+        pos2 = vec2.copy(pos);
+    pos2.y = dims.y - pos2.y;
+    var left = parseInt(Math.max(Math.min(Math.floor(pos2.x) - 0x1, dims.x), 0x0));
+    var right = parseInt(Math.max(Math.min(Math.ceil(pos2.x + dim.x) + 0x1, dims.x), 0x0));
+    var y = parseInt(Math.max(Math.min(Math.floor(pos2.y - dim.y) - 0x1, dims.y), 0x0));
+    var bottom = parseInt(Math.max(Math.min(Math.ceil(pos2.y) + 0x1, dims.y), 0x0));
+    var result = [];
+    for (; y < bottom; y++)
+        for (var x = left; x < right; x++) {
+            var tile = td32.decode(this.mainLayer.data[y][x]);
+            tile.pos = vec2.make(x, dims.y - 0x1 - y);
+            tile.ind = [y, x];
+            result.push(tile);
         }
-    return _0x51d112;
+    return result;
 };
 Zone.prototype.getEffects = function(_0x28bee8) {
     for (var _0x559764 = 0x0; _0x559764 < this.effects.length; _0x559764++) this.effects[_0x559764].draw(_0x28bee8);
