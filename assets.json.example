@@ -1,4 +1,8 @@
 {
+    "tileAnim":[
+        {"name": "water", "startTile": 729, "tiles":[729, 740], "delay": 30},
+        {"name": "mysteryBox", "startTile": 24,  "tiles":[24, 24, 24, 25, 26, 25], "delay": 4}
+    ],
     "skins":{
         "count": 1,
         "properties": [

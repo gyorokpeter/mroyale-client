@@ -6768,7 +6768,6 @@ function Display(game, container, canvas, resource) {
     resource.push({ id: "ui", src: "img/game/smb_ui.png" });
     this.resource = new Resource(resource);
     this.camera = new Camera(this);
-    this.mysteryAnim = 0;
 }
 Display.TEXRES = 0x10;
 Display.prototype.ensureSkin = function(skin) {
@@ -6814,7 +6813,6 @@ Display.prototype.draw = function() {
     }
 };
 Display.prototype.drawMap = function(data, depth) {
-    this.mysteryAnim++;
     var context = this.context;
     var mapTexture = this.resource.getTexture("map");
     var zone = this.game.getZone();
@@ -6828,20 +6826,14 @@ Display.prototype.drawMap = function(data, depth) {
             var tile = td32.decode16(tileRow[j]);
             if (tile.depth === depth) {
                 var sprite = 0;
-                // Mystery Box
-                if (tile.index == 24 || tile.index == 90 || tile.index == 156 || tile.index == 288) {
-                    var frame = parseInt((this.mysteryAnim % 96) / 16);
-                    frame = frame == 5 ? 0 : frame > 2 ? Math.abs(frame - 4) : frame;
-                    sprite = util.sprite.getSprite(mapTexture, tile.index + frame);
-                }
-                // Water and Lava
-                else if (tile.index == 729 || tile.index == 795 || tile.index == 861) {
-                    var frame = parseInt((this.game.frame % 60) / 30);
-                    frame = frame == 0 ? 0 : 11;
-                    sprite = util.sprite.getSprite(mapTexture, tile.index + frame);
-                }
-                else
-                    sprite = util.sprite.getSprite(mapTexture, tile.index);
+                var ti = tile.index;
+                if (ti in TILE_ANIMATION) {
+                    var anim = TILE_ANIMATION[ti];
+                    var delay = anim.delay;
+                    var frame = Math.floor(this.game.frame % (anim.tiles.length*delay) / delay);
+                    sprite = util.sprite.getSprite(mapTexture, anim.tiles[frame]);
+                } else
+                    sprite = util.sprite.getSprite(mapTexture, ti);
                 var t = 0x0,
                     high = Math.max(0x0, tile.bump - 0x7);
                 0x0 < high && (t = 0.22 * Math.sin((0x1 - (high - 0x2) / 0x8) * Math.PI));
