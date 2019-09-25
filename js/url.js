@@ -18,6 +18,7 @@ var TILE_ANIMATION = {};
             var obj = {};
             obj.tiles = anim.tiles;
             obj.delay = anim.delay;
+            obj.tilesets = anim.tilesets || [];
             TILE_ANIMATION[anim.startTile] = obj;
         }
     }

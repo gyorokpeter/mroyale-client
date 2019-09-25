@@ -2,6 +2,7 @@ var GAMEMODES = ["vanilla", "pvp", "hell"];
 var DEV_SKINS = [52];
 var DEFAULT_PLAYER_NAME = "INFRINGIO";
 var levelSelectors = [];    //received from server
+var TILE_ANIMATION_FILTERED = {};
 
 var util = {},
     vec2 = {
@@ -6827,8 +6828,8 @@ Display.prototype.drawMap = function(data, depth) {
             if (tile.depth === depth) {
                 var sprite = 0;
                 var ti = tile.index;
-                if (ti in TILE_ANIMATION) {
-                    var anim = TILE_ANIMATION[ti];
+                if (ti in TILE_ANIMATION_FILTERED) {
+                    var anim = TILE_ANIMATION_FILTERED[ti];
                     var delay = anim.delay;
                     var frame = Math.floor(this.game.frame % (anim.tiles.length*delay) / delay);
                     sprite = util.sprite.getSprite(mapTexture, anim.tiles[frame]);
@@ -7110,11 +7111,11 @@ Display.prototype.drawLoad = function() {
 Display.prototype.destroy = function() {};
 "use strict";
 
-function World(_0x4cda29, _0x46f74e) {
-    this.game = _0x4cda29;
-    this.initial = _0x46f74e.initial;
+function World(game, data) {
+    this.game = game;
+    this.initial = data.initial;
     this.levels = [];
-    for (var _0x5678fd = 0x0; _0x5678fd < _0x46f74e.world.length; _0x5678fd++) this.levels.push(new Level(_0x4cda29, _0x46f74e.world[_0x5678fd]));
+    for (var i = 0x0; i < data.world.length; i++) this.levels.push(new Level(game, data.world[i]));
 }
 World.prototype.step = function() {
     for (var _0x1351b3 = 0x0; _0x1351b3 < this.levels.length; _0x1351b3++) this.levels[_0x1351b3].step();
@@ -7379,6 +7380,10 @@ Game.prototype.load = function(data) {
 
     /* Load world data */
     this.world = new World(this, data);
+
+    var tileset = data.resource.filter(x=>x.id=="map")[0].src;
+    TILE_ANIMATION_FILTERED = Object.keys(TILE_ANIMATION).filter(x=>TILE_ANIMATION[x].tilesets.length == 0 || TILE_ANIMATION[x].tilesets.includes(tileset))
+        .reduce((res, key)=>(res[key]=TILE_ANIMATION[key], res), {}) ;
 
     /* Spawn objects from world obj params */
     for (var i=0;i<this.world.levels.length;i++) {
