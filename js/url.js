@@ -3,6 +3,7 @@ var MENU_MUSIC_URL = "audio/music/menu.mp3";
 var SKINCOUNT = 1;
 var SKIN_MUSIC_URL = {};
 var TILE_ANIMATION = {};
+var OBJ_ANIMATION = {};
 (function() {
     var assetData = resources["assets.json"];
     if (assetData.skins.count != undefined)
@@ -20,6 +21,15 @@ var TILE_ANIMATION = {};
             obj.delay = anim.delay;
             obj.tilesets = anim.tilesets || [];
             TILE_ANIMATION[anim.startTile] = obj;
+        }
+    }
+    if (assetData.objAnim) {
+        for (var anim of assetData.objAnim) {
+            var obj = {};
+            obj.tiles = anim.tiles;
+            obj.delay = anim.delay;
+            obj.tilesets = anim.tilesets || [];
+            OBJ_ANIMATION[anim.startTile] = obj;
         }
     }
 })();

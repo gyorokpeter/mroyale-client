@@ -3,6 +3,7 @@ var DEV_SKINS = [52];
 var DEFAULT_PLAYER_NAME = "INFRINGIO";
 var levelSelectors = [];    //received from server
 var TILE_ANIMATION_FILTERED = {};
+var OBJ_ANIMATION_FILTERED = {};
 
 var util = {},
     vec2 = {
@@ -6877,8 +6878,14 @@ Display.prototype.drawObject = function() {
             skinTextures[sprite.skin] = this.resource.getTexture("skin"+sprite.skin);
         var currObjTexture = (sprite.skin != undefined) ? skinTextures[sprite.skin] : objTexture;
         if (sprite.skin && currObjTexture === undefined) currObjTexture = skinTextures[0];
-        var
-            texture = util.sprite.getSprite(currObjTexture, sprite.index),
+        var ti = sprite.index; OBJ_ANIMATION
+        if (ti in OBJ_ANIMATION_FILTERED) {
+            var anim = OBJ_ANIMATION_FILTERED[ti];
+            var delay = anim.delay;
+            var frame = Math.floor(this.game.frame % (anim.tiles.length*delay) / delay);
+            ti = anim.tiles[frame];
+        }
+        var texture = util.sprite.getSprite(currObjTexture, ti),
             reverse = !!sprite.reverse,
             upsideDown = false,
             contextSaved = false;
@@ -7382,8 +7389,12 @@ Game.prototype.load = function(data) {
     this.world = new World(this, data);
 
     var tileset = data.resource.filter(x=>x.id=="map")[0].src;
-    TILE_ANIMATION_FILTERED = Object.keys(TILE_ANIMATION).filter(x=>TILE_ANIMATION[x].tilesets.length == 0 || TILE_ANIMATION[x].tilesets.includes(tileset))
-        .reduce((res, key)=>(res[key]=TILE_ANIMATION[key], res), {}) ;
+    var filterByTileset = function(dict, tileset) {
+        return Object.keys(dict).filter(x=>dict[x].tilesets.length == 0 || dict[x].tilesets.includes(tileset))
+            .reduce((res, key)=>(res[key]=dict[key], res), {}) ;
+    };
+    TILE_ANIMATION_FILTERED = filterByTileset(TILE_ANIMATION, tileset);
+    OBJ_ANIMATION_FILTERED = filterByTileset(OBJ_ANIMATION, tileset);
 
     /* Spawn objects from world obj params */
     for (var i=0;i<this.world.levels.length;i++) {
