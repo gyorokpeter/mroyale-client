@@ -7388,13 +7388,12 @@ Game.prototype.load = function(data) {
     /* Load world data */
     this.world = new World(this, data);
 
-    var tileset = data.resource.filter(x=>x.id=="map")[0].src;
     var filterByTileset = function(dict, tileset) {
         return Object.keys(dict).filter(x=>dict[x].tilesets.length == 0 || dict[x].tilesets.includes(tileset))
             .reduce((res, key)=>(res[key]=dict[key], res), {}) ;
     };
-    TILE_ANIMATION_FILTERED = filterByTileset(TILE_ANIMATION, tileset);
-    OBJ_ANIMATION_FILTERED = filterByTileset(OBJ_ANIMATION, tileset);
+    TILE_ANIMATION_FILTERED = filterByTileset(TILE_ANIMATION, data.resource.filter(x=>x.id=="map")[0].src);
+    OBJ_ANIMATION_FILTERED = filterByTileset(OBJ_ANIMATION, data.resource.filter(x=>x.id=="obj")[0].src);
 
     /* Spawn objects from world obj params */
     for (var i=0;i<this.world.levels.length;i++) {
