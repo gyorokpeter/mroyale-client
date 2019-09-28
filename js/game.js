@@ -3398,11 +3398,11 @@ PlayerObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(PlayerObject);
 "use strict";
 
-function _0x2040e7(_0x1e60b3, _0x4473d2, _0x446473, _0x318ba1, _0x37471f, _0xa2b306) {
-    GameObject.call(this, _0x1e60b3, _0x4473d2, _0x446473, _0x318ba1);
-    this.oid = _0x37471f;
-    this.variant = isNaN(parseInt(_0xa2b306)) ? 0x0 : parseInt(_0xa2b306);
-    this.setState(_0x2040e7.STATE.RUN);
+function GoombaObject(game, level, zone, pos, oid, variant) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.variant = isNaN(parseInt(variant)) ? 0x0 : parseInt(variant);
+    this.setState(GoombaObject.STATE.RUN);
     this.bonkTimer = this.deadTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
@@ -3412,23 +3412,23 @@ function _0x2040e7(_0x1e60b3, _0x4473d2, _0x446473, _0x318ba1, _0x37471f, _0xa2b
     this.dir = true;
     this.disable();
 }
-_0x2040e7.ASYNC = false;
-_0x2040e7.ID = 0x11;
-_0x2040e7.NAME = "GOOMBA";
-_0x2040e7.ANIMATION_RATE = 0x5;
-_0x2040e7.VARIANT_OFFSET = 0x70;
-_0x2040e7.ENABLE_FADE_TIME = 0xf;
-_0x2040e7.ENABLE_DIST = 0x1a;
-_0x2040e7.DEAD_TIME = 0xf;
-_0x2040e7.BONK_TIME = 0x5a;
-_0x2040e7.BONK_IMP = vec2.make(0.25, 0.4);
-_0x2040e7.BONK_DECEL = 0.925;
-_0x2040e7.BONK_FALL_SPEED = 0.5;
-_0x2040e7.MOVE_SPEED_MAX = 0.075;
-_0x2040e7.FALL_SPEED_MAX = 0.35;
-_0x2040e7.FALL_SPEED_ACCEL = 0.085;
-_0x2040e7.SPRITE = {};
-_0x2040e7.SPRITE_LIST = [{
+GoombaObject.ASYNC = false;
+GoombaObject.ID = 0x11;
+GoombaObject.NAME = "GOOMBA";
+GoombaObject.ANIMATION_RATE = 0x5;
+GoombaObject.VARIANT_OFFSET = 0x70;
+GoombaObject.ENABLE_FADE_TIME = 0xf;
+GoombaObject.ENABLE_DIST = 0x1a;
+GoombaObject.DEAD_TIME = 0xf;
+GoombaObject.BONK_TIME = 0x5a;
+GoombaObject.BONK_IMP = vec2.make(0.25, 0.4);
+GoombaObject.BONK_DECEL = 0.925;
+GoombaObject.BONK_FALL_SPEED = 0.5;
+GoombaObject.MOVE_SPEED_MAX = 0.075;
+GoombaObject.FALL_SPEED_MAX = 0.35;
+GoombaObject.FALL_SPEED_ACCEL = 0.085;
+GoombaObject.SPRITE = {};
+GoombaObject.SPRITE_LIST = [{
     'NAME': "RUN0",
     'ID': 0x0,
     'INDEX': 0xf
@@ -3445,27 +3445,27 @@ _0x2040e7.SPRITE_LIST = [{
     'ID': 0x3,
     'INDEX': 0x2f
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x2040e7.SPRITE_LIST.length; _0x1bec55++) _0x2040e7.SPRITE[_0x2040e7.SPRITE_LIST[_0x1bec55].NAME] = _0x2040e7.SPRITE_LIST[_0x1bec55], _0x2040e7.SPRITE[_0x2040e7.SPRITE_LIST[_0x1bec55].ID] = _0x2040e7.SPRITE_LIST[_0x1bec55];
-_0x2040e7.STATE = {};
-_0x2040e7.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < GoombaObject.SPRITE_LIST.length; _0x1bec55++) GoombaObject.SPRITE[GoombaObject.SPRITE_LIST[_0x1bec55].NAME] = GoombaObject.SPRITE_LIST[_0x1bec55], GoombaObject.SPRITE[GoombaObject.SPRITE_LIST[_0x1bec55].ID] = GoombaObject.SPRITE_LIST[_0x1bec55];
+GoombaObject.STATE = {};
+GoombaObject.STATE_LIST = [{
     'NAME': "RUN",
     'ID': 0x0,
-    'SPRITE': [_0x2040e7.SPRITE.RUN0, _0x2040e7.SPRITE.RUN1]
+    'SPRITE': [GoombaObject.SPRITE.RUN0, GoombaObject.SPRITE.RUN1]
 }, {
     'NAME': "FALL",
     'ID': 0x1,
-    'SPRITE': [_0x2040e7.SPRITE.FALL]
+    'SPRITE': [GoombaObject.SPRITE.FALL]
 }, {
     'NAME': "DEAD",
     'ID': 0x50,
-    'SPRITE': [_0x2040e7.SPRITE.DEAD]
+    'SPRITE': [GoombaObject.SPRITE.DEAD]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x2040e7.STATE_LIST.length; _0x1bec55++) _0x2040e7.STATE[_0x2040e7.STATE_LIST[_0x1bec55].NAME] = _0x2040e7.STATE_LIST[_0x1bec55], _0x2040e7.STATE[_0x2040e7.STATE_LIST[_0x1bec55].ID] = _0x2040e7.STATE_LIST[_0x1bec55];
-_0x2040e7.prototype.update = function(_0x30228e) {
+for (_0x1bec55 = 0x0; _0x1bec55 < GoombaObject.STATE_LIST.length; _0x1bec55++) GoombaObject.STATE[GoombaObject.STATE_LIST[_0x1bec55].NAME] = GoombaObject.STATE_LIST[_0x1bec55], GoombaObject.STATE[GoombaObject.STATE_LIST[_0x1bec55].ID] = GoombaObject.STATE_LIST[_0x1bec55];
+GoombaObject.prototype.update = function(_0x30228e) {
     switch (_0x30228e) {
         case 0x0:
             this.kill();
@@ -3477,16 +3477,16 @@ _0x2040e7.prototype.update = function(_0x30228e) {
             this.enable();
     }
 };
-_0x2040e7.prototype.step = function() {
-    this.disabled ? this.proximity() : (0x0 < this.disabledTimer && this.disabledTimer--, this.state === _0x2040e7.STATE.BONK ? this.bonkTimer++ > _0x2040e7.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0x2040e7.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0x2040e7.FALL_SPEED_ACCEL, -_0x2040e7.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x2040e7.ANIMATION_RATE) % this.state.SPRITE.length], this.state === _0x2040e7.STATE.DEAD ? this.deadTimer++ < _0x2040e7.DEAD_TIME || this.destroy() : (this.control(), this.physics(), this.sound(), 0x0 > this.pos.y && this.destroy())));
+GoombaObject.prototype.step = function() {
+    this.disabled ? this.proximity() : (0x0 < this.disabledTimer && this.disabledTimer--, this.state === GoombaObject.STATE.BONK ? this.bonkTimer++ > GoombaObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= GoombaObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - GoombaObject.FALL_SPEED_ACCEL, -GoombaObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / GoombaObject.ANIMATION_RATE) % this.state.SPRITE.length], this.state === GoombaObject.STATE.DEAD ? this.deadTimer++ < GoombaObject.DEAD_TIME || this.destroy() : (this.control(), this.physics(), this.sound(), 0x0 > this.pos.y && this.destroy())));
 };
-_0x2040e7.prototype.control = function() {
-    this.moveSpeed = this.dir ? -_0x2040e7.MOVE_SPEED_MAX : _0x2040e7.MOVE_SPEED_MAX;
-    this.grounded ? this.setState(_0x2040e7.STATE.RUN) : this.setState(_0x2040e7.STATE.FALL);
+GoombaObject.prototype.control = function() {
+    this.moveSpeed = this.dir ? -GoombaObject.MOVE_SPEED_MAX : GoombaObject.MOVE_SPEED_MAX;
+    this.grounded ? this.setState(GoombaObject.STATE.RUN) : this.setState(GoombaObject.STATE.FALL);
 };
-_0x2040e7.prototype.physics = function() {
+GoombaObject.prototype.physics = function() {
     this.grounded && (this.fallSpeed = 0x0);
-    this.fallSpeed = Math.max(this.fallSpeed - _0x2040e7.FALL_SPEED_ACCEL, -_0x2040e7.FALL_SPEED_MAX);
+    this.fallSpeed = Math.max(this.fallSpeed - GoombaObject.FALL_SPEED_ACCEL, -GoombaObject.FALL_SPEED_MAX);
     var _0x482f3b = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
         _0x443a52 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
         _0x44dd07 = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
@@ -3503,53 +3503,53 @@ _0x2040e7.prototype.physics = function() {
     this.pos = vec2.make(_0x482f3b.x, _0x443a52.y);
     _0x5c888e && (this.dir = !this.dir);
 };
-_0x2040e7.prototype.sound = GameObject.prototype.sound;
-_0x2040e7.prototype.proximity = function() {
+GoombaObject.prototype.sound = GameObject.prototype.sound;
+GoombaObject.prototype.proximity = function() {
     var _0xc67304 = this.game.getPlayer();
-    _0xc67304 && !_0xc67304.dead && _0xc67304.level === this.level && _0xc67304.zone === this.zone && !this.proxHit && vec2.distance(_0xc67304.pos, this.pos) < _0x2040e7.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
+    _0xc67304 && !_0xc67304.dead && _0xc67304.level === this.level && _0xc67304.zone === this.zone && !this.proxHit && vec2.distance(_0xc67304.pos, this.pos) < GoombaObject.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
 };
-_0x2040e7.prototype.enable = function() {
-    this.disabled && (this.disabled = false, this.disabledTimer = _0x2040e7.ENABLE_FADE_TIME);
+GoombaObject.prototype.enable = function() {
+    this.disabled && (this.disabled = false, this.disabledTimer = GoombaObject.ENABLE_FADE_TIME);
 };
-_0x2040e7.prototype.disable = function() {
+GoombaObject.prototype.disable = function() {
     this.disabled = true;
 };
-_0x2040e7.prototype.damage = function(_0x5b7e53) {
+GoombaObject.prototype.damage = function(_0x5b7e53) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0x2040e7.prototype.bonk = function() {
-    this.dead || (this.setState(_0x2040e7.STATE.BONK), this.moveSpeed = _0x2040e7.BONK_IMP.x, this.fallSpeed = _0x2040e7.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+GoombaObject.prototype.bonk = function() {
+    this.dead || (this.setState(GoombaObject.STATE.BONK), this.moveSpeed = GoombaObject.BONK_IMP.x, this.fallSpeed = GoombaObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
-_0x2040e7.prototype.playerCollide = function(_0x5ee074) {
+GoombaObject.prototype.playerCollide = function(_0x5ee074) {
     this.dead || this.garbage || _0x5ee074.damage(this);
 };
-_0x2040e7.prototype.playerStomp = function(_0x584473) {
+GoombaObject.prototype.playerStomp = function(_0x584473) {
     this.dead || this.garbage || (this.kill(), _0x584473.bounce(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0)));
 };
-_0x2040e7.prototype.playerBump = function(_0x5e0adc) {
+GoombaObject.prototype.playerBump = function(_0x5e0adc) {
     this.dead || this.garbage || _0x5e0adc.damage(this);
 };
-_0x2040e7.prototype.kill = function() {
+GoombaObject.prototype.kill = function() {
     this.dead = true;
-    this.setState(_0x2040e7.STATE.DEAD);
+    this.setState(GoombaObject.STATE.DEAD);
     this.play("sfx/stomp.wav", 0x1, 0.04);
 };
-_0x2040e7.prototype.destroy = GameObject.prototype.destroy;
-_0x2040e7.prototype.isTangible = GameObject.prototype.isTangible;
-_0x2040e7.prototype.setState = function(_0x4fe620) {
+GoombaObject.prototype.destroy = GameObject.prototype.destroy;
+GoombaObject.prototype.isTangible = GameObject.prototype.isTangible;
+GoombaObject.prototype.setState = function(_0x4fe620) {
     _0x4fe620 !== this.state && (this.state = _0x4fe620, 0x0 < _0x4fe620.SPRITE.length && (this.sprite = _0x4fe620.SPRITE[0x0]), this.anim = 0x0);
 };
-_0x2040e7.prototype.draw = function(_0xa69c24) {
+GoombaObject.prototype.draw = function(_0xa69c24) {
     if (!this.disabled) {
         var _0x57b370;
-        _0x57b370 = this.state === _0x2040e7.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / _0x2040e7.ENABLE_FADE_TIME)) : 0x0;
+        _0x57b370 = this.state === GoombaObject.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / GoombaObject.ENABLE_FADE_TIME)) : 0x0;
         if (this.sprite.INDEX instanceof Array)
             for (var _0x2d049f = this.sprite.INDEX, _0x2e81c8 = 0x0; _0x2e81c8 < _0x2d049f.length; _0x2e81c8++)
                 for (var _0x28feb8 = 0x0; _0x28feb8 < _0x2d049f[_0x2e81c8].length; _0x28feb8++) {
                     var _0x14ac9a = _0x2d049f[_0x57b370 ? _0x2d049f.length - 0x1 - _0x2e81c8 : _0x2e81c8][_0x28feb8];
                     switch (this.variant) {
                         case 0x1:
-                            _0x14ac9a += _0x2040e7.VARIANT_OFFSET;
+                            _0x14ac9a += GoombaObject.VARIANT_OFFSET;
                     }
                     _0xa69c24.push({
                         'pos': vec2.add(this.pos, vec2.make(_0x28feb8, _0x2e81c8)),
@@ -3561,7 +3561,7 @@ _0x2040e7.prototype.draw = function(_0xa69c24) {
                     _0x14ac9a = this.sprite.INDEX;
                     switch (this.variant) {
                         case 0x1:
-                            _0x14ac9a += _0x2040e7.VARIANT_OFFSET;
+                            _0x14ac9a += GoombaObject.VARIANT_OFFSET;
                     }
                     _0xa69c24.push({
                         'pos': this.pos,
@@ -3572,8 +3572,8 @@ _0x2040e7.prototype.draw = function(_0xa69c24) {
                 }
     }
 };
-_0x2040e7.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x2040e7);
+GoombaObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(GoombaObject);
 "use strict";
 
 function _0xafe583(_0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726, _0xe543eb, _0x547d60, _0xdab7ae) {
@@ -4269,10 +4269,10 @@ _0x25ddce.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(_0x25ddce);
 "use strict";
 
-function _0x1f4abb(_0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8, _0x55466e, _0xde92bf) {
+function HammerBroObject(_0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8, _0x55466e, _0xde92bf) {
     GameObject.call(this, _0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8);
     this.oid = _0x55466e;
-    this.setState(_0x1f4abb.STATE.IDLE);
+    this.setState(HammerBroObject.STATE.IDLE);
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 1.5);
     this.fallSpeed = this.moveSpeed = 0x0;
@@ -4280,36 +4280,36 @@ function _0x1f4abb(_0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8, _0x55466e, _0xde9
     this.disabledTimer = 0x0;
     this.proxHit = false;
     this.hammer = undefined;
-    this.loc = 0x1 === parseInt(_0xde92bf) ? [this.pos.x + _0x1f4abb.MOVE_AREA, this.pos.x] : [this.pos.x, this.pos.x - _0x1f4abb.MOVE_AREA];
+    this.loc = 0x1 === parseInt(_0xde92bf) ? [this.pos.x + HammerBroObject.MOVE_AREA, this.pos.x] : [this.pos.x, this.pos.x - HammerBroObject.MOVE_AREA];
     this.groundTimer = this.double = this.attackAnimTimer = this.attackTimer = 0x0;
     this.jumpTimer = -0x1;
     this.reverse = false;
     this.dir = true;
     this.disable();
 }
-_0x1f4abb.ASYNC = false;
-_0x1f4abb.ID = 0x31;
-_0x1f4abb.NAME = "HAMMER BRO";
-_0x1f4abb.ANIMATION_RATE = 0x5;
-_0x1f4abb.ENABLE_FADE_TIME = 0xf;
-_0x1f4abb.ENABLE_DIST = 0x21;
-_0x1f4abb.BONK_TIME = 0x5a;
-_0x1f4abb.BONK_IMP = vec2.make(0.25, 0.4);
-_0x1f4abb.BONK_DECEL = 0.925;
-_0x1f4abb.BONK_FALL_SPEED = 0.5;
-_0x1f4abb.MOVE_SPEED_MAX = 0.095;
-_0x1f4abb.JUMP_DELAY = 0x37;
-_0x1f4abb.MOVE_AREA = 0x4;
-_0x1f4abb.JUMP_LENGTH = 0x8;
-_0x1f4abb.JUMP_DECEL = 0.009;
-_0x1f4abb.ATTACK_DELAY = 0x4b;
-_0x1f4abb.DOUBLE_RATE = 0x5;
-_0x1f4abb.ATTACK_ANIM_LENGTH = 0xd;
-_0x1f4abb.PROJ_OFFSET = vec2.make(0.5, 1.25);
-_0x1f4abb.FALL_SPEED_MAX = 0.3;
-_0x1f4abb.FALL_SPEED_ACCEL = 0.085;
-_0x1f4abb.SPRITE = {};
-_0x1f4abb.SPRITE_LIST = [{
+HammerBroObject.ASYNC = false;
+HammerBroObject.ID = 0x31;
+HammerBroObject.NAME = "HAMMER BRO";
+HammerBroObject.ANIMATION_RATE = 0x5;
+HammerBroObject.ENABLE_FADE_TIME = 0xf;
+HammerBroObject.ENABLE_DIST = 0x21;
+HammerBroObject.BONK_TIME = 0x5a;
+HammerBroObject.BONK_IMP = vec2.make(0.25, 0.4);
+HammerBroObject.BONK_DECEL = 0.925;
+HammerBroObject.BONK_FALL_SPEED = 0.5;
+HammerBroObject.MOVE_SPEED_MAX = 0.095;
+HammerBroObject.JUMP_DELAY = 0x37;
+HammerBroObject.MOVE_AREA = 0x4;
+HammerBroObject.JUMP_LENGTH = 0x8;
+HammerBroObject.JUMP_DECEL = 0.009;
+HammerBroObject.ATTACK_DELAY = 0x4b;
+HammerBroObject.DOUBLE_RATE = 0x5;
+HammerBroObject.ATTACK_ANIM_LENGTH = 0xd;
+HammerBroObject.PROJ_OFFSET = vec2.make(0.5, 1.25);
+HammerBroObject.FALL_SPEED_MAX = 0.3;
+HammerBroObject.FALL_SPEED_ACCEL = 0.085;
+HammerBroObject.SPRITE = {};
+HammerBroObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
     'INDEX': [
@@ -4331,27 +4331,27 @@ _0x1f4abb.SPRITE_LIST = [{
         [0x5c]
     ]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x1f4abb.SPRITE_LIST.length; _0x1bec55++) _0x1f4abb.SPRITE[_0x1f4abb.SPRITE_LIST[_0x1bec55].NAME] = _0x1f4abb.SPRITE_LIST[_0x1bec55], _0x1f4abb.SPRITE[_0x1f4abb.SPRITE_LIST[_0x1bec55].ID] = _0x1f4abb.SPRITE_LIST[_0x1bec55];
-_0x1f4abb.STATE = {};
-_0x1f4abb.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < HammerBroObject.SPRITE_LIST.length; _0x1bec55++) HammerBroObject.SPRITE[HammerBroObject.SPRITE_LIST[_0x1bec55].NAME] = HammerBroObject.SPRITE_LIST[_0x1bec55], HammerBroObject.SPRITE[HammerBroObject.SPRITE_LIST[_0x1bec55].ID] = HammerBroObject.SPRITE_LIST[_0x1bec55];
+HammerBroObject.STATE = {};
+HammerBroObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x1f4abb.SPRITE.IDLE0, _0x1f4abb.SPRITE.IDLE1]
+    'SPRITE': [HammerBroObject.SPRITE.IDLE0, HammerBroObject.SPRITE.IDLE1]
 }, {
     'NAME': "FALL",
     'ID': 0x1,
-    'SPRITE': [_0x1f4abb.SPRITE.IDLE1]
+    'SPRITE': [HammerBroObject.SPRITE.IDLE1]
 }, {
     'NAME': "ATTACK",
     'ID': 0x2,
-    'SPRITE': [_0x1f4abb.SPRITE.ATTACK]
+    'SPRITE': [HammerBroObject.SPRITE.ATTACK]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x1f4abb.STATE_LIST.length; _0x1bec55++) _0x1f4abb.STATE[_0x1f4abb.STATE_LIST[_0x1bec55].NAME] = _0x1f4abb.STATE_LIST[_0x1bec55], _0x1f4abb.STATE[_0x1f4abb.STATE_LIST[_0x1bec55].ID] = _0x1f4abb.STATE_LIST[_0x1bec55];
-_0x1f4abb.prototype.update = function(_0x3402c2) {
+for (_0x1bec55 = 0x0; _0x1bec55 < HammerBroObject.STATE_LIST.length; _0x1bec55++) HammerBroObject.STATE[HammerBroObject.STATE_LIST[_0x1bec55].NAME] = HammerBroObject.STATE_LIST[_0x1bec55], HammerBroObject.STATE[HammerBroObject.STATE_LIST[_0x1bec55].ID] = HammerBroObject.STATE_LIST[_0x1bec55];
+HammerBroObject.prototype.update = function(_0x3402c2) {
     switch (_0x3402c2) {
         case 0x1:
             this.bonk();
@@ -4360,16 +4360,16 @@ _0x1f4abb.prototype.update = function(_0x3402c2) {
             this.enable();
     }
 };
-_0x1f4abb.prototype.step = function() {
-    this.disabled ? this.proximity() : (0x0 < this.disabledTimer && this.disabledTimer--, this.state === _0x1f4abb.STATE.BONK ? this.bonkTimer++ > _0x1f4abb.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0x1f4abb.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0x1f4abb.FALL_SPEED_ACCEL, -_0x1f4abb.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x1f4abb.ANIMATION_RATE) % this.state.SPRITE.length], this.face(), this.control(), this.physics(), this.sound(), 0x0 < this.attackAnimTimer ? (this.setState(_0x1f4abb.STATE.ATTACK), this.attach(), this.attackAnimTimer--) : this.attackTimer++ > _0x1f4abb.ATTACK_DELAY ? this.attack() : this.hammer = undefined, 0x0 > this.pos.y && this.destroy()));
+HammerBroObject.prototype.step = function() {
+    this.disabled ? this.proximity() : (0x0 < this.disabledTimer && this.disabledTimer--, this.state === HammerBroObject.STATE.BONK ? this.bonkTimer++ > HammerBroObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= HammerBroObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - HammerBroObject.FALL_SPEED_ACCEL, -HammerBroObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / HammerBroObject.ANIMATION_RATE) % this.state.SPRITE.length], this.face(), this.control(), this.physics(), this.sound(), 0x0 < this.attackAnimTimer ? (this.setState(HammerBroObject.STATE.ATTACK), this.attach(), this.attackAnimTimer--) : this.attackTimer++ > HammerBroObject.ATTACK_DELAY ? this.attack() : this.hammer = undefined, 0x0 > this.pos.y && this.destroy()));
 };
-_0x1f4abb.prototype.control = function() {
-    this.grounded ? (_0x1f4abb.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = true : this.pos.x < this.loc[0x1] && (this.reverse = false)) : this.jumpTimer > _0x1f4abb.JUMP_LENGTH && (this.jumpTimer = -0x1);
-    this.grounded ? this.setState(_0x1f4abb.STATE.IDLE) : this.setState(_0x1f4abb.STATE.FALL);
-    this.moveSpeed = 0.75 * this.moveSpeed + 0.25 * (this.reverse ? -_0x1f4abb.MOVE_SPEED_MAX : _0x1f4abb.MOVE_SPEED_MAX);
+HammerBroObject.prototype.control = function() {
+    this.grounded ? (HammerBroObject.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = true : this.pos.x < this.loc[0x1] && (this.reverse = false)) : this.jumpTimer > HammerBroObject.JUMP_LENGTH && (this.jumpTimer = -0x1);
+    this.grounded ? this.setState(HammerBroObject.STATE.IDLE) : this.setState(HammerBroObject.STATE.FALL);
+    this.moveSpeed = 0.75 * this.moveSpeed + 0.25 * (this.reverse ? -HammerBroObject.MOVE_SPEED_MAX : HammerBroObject.MOVE_SPEED_MAX);
 };
-_0x1f4abb.prototype.physics = function() {
-    -0x1 !== this.jumpTimer ? (this.fallSpeed = _0x1f4abb.FALL_SPEED_MAX - this.jumpTimer * _0x1f4abb.JUMP_DECEL, this.jumpTimer++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0x1f4abb.FALL_SPEED_ACCEL, -_0x1f4abb.FALL_SPEED_MAX));
+HammerBroObject.prototype.physics = function() {
+    -0x1 !== this.jumpTimer ? (this.fallSpeed = HammerBroObject.FALL_SPEED_MAX - this.jumpTimer * HammerBroObject.JUMP_DECEL, this.jumpTimer++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - HammerBroObject.FALL_SPEED_ACCEL, -HammerBroObject.FALL_SPEED_MAX));
     var _0x12b803 = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
         _0x176893 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
         _0x27250d = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
@@ -4384,56 +4384,56 @@ _0x1f4abb.prototype.physics = function() {
     for (_0xac132f = 0x0; _0xac132f < _0x27250d.length; _0xac132f++) _0x44201c = _0x27250d[_0xac132f], _0x44201c.definition.COLLIDE && squar.intersection(_0x44201c.pos, _0xfe9df8, _0x176893, this.dim) && (this.pos.y >= _0x44201c.pos.y + _0xfe9df8.y && _0x176893.y < _0x44201c.pos.y + _0xfe9df8.y ? (_0x176893.y = _0x44201c.pos.y + _0xfe9df8.y, this.fallSpeed = 0x0, this.grounded = true) : this.pos.y + this.dim.y <= _0x44201c.pos.y && _0x176893.y + this.dim.y > _0x44201c.pos.y && (_0x176893.y = _0x44201c.pos.y - this.dim.y, this.jumpTimer = -0x1, this.fallSpeed = 0x0));
     this.pos = vec2.make(_0x12b803.x, _0x176893.y);
 };
-_0x1f4abb.prototype.proximity = function() {
+HammerBroObject.prototype.proximity = function() {
     var _0x2e2202 = this.game.getPlayer();
-    _0x2e2202 && !_0x2e2202.dead && _0x2e2202.level === this.level && _0x2e2202.zone === this.zone && !this.proxHit && vec2.distance(_0x2e2202.pos, this.pos) < _0x1f4abb.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
+    _0x2e2202 && !_0x2e2202.dead && _0x2e2202.level === this.level && _0x2e2202.zone === this.zone && !this.proxHit && vec2.distance(_0x2e2202.pos, this.pos) < HammerBroObject.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
 };
-_0x1f4abb.prototype.face = function() {
+HammerBroObject.prototype.face = function() {
     for (var _0xe75dbb, _0x338971 = 0x0; _0x338971 < this.game.objects.length; _0x338971++) {
         var _0x345c5d = this.game.objects[_0x338971];
         _0x345c5d instanceof PlayerObject && _0x345c5d.level === this.level && _0x345c5d.zone === this.zone && _0x345c5d.isTangible() && (!_0xe75dbb || Math.abs(_0xe75dbb) > vec2.distance(_0x345c5d.pos, this.pos)) && (_0xe75dbb = _0x345c5d.pos.x - this.pos.x);
     }
     this.dir = _0xe75dbb ? 0x0 > _0xe75dbb : true;
 };
-_0x1f4abb.prototype.sound = GameObject.prototype.sound;
-_0x1f4abb.prototype.enable = function() {
-    this.disabled && (this.disabled = false, this.disabledTimer = _0x1f4abb.ENABLE_FADE_TIME);
+HammerBroObject.prototype.sound = GameObject.prototype.sound;
+HammerBroObject.prototype.enable = function() {
+    this.disabled && (this.disabled = false, this.disabledTimer = HammerBroObject.ENABLE_FADE_TIME);
 };
-_0x1f4abb.prototype.disable = function() {
+HammerBroObject.prototype.disable = function() {
     this.disabled = true;
 };
-_0x1f4abb.prototype.attack = function() {
-    this.attackAnimTimer = _0x1f4abb.ATTACK_ANIM_LENGTH;
+HammerBroObject.prototype.attack = function() {
+    this.attackAnimTimer = HammerBroObject.ATTACK_ANIM_LENGTH;
     this.attackTimer = 0x0;
-    this.hammer = this.game.createObject(_0x1bc0ed.ID, this.level, this.zone, vec2.add(this.pos, _0x1f4abb.PROJ_OFFSET), [this]);
-    ++this.double > _0x1f4abb.DOUBLE_RATE && (this.double = 0x0, this.attackTimer = _0x1f4abb.ATTACK_DELAY);
+    this.hammer = this.game.createObject(HammerObject.ID, this.level, this.zone, vec2.add(this.pos, HammerBroObject.PROJ_OFFSET), [this]);
+    ++this.double > HammerBroObject.DOUBLE_RATE && (this.double = 0x0, this.attackTimer = HammerBroObject.ATTACK_DELAY);
 };
-_0x1f4abb.prototype.attach = function() {
-    this.hammer && (this.hammer.pos = vec2.add(this.pos, _0x1f4abb.PROJ_OFFSET), this.hammer.dir = !this.dir);
+HammerBroObject.prototype.attach = function() {
+    this.hammer && (this.hammer.pos = vec2.add(this.pos, HammerBroObject.PROJ_OFFSET), this.hammer.dir = !this.dir);
 };
-_0x1f4abb.prototype.playerCollide = function(_0x4b48ff) {
+HammerBroObject.prototype.playerCollide = function(_0x4b48ff) {
     this.dead || this.garbage || _0x4b48ff.damage(this);
 };
-_0x1f4abb.prototype.playerStomp = function(_0x382396) {
+HammerBroObject.prototype.playerStomp = function(_0x382396) {
     this.dead || this.garbage || (this.bonk(), _0x382396.bounce(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0x1f4abb.prototype.playerBump = _0x1f4abb.prototype.playerCollide;
-_0x1f4abb.prototype.damage = function(_0x23a76d) {
+HammerBroObject.prototype.playerBump = HammerBroObject.prototype.playerCollide;
+HammerBroObject.prototype.damage = function(_0x23a76d) {
     this.dead || (this.bonk(), NET020.encode(this.level, this.zone, this.oid, 0x1));
 };
-_0x1f4abb.prototype.bonk = function() {
-    this.dead || (this.setState(_0x1f4abb.STATE.BONK), this.moveSpeed = _0x1f4abb.BONK_IMP.x, this.fallSpeed = _0x1f4abb.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+HammerBroObject.prototype.bonk = function() {
+    this.dead || (this.setState(HammerBroObject.STATE.BONK), this.moveSpeed = HammerBroObject.BONK_IMP.x, this.fallSpeed = HammerBroObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
-_0x1f4abb.prototype.kill = function() {};
-_0x1f4abb.prototype.isTangible = GameObject.prototype.isTangible;
-_0x1f4abb.prototype.destroy = GameObject.prototype.destroy;
-_0x1f4abb.prototype.setState = function(_0x44adae) {
+HammerBroObject.prototype.kill = function() {};
+HammerBroObject.prototype.isTangible = GameObject.prototype.isTangible;
+HammerBroObject.prototype.destroy = GameObject.prototype.destroy;
+HammerBroObject.prototype.setState = function(_0x44adae) {
     _0x44adae !== this.state && (this.state = _0x44adae, 0x0 < _0x44adae.SPRITE.length && (this.sprite = _0x44adae.SPRITE[0x0]), this.anim = 0x0);
 };
-_0x1f4abb.prototype.draw = function(_0x4d458c) {
+HammerBroObject.prototype.draw = function(_0x4d458c) {
     if (!this.disabled) {
         var _0x534d18;
-        _0x534d18 = this.state === _0x1f4abb.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / _0x1f4abb.ENABLE_FADE_TIME)) : 0x0;
+        _0x534d18 = this.state === HammerBroObject.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / HammerBroObject.ENABLE_FADE_TIME)) : 0x0;
         if (this.sprite.INDEX instanceof Array)
             for (var _0x571330 = this.sprite.INDEX, _0x3d1c2f = 0x0; _0x3d1c2f < _0x571330.length; _0x3d1c2f++)
                 for (var _0x35bd43 = 0x0; _0x35bd43 < _0x571330[_0x3d1c2f].length; _0x35bd43++) _0x4d458c.push({
@@ -4450,13 +4450,27 @@ _0x1f4abb.prototype.draw = function(_0x4d458c) {
         });
     }
 };
-_0x1f4abb.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x1f4abb);
+HammerBroObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(HammerBroObject);
 "use strict";
 
-function BowserObject(_0x296e51, _0xaf6db9, _0x35a12d, _0x5dd1db, _0x1c5ca6) {
-    GameObject.call(this, _0x296e51, _0xaf6db9, _0x35a12d, _0x5dd1db);
-    this.oid = _0x1c5ca6;
+function BowserObject(game, level, zone, pos, oid, oprm) {
+    GameObject.call(this, game, level, zone, pos);
+    switch(parseInt(oprm)) {
+        case 1:
+            this.fire = false;
+            this.hammer = true;
+            break;
+        case 2:
+            this.fire = true;
+            this.hammer = true;
+            break;
+        default:
+            this.fire = true;
+            this.hammer = false;
+            break;
+    }
+    this.oid = oid;
     this.state = BowserObject.STATE.RUN;
     this.sprite = this.state.SPRITE[0x0];
     this.anim = 0x0;
@@ -4466,7 +4480,9 @@ function BowserObject(_0x296e51, _0xaf6db9, _0x35a12d, _0x5dd1db, _0x1c5ca6) {
     this.fallSpeed = this.moveSpeed = 0x0;
     this.grounded = false;
     this.loc = [this.pos.x, this.pos.x - BowserObject.MOVE_AREA];
-    this.groundTimer = this.attackAnimTimer = this.attackTimer = 0x0;
+    this.groundTimer = this.attackAnimTimer = this.attackTimer = this.hammerAttackTimer = 0x0;
+    this.lastHammerTime = 0;
+    this.hammersThrown = 0;
     this.jumpTimer = -0x1;
     this.reverse = false;
     this.dir = true;
@@ -4485,9 +4501,14 @@ BowserObject.JUMP_DELAY = 0x2d;
 BowserObject.MOVE_AREA = 0x5;
 BowserObject.JUMP_LENGTH = 0x6;
 BowserObject.JUMP_DECEL = 0.009;
-BowserObject.ATTACK_DELAY = 0x4b;
+BowserObject.ATTACK_DELAY = 75;
 BowserObject.ATTACK_ANIM_LENGTH = 0xf;
+BowserObject.HAMMER_ATTACK_DELAY = 80;
+BowserObject.HAMMER_HOLD_TIME = 1;
+BowserObject.HAMMER_VOLLEY_SIZE = 8;
+BowserObject.HAMMER_VOLLEY_DELAY = 5;
 BowserObject.PROJ_OFFSET = vec2.make(-0.25, 0.25);
+BowserObject.HAMMER_PROJ_OFFSET = vec2.make(0.5, 2);
 BowserObject.FALL_SPEED_MAX = 0.3;
 BowserObject.FALL_SPEED_ACCEL = 0.085;
 BowserObject.SPRITE = {};
@@ -4538,7 +4559,30 @@ BowserObject.STATE_LIST = [{
 for (_0x1bec55 = 0x0; _0x1bec55 < BowserObject.STATE_LIST.length; _0x1bec55++) BowserObject.STATE[BowserObject.STATE_LIST[_0x1bec55].NAME] = BowserObject.STATE_LIST[_0x1bec55], BowserObject.STATE[BowserObject.STATE_LIST[_0x1bec55].ID] = BowserObject.STATE_LIST[_0x1bec55];
 BowserObject.prototype.update = function(_0x45393d) {};
 BowserObject.prototype.step = function() {
-    this.state === BowserObject.STATE.BONK ? this.bonkTimer++ > BowserObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= BowserObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - BowserObject.FALL_SPEED_ACCEL, -BowserObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / BowserObject.ANIMATION_RATE) % this.state.SPRITE.length], this.control(), this.physics(), this.sound(), this.attackTimer++ > BowserObject.ATTACK_DELAY && this.attack(), 0x0 < this.attackAnimTimer ? (this.setState(BowserObject.STATE.ATTACK), this.attackAnimTimer--) : this.setState(BowserObject.STATE.RUN), 0x0 > this.pos.y && this.destroy());
+    if (this.state === BowserObject.STATE.BONK) {
+        if (this.bonkTimer++ > BowserObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y) {
+            this.destroy();
+        } else {
+            this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed));
+            this.moveSpeed *= BowserObject.BONK_DECEL;
+            this.fallSpeed = Math.max(this.fallSpeed - BowserObject.FALL_SPEED_ACCEL, -BowserObject.BONK_FALL_SPEED);
+        }
+    } else {
+        this.anim++;
+        this.sprite = this.state.SPRITE[parseInt(this.anim / BowserObject.ANIMATION_RATE) % this.state.SPRITE.length];
+        this.control();
+        this.physics();
+        this.sound();
+        if (this.fire && this.attackTimer++ > BowserObject.ATTACK_DELAY) this.attack();
+        if (this.hammer && this.hammerAttackTimer++ > BowserObject.HAMMER_ATTACK_DELAY) this.hammerAttack();
+        if (0x0 < this.attackAnimTimer) {
+            this.setState(BowserObject.STATE.ATTACK);
+            this.attackAnimTimer--;
+        } else {
+            this.setState(BowserObject.STATE.RUN);
+            if (0x0 > this.pos.y) this.destroy();
+        }
+    }
 };
 BowserObject.prototype.control = function() {
     this.grounded ? (BowserObject.JUMP_DELAY < this.groundTimer++ && (this.groundTimer = this.jumpTimer = 0x0), this.pos.x > this.loc[0x0] ? this.reverse = true : this.pos.x < this.loc[0x1] && (this.reverse = false)) : this.jumpTimer > BowserObject.JUMP_LENGTH && (this.jumpTimer = -0x1);
@@ -4564,8 +4608,21 @@ BowserObject.prototype.sound = GameObject.prototype.sound;
 BowserObject.prototype.attack = function() {
     this.attackAnimTimer = BowserObject.ATTACK_ANIM_LENGTH;
     this.attackTimer = 0x0;
-    this.game.createObject(_0x1899b7.ID, this.level, this.zone, vec2.add(this.pos, BowserObject.PROJ_OFFSET), []);
+    this.game.createObject(FireBreathObject.ID, this.level, this.zone, vec2.add(this.pos, BowserObject.PROJ_OFFSET), []);
     this.play("sfx/breath.wav", 1.5, 0.04);
+};
+BowserObject.prototype.hammerAttack = function() {
+    var hammerTime = this.hammerAttackTimer - this.lastHammerTime;
+    if (this.hammersThrown == 0 || hammerTime >= BowserObject.HAMMER_VOLLEY_DELAY) {
+        this.lastHammerTime = this.hammersThrown == 0 ? BowserObject.HAMMER_ATTACK_DELAY : this.lastHammerTime + BowserObject.HAMMER_VOLLEY_DELAY;
+        this.game.createObject(HammerObject.ID, this.level, this.zone, vec2.add(this.pos, BowserObject.HAMMER_PROJ_OFFSET), [this, BowserObject.HAMMER_HOLD_TIME]);
+        this.hammersThrown += 1;
+        if (this.hammersThrown >= BowserObject.HAMMER_VOLLEY_SIZE) {
+            this.hammerAttackTimer = 0x0;
+            this.lastHammerTime = 0;
+            this.hammersThrown = 0;
+        }
+    }
 };
 BowserObject.prototype.playerCollide = function(_0x30ea43) {
     this.dead || this.garbage || _0x30ea43.damage(this);
@@ -5312,25 +5369,25 @@ _0x6c6f53.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(_0x6c6f53);
 "use strict";
 
-function _0x1899b7(_0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8) {
+function FireBreathObject(_0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8) {
     GameObject.call(this, _0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8);
-    this.state = _0x1899b7.STATE.IDLE;
+    this.state = FireBreathObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.anim = 0x0;
-    this.life = _0x1899b7.LIFE_MAX;
+    this.life = FireBreathObject.LIFE_MAX;
     this.deadTimer = 0x0;
     this.dim = vec2.make(0x1, 0.5);
 }
-_0x1899b7.ASYNC = true;
-_0x1899b7.ID = 0xa2;
-_0x1899b7.NAME = "FIRE BREATH PROJECTILE";
-_0x1899b7.ANIMATION_RATE = 0x2;
-_0x1899b7.SOFFSET = vec2.make(-0.5, -0.25);
-_0x1899b7.LIFE_MAX = 0xaf;
-_0x1899b7.DEAD_ANIM_LENGTH = 0x3;
-_0x1899b7.SPEED = 0.175;
-_0x1899b7.SPRITE = {};
-_0x1899b7.SPRITE_LIST = [{
+FireBreathObject.ASYNC = true;
+FireBreathObject.ID = 0xa2;
+FireBreathObject.NAME = "FIRE BREATH PROJECTILE";
+FireBreathObject.ANIMATION_RATE = 0x2;
+FireBreathObject.SOFFSET = vec2.make(-0.5, -0.25);
+FireBreathObject.LIFE_MAX = 0xaf;
+FireBreathObject.DEAD_ANIM_LENGTH = 0x3;
+FireBreathObject.SPEED = 0.175;
+FireBreathObject.SPRITE = {};
+FireBreathObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
     'INDEX': [
@@ -5355,27 +5412,27 @@ _0x1899b7.SPRITE_LIST = [{
     'ID': 0x6,
     'INDEX': 0xd6
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x1899b7.SPRITE_LIST.length; _0x1bec55++) _0x1899b7.SPRITE[_0x1899b7.SPRITE_LIST[_0x1bec55].NAME] = _0x1899b7.SPRITE_LIST[_0x1bec55], _0x1899b7.SPRITE[_0x1899b7.SPRITE_LIST[_0x1bec55].ID] = _0x1899b7.SPRITE_LIST[_0x1bec55];
-_0x1899b7.STATE = {};
-_0x1899b7.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < FireBreathObject.SPRITE_LIST.length; _0x1bec55++) FireBreathObject.SPRITE[FireBreathObject.SPRITE_LIST[_0x1bec55].NAME] = FireBreathObject.SPRITE_LIST[_0x1bec55], FireBreathObject.SPRITE[FireBreathObject.SPRITE_LIST[_0x1bec55].ID] = FireBreathObject.SPRITE_LIST[_0x1bec55];
+FireBreathObject.STATE = {};
+FireBreathObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x1899b7.SPRITE.IDLE0, _0x1899b7.SPRITE.IDLE1]
+    'SPRITE': [FireBreathObject.SPRITE.IDLE0, FireBreathObject.SPRITE.IDLE1]
 }, {
     'NAME': "DEAD",
     'ID': 0x50,
-    'SPRITE': [_0x1899b7.SPRITE.DEAD0, _0x1899b7.SPRITE.DEAD1, _0x1899b7.SPRITE.DEAD2]
+    'SPRITE': [FireBreathObject.SPRITE.DEAD0, FireBreathObject.SPRITE.DEAD1, FireBreathObject.SPRITE.DEAD2]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x1899b7.STATE_LIST.length; _0x1bec55++) _0x1899b7.STATE[_0x1899b7.STATE_LIST[_0x1bec55].NAME] = _0x1899b7.STATE_LIST[_0x1bec55], _0x1899b7.STATE[_0x1899b7.STATE_LIST[_0x1bec55].ID] = _0x1899b7.STATE_LIST[_0x1bec55];
-_0x1899b7.prototype.update = function(_0x3e423b) {};
-_0x1899b7.prototype.step = function() {
-    this.state === _0x1899b7.STATE.DEAD ? this.deadTimer < _0x1899b7.DEAD_ANIM_LENGTH ? this.sprite = this.state.SPRITE[this.deadTimer++] : this.destroy() : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x1899b7.ANIMATION_RATE) % this.state.SPRITE.length], this.control(), this.physics(), this.interaction(), 0x1 > this.life-- && this.kill());
+for (_0x1bec55 = 0x0; _0x1bec55 < FireBreathObject.STATE_LIST.length; _0x1bec55++) FireBreathObject.STATE[FireBreathObject.STATE_LIST[_0x1bec55].NAME] = FireBreathObject.STATE_LIST[_0x1bec55], FireBreathObject.STATE[FireBreathObject.STATE_LIST[_0x1bec55].ID] = FireBreathObject.STATE_LIST[_0x1bec55];
+FireBreathObject.prototype.update = function(_0x3e423b) {};
+FireBreathObject.prototype.step = function() {
+    this.state === FireBreathObject.STATE.DEAD ? this.deadTimer < FireBreathObject.DEAD_ANIM_LENGTH ? this.sprite = this.state.SPRITE[this.deadTimer++] : this.destroy() : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / FireBreathObject.ANIMATION_RATE) % this.state.SPRITE.length], this.control(), this.physics(), this.interaction(), 0x1 > this.life-- && this.kill());
 };
-_0x1899b7.prototype.control = function() {};
-_0x1899b7.prototype.physics = function() {
-    this.pos = vec2.add(this.pos, vec2.make(-_0x1899b7.SPEED, 0x0));
+FireBreathObject.prototype.control = function() {};
+FireBreathObject.prototype.physics = function() {
+    this.pos = vec2.add(this.pos, vec2.make(-FireBreathObject.SPEED, 0x0));
 };
-_0x1899b7.prototype.interaction = function() {
+FireBreathObject.prototype.interaction = function() {
     for (var _0x554db7 = 0x0; _0x554db7 < this.game.objects.length; _0x554db7++) {
         var _0x43845d = this.game.objects[_0x554db7];
         if (_0x43845d instanceof PlayerObject && _0x43845d.isTangible() && _0x43845d.level === this.level && _0x43845d.zone === this.zone && squar.intersection(_0x43845d.pos, _0x43845d.dim, this.pos, this.dim)) {
@@ -5385,57 +5442,57 @@ _0x1899b7.prototype.interaction = function() {
         }
     }
 };
-_0x1899b7.prototype.playerCollide = function(_0x4b7e2a) {};
-_0x1899b7.prototype.playerStomp = function(_0x2f2ded) {};
-_0x1899b7.prototype.playerBump = function(_0xa7f751) {};
-_0x1899b7.prototype.kill = function() {
+FireBreathObject.prototype.playerCollide = function(_0x4b7e2a) {};
+FireBreathObject.prototype.playerStomp = function(_0x2f2ded) {};
+FireBreathObject.prototype.playerBump = function(_0xa7f751) {};
+FireBreathObject.prototype.kill = function() {
     this.dead = true;
-    this.setState(_0x1899b7.STATE.DEAD);
+    this.setState(FireBreathObject.STATE.DEAD);
 };
-_0x1899b7.prototype.isTangible = GameObject.prototype.isTangible;
-_0x1899b7.prototype.destroy = GameObject.prototype.destroy;
-_0x1899b7.prototype.setState = function(_0x422ff8) {
+FireBreathObject.prototype.isTangible = GameObject.prototype.isTangible;
+FireBreathObject.prototype.destroy = GameObject.prototype.destroy;
+FireBreathObject.prototype.setState = function(_0x422ff8) {
     _0x422ff8 !== this.state && (this.state = _0x422ff8, this.sprite = _0x422ff8.SPRITE[0x0], this.anim = 0x0);
 };
-_0x1899b7.prototype.draw = function(_0x215d5f) {
+FireBreathObject.prototype.draw = function(_0x215d5f) {
     if (this.sprite.INDEX instanceof Array)
         for (var _0x22ac30 = this.sprite.INDEX, _0x1cb97d = 0x0; _0x1cb97d < _0x22ac30.length; _0x1cb97d++)
             for (var _0x5791f1 = 0x0; _0x5791f1 < _0x22ac30[_0x1cb97d].length; _0x5791f1++) _0x215d5f.push({
-                'pos': vec2.add(vec2.add(this.pos, _0x1899b7.SOFFSET), vec2.make(_0x5791f1, _0x1cb97d)),
+                'pos': vec2.add(vec2.add(this.pos, FireBreathObject.SOFFSET), vec2.make(_0x5791f1, _0x1cb97d)),
                 'reverse': false,
                 'index': _0x22ac30[_0x1cb97d][_0x5791f1]
             });
     else _0x215d5f.push({
-        'pos': vec2.add(this.pos, _0x1899b7.SOFFSET),
+        'pos': vec2.add(this.pos, FireBreathObject.SOFFSET),
         'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
 };
-GameObject.REGISTER_OBJECT(_0x1899b7);
+GameObject.REGISTER_OBJECT(FireBreathObject);
 "use strict";
 
-function _0x1bc0ed(_0x33b14c, _0x36a1c4, _0x148c3f, _0x54b3e0, _0x33ad79) {
-    GameObject.call(this, _0x33b14c, _0x36a1c4, _0x148c3f, _0x54b3e0);
-    this.owner = _0x33ad79;
-    this.setState(_0x1bc0ed.STATE.IDLE);
+function HammerObject(game, level, zone, pos, owner, delay) {
+    GameObject.call(this, game, level, zone, pos);
+    this.owner = owner;
+    this.setState(HammerObject.STATE.IDLE);
     this.anim = 0x0;
-    this.throwTimer = _0x1bc0ed.THROW_DELAY;
+    this.throwTimer = delay === undefined ? HammerObject.THROW_DELAY : delay;
     this.dir = false;
     this.dim = vec2.make(0.5, 0.5);
 }
-_0x1bc0ed.ASYNC = true;
-_0x1bc0ed.ID = 0xa3;
-_0x1bc0ed.NAME = "HAMMER PROJECTILE";
-_0x1bc0ed.ANIMATION_RATE = 0x2;
-_0x1bc0ed.SOFFSET = vec2.make(-0.25, -0.25);
-_0x1bc0ed.THROW_DELAY = 0xd;
-_0x1bc0ed.IMPULSE = vec2.make(0.48, 0.915);
-_0x1bc0ed.DRAG = 0.965;
-_0x1bc0ed.FALL_SPEED_MAX = 0.65;
-_0x1bc0ed.FALL_SPEED_ACCEL = 0.095;
-_0x1bc0ed.SPRITE = {};
-_0x1bc0ed.SPRITE_LIST = [{
+HammerObject.ASYNC = true;
+HammerObject.ID = 0xa3;
+HammerObject.NAME = "HAMMER PROJECTILE";
+HammerObject.ANIMATION_RATE = 0x2;
+HammerObject.SOFFSET = vec2.make(-0.25, -0.25);
+HammerObject.THROW_DELAY = 0xd;
+HammerObject.IMPULSE = vec2.make(0.48, 0.915);
+HammerObject.DRAG = 0.965;
+HammerObject.FALL_SPEED_MAX = 0.65;
+HammerObject.FALL_SPEED_ACCEL = 0.095;
+HammerObject.SPRITE = {};
+HammerObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
     'INDEX': 0xdd
@@ -5452,65 +5509,65 @@ _0x1bc0ed.SPRITE_LIST = [{
     'ID': 0x3,
     'INDEX': 0xde
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x1bc0ed.SPRITE_LIST.length; _0x1bec55++) _0x1bc0ed.SPRITE[_0x1bc0ed.SPRITE_LIST[_0x1bec55].NAME] = _0x1bc0ed.SPRITE_LIST[_0x1bec55], _0x1bc0ed.SPRITE[_0x1bc0ed.SPRITE_LIST[_0x1bec55].ID] = _0x1bc0ed.SPRITE_LIST[_0x1bec55];
-_0x1bc0ed.STATE = {};
-_0x1bc0ed.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < HammerObject.SPRITE_LIST.length; _0x1bec55++) HammerObject.SPRITE[HammerObject.SPRITE_LIST[_0x1bec55].NAME] = HammerObject.SPRITE_LIST[_0x1bec55], HammerObject.SPRITE[HammerObject.SPRITE_LIST[_0x1bec55].ID] = HammerObject.SPRITE_LIST[_0x1bec55];
+HammerObject.STATE = {};
+HammerObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x1bc0ed.SPRITE.IDLE0]
+    'SPRITE': [HammerObject.SPRITE.IDLE0]
 }, {
     'NAME': "THROW",
     'ID': 0x1,
-    'SPRITE': [_0x1bc0ed.SPRITE.IDLE0, _0x1bc0ed.SPRITE.IDLE1, _0x1bc0ed.SPRITE.IDLE2, _0x1bc0ed.SPRITE.IDLE3]
+    'SPRITE': [HammerObject.SPRITE.IDLE0, HammerObject.SPRITE.IDLE1, HammerObject.SPRITE.IDLE2, HammerObject.SPRITE.IDLE3]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x1bc0ed.STATE_LIST.length; _0x1bec55++) _0x1bc0ed.STATE[_0x1bc0ed.STATE_LIST[_0x1bec55].NAME] = _0x1bc0ed.STATE_LIST[_0x1bec55], _0x1bc0ed.STATE[_0x1bc0ed.STATE_LIST[_0x1bec55].ID] = _0x1bc0ed.STATE_LIST[_0x1bec55];
-_0x1bc0ed.prototype.update = function(_0x2be6f1) {};
-_0x1bc0ed.prototype.step = function() {
+for (_0x1bec55 = 0x0; _0x1bec55 < HammerObject.STATE_LIST.length; _0x1bec55++) HammerObject.STATE[HammerObject.STATE_LIST[_0x1bec55].NAME] = HammerObject.STATE_LIST[_0x1bec55], HammerObject.STATE[HammerObject.STATE_LIST[_0x1bec55].ID] = HammerObject.STATE_LIST[_0x1bec55];
+HammerObject.prototype.update = function(_0x2be6f1) {};
+HammerObject.prototype.step = function() {
     this.anim++;
-    this.sprite = this.state.SPRITE[parseInt(this.anim / _0x1bc0ed.ANIMATION_RATE) % this.state.SPRITE.length];
-    0x0 < this.throwTimer ? this.throwTimer-- : (this.state === _0x1bc0ed.STATE.IDLE && this.throw(), this.physics(), this.interaction(), 0x0 > this.pos.y && this.destroy());
+    this.sprite = this.state.SPRITE[parseInt(this.anim / HammerObject.ANIMATION_RATE) % this.state.SPRITE.length];
+    0x0 < this.throwTimer ? this.throwTimer-- : (this.state === HammerObject.STATE.IDLE && this.throw(), this.physics(), this.interaction(), 0x0 > this.pos.y && this.destroy());
 };
-_0x1bc0ed.prototype.physics = function() {
-    this.moveSpeed *= _0x1bc0ed.DRAG;
-    this.fallSpeed = Math.max(this.fallSpeed - _0x1bc0ed.FALL_SPEED_ACCEL, -_0x1bc0ed.FALL_SPEED_MAX);
+HammerObject.prototype.physics = function() {
+    this.moveSpeed *= HammerObject.DRAG;
+    this.fallSpeed = Math.max(this.fallSpeed - HammerObject.FALL_SPEED_ACCEL, -HammerObject.FALL_SPEED_MAX);
     this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed));
 };
-_0x1bc0ed.prototype.interaction = function() {
-    if (this.state === _0x1bc0ed.STATE.THROW) {
+HammerObject.prototype.interaction = function() {
+    if (this.state === HammerObject.STATE.THROW) {
         var _0xb52b5e = this.game.getPlayer();
         _0xb52b5e && _0xb52b5e.isTangible() && _0xb52b5e.level === this.level && _0xb52b5e.zone === this.zone && squar.intersection(_0xb52b5e.pos, _0xb52b5e.dim, this.pos, this.dim) && _0xb52b5e.damage(this);
     }
 };
-_0x1bc0ed.prototype.throw = function() {
-    this.moveSpeed = this.dir ? _0x1bc0ed.IMPULSE.x : -_0x1bc0ed.IMPULSE.x;
-    this.fallSpeed = _0x1bc0ed.IMPULSE.y;
-    this.setState(_0x1bc0ed.STATE.THROW);
+HammerObject.prototype.throw = function() {
+    this.moveSpeed = this.dir ? HammerObject.IMPULSE.x : -HammerObject.IMPULSE.x;
+    this.fallSpeed = HammerObject.IMPULSE.y;
+    this.setState(HammerObject.STATE.THROW);
 };
-_0x1bc0ed.prototype.playerCollide = function(_0x2db29c) {};
-_0x1bc0ed.prototype.playerStomp = function(_0xa5f3c4) {};
-_0x1bc0ed.prototype.playerBump = function(_0x255468) {};
-_0x1bc0ed.prototype.kill = function() {};
-_0x1bc0ed.prototype.destroy = GameObject.prototype.destroy;
-_0x1bc0ed.prototype.isTangible = GameObject.prototype.isTangible;
-_0x1bc0ed.prototype.setState = function(_0x5c3f79) {
+HammerObject.prototype.playerCollide = function(_0x2db29c) {};
+HammerObject.prototype.playerStomp = function(_0xa5f3c4) {};
+HammerObject.prototype.playerBump = function(_0x255468) {};
+HammerObject.prototype.kill = function() {};
+HammerObject.prototype.destroy = GameObject.prototype.destroy;
+HammerObject.prototype.isTangible = GameObject.prototype.isTangible;
+HammerObject.prototype.setState = function(_0x5c3f79) {
     _0x5c3f79 !== this.state && (this.state = _0x5c3f79, this.sprite = _0x5c3f79.SPRITE[0x0], this.anim = 0x0);
 };
-_0x1bc0ed.prototype.draw = function(_0x4db511) {
+HammerObject.prototype.draw = function(_0x4db511) {
     if (this.sprite.INDEX instanceof Array)
         for (var _0x452daa = this.sprite.INDEX, _0x4a6d8c = 0x0; _0x4a6d8c < _0x452daa.length; _0x4a6d8c++)
             for (var _0x3a08a0 = 0x0; _0x3a08a0 < _0x452daa[_0x4a6d8c].length; _0x3a08a0++) _0x4db511.push({
-                'pos': vec2.add(vec2.add(this.pos, _0x1bc0ed.SOFFSET), vec2.make(_0x3a08a0, _0x4a6d8c)),
+                'pos': vec2.add(vec2.add(this.pos, HammerObject.SOFFSET), vec2.make(_0x3a08a0, _0x4a6d8c)),
                 'reverse': false,
                 'index': _0x452daa[_0x4a6d8c][_0x3a08a0]
             });
     else _0x4db511.push({
-        'pos': vec2.add(this.pos, _0x1bc0ed.SOFFSET),
+        'pos': vec2.add(this.pos, HammerObject.SOFFSET),
         'reverse': this.dir,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
 };
-GameObject.REGISTER_OBJECT(_0x1bc0ed);
+GameObject.REGISTER_OBJECT(HammerObject);
 "use strict";
 
 function PowerUpObject(_0x23b738, _0x46c7a3, _0x118fd6, _0xb55197, _0x48d8ac) {
