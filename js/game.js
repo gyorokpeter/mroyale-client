@@ -3284,7 +3284,7 @@ PlayerObject.prototype.pipe = function(_0x157842, _0x266382, _0x3f3ba4) {
 PlayerObject.prototype.weedeat = function() {
     for (var _0x5cc521 = 0x0; _0x5cc521 < this.game.objects.length; _0x5cc521++) {
         var _0x526625 = this.game.objects[_0x5cc521];
-        _0x526625 instanceof _0xa70071 && !_0x526625.dead && vec2.distance(this.pos, _0x526625.pos) < PlayerObject.WEED_EAT_RADIUS && _0x526625.destroy();
+        _0x526625 instanceof PiranhaPlantObject && !_0x526625.dead && vec2.distance(this.pos, _0x526625.pos) < PlayerObject.WEED_EAT_RADIUS && _0x526625.destroy();
     }
 };
 PlayerObject.prototype.pole = function(_0x4a8021) {
@@ -4032,31 +4032,33 @@ _0x5e412e.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(_0x5e412e);
 "use strict";
 
-function _0xa70071(_0x2b798e, _0x51f029, _0x309b8b, _0x6b74f, _0x5cdcce, _0x3c9788) {
-    GameObject.call(this, _0x2b798e, _0x51f029, _0x309b8b, vec2.add(_0x6b74f, vec2.make(0.6, 0x0)));
-    this.oid = _0x5cdcce;
-    this.variant = isNaN(parseInt(_0x3c9788)) ? 0x0 : parseInt(_0x3c9788);
-    this.setState(_0xa70071.STATE.IDLE);
+function PiranhaPlantObject(game, level, zone, pos, oid, variant, direction) {
+    GameObject.call(this, game, level, zone, vec2.add(pos, vec2.make(0.6, 0x0)));
+    this.oid = oid;
+    this.variant = isNaN(parseInt(variant)) ? 0x0 : parseInt(variant);
+    this.direction = isNaN(parseInt(direction)) ? 0x0 : parseInt(direction);
+    if (this.direction) this.pos = vec2.add(this.pos, vec2.make(0,0.5));
+    this.setState(PiranhaPlantObject.STATE.IDLE);
     this.bonkTimer = this.anim = 0x0;
     this.loc = [vec2.copy(this.pos), vec2.add(this.pos, vec2.make(0x0, -1.5))];
     this.dim = vec2.make(0.8, 0x1);
     this.dir = this.fallSpeed = this.moveSpeed = 0x0;
 }
-_0xa70071.ASYNC = false;
-_0xa70071.ID = 0x16;
-_0xa70071.NAME = "UNSPELLABLE PLANT";
-_0xa70071.ANIMATION_RATE = 0x3;
-_0xa70071.VARIANT_OFFSET = 0x20;
-_0xa70071.SOFFSET = vec2.make(-0.1, 0x0);
-_0xa70071.BONK_TIME = 0x5a;
-_0xa70071.BONK_IMP = vec2.make(0.25, 0.4);
-_0xa70071.BONK_DECEL = 0.925;
-_0xa70071.BONK_FALL_SPEED = 0.5;
-_0xa70071.FALL_SPEED_ACCEL = 0.085;
-_0xa70071.WAIT_TIME = 0x19;
-_0xa70071.TRAVEL_SPEED = 0.05;
-_0xa70071.SPRITE = {};
-_0xa70071.SPRITE_LIST = [{
+PiranhaPlantObject.ASYNC = false;
+PiranhaPlantObject.ID = 0x16;
+PiranhaPlantObject.NAME = "UNSPELLABLE PLANT";
+PiranhaPlantObject.ANIMATION_RATE = 0x3;
+PiranhaPlantObject.VARIANT_OFFSET = 0x20;
+PiranhaPlantObject.SOFFSET = vec2.make(-0.1, 0x0);
+PiranhaPlantObject.BONK_TIME = 0x5a;
+PiranhaPlantObject.BONK_IMP = vec2.make(0.25, 0.4);
+PiranhaPlantObject.BONK_DECEL = 0.925;
+PiranhaPlantObject.BONK_FALL_SPEED = 0.5;
+PiranhaPlantObject.FALL_SPEED_ACCEL = 0.085;
+PiranhaPlantObject.WAIT_TIME = 0x19;
+PiranhaPlantObject.TRAVEL_SPEED = 0.05;
+PiranhaPlantObject.SPRITE = {};
+PiranhaPlantObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
     'INDEX': [
@@ -4071,87 +4073,89 @@ _0xa70071.SPRITE_LIST = [{
         [0x5b]
     ]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0xa70071.SPRITE_LIST.length; _0x1bec55++) _0xa70071.SPRITE[_0xa70071.SPRITE_LIST[_0x1bec55].NAME] = _0xa70071.SPRITE_LIST[_0x1bec55], _0xa70071.SPRITE[_0xa70071.SPRITE_LIST[_0x1bec55].ID] = _0xa70071.SPRITE_LIST[_0x1bec55];
-_0xa70071.STATE = {};
-_0xa70071.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < PiranhaPlantObject.SPRITE_LIST.length; _0x1bec55++) PiranhaPlantObject.SPRITE[PiranhaPlantObject.SPRITE_LIST[_0x1bec55].NAME] = PiranhaPlantObject.SPRITE_LIST[_0x1bec55], PiranhaPlantObject.SPRITE[PiranhaPlantObject.SPRITE_LIST[_0x1bec55].ID] = PiranhaPlantObject.SPRITE_LIST[_0x1bec55];
+PiranhaPlantObject.STATE = {};
+PiranhaPlantObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0xa70071.SPRITE.IDLE0, _0xa70071.SPRITE.IDLE1]
+    'SPRITE': [PiranhaPlantObject.SPRITE.IDLE0, PiranhaPlantObject.SPRITE.IDLE1]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0xa70071.STATE_LIST.length; _0x1bec55++) _0xa70071.STATE[_0xa70071.STATE_LIST[_0x1bec55].NAME] = _0xa70071.STATE_LIST[_0x1bec55], _0xa70071.STATE[_0xa70071.STATE_LIST[_0x1bec55].ID] = _0xa70071.STATE_LIST[_0x1bec55];
-_0xa70071.prototype.update = function(_0x5c481f) {
+for (_0x1bec55 = 0x0; _0x1bec55 < PiranhaPlantObject.STATE_LIST.length; _0x1bec55++) PiranhaPlantObject.STATE[PiranhaPlantObject.STATE_LIST[_0x1bec55].NAME] = PiranhaPlantObject.STATE_LIST[_0x1bec55], PiranhaPlantObject.STATE[PiranhaPlantObject.STATE_LIST[_0x1bec55].ID] = PiranhaPlantObject.STATE_LIST[_0x1bec55];
+PiranhaPlantObject.prototype.update = function(_0x5c481f) {
     switch (_0x5c481f) {
         case 0x1:
             this.bonk();
     }
 };
-_0xa70071.prototype.step = function() {
-    this.state === _0xa70071.STATE.BONK ? this.bonkTimer++ > _0xa70071.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0xa70071.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0xa70071.FALL_SPEED_ACCEL, -_0xa70071.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0xa70071.ANIMATION_RATE) % this.state.SPRITE.length], 0x0 < --this.waitTimer || (this.control(), this.physics(), this.sound()));
+PiranhaPlantObject.prototype.step = function() {
+    this.state === PiranhaPlantObject.STATE.BONK ? this.bonkTimer++ > PiranhaPlantObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= PiranhaPlantObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - PiranhaPlantObject.FALL_SPEED_ACCEL, -PiranhaPlantObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / PiranhaPlantObject.ANIMATION_RATE) % this.state.SPRITE.length], 0x0 < --this.waitTimer || (this.control(), this.physics(), this.sound()));
 };
-_0xa70071.prototype.control = function() {};
-_0xa70071.prototype.physics = function() {
+PiranhaPlantObject.prototype.control = function() {};
+PiranhaPlantObject.prototype.physics = function() {
     var _0x3e7dc7 = this.loc[this.dir ? 0x0 : 0x1];
-    vec2.distance(this.pos, _0x3e7dc7) <= _0xa70071.TRAVEL_SPEED ? (this.pos = _0x3e7dc7, this.dir = !this.dir, this.waitTimer = _0xa70071.WAIT_TIME) : this.pos = vec2.add(this.pos, vec2.scale(vec2.normalize(vec2.subtract(_0x3e7dc7, this.pos)), _0xa70071.TRAVEL_SPEED));
+    vec2.distance(this.pos, _0x3e7dc7) <= PiranhaPlantObject.TRAVEL_SPEED ? (this.pos = _0x3e7dc7, this.dir = !this.dir, this.waitTimer = PiranhaPlantObject.WAIT_TIME) : this.pos = vec2.add(this.pos, vec2.scale(vec2.normalize(vec2.subtract(_0x3e7dc7, this.pos)), PiranhaPlantObject.TRAVEL_SPEED));
 };
-_0xa70071.prototype.sound = GameObject.prototype.sound;
-_0xa70071.prototype.damage = function(_0x508a32) {
+PiranhaPlantObject.prototype.sound = GameObject.prototype.sound;
+PiranhaPlantObject.prototype.damage = function(_0x508a32) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0xa70071.prototype.bonk = function() {
-    this.dead || (this.setState(_0xa70071.STATE.BONK), this.moveSpeed = _0xa70071.BONK_IMP.x, this.fallSpeed = _0xa70071.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+PiranhaPlantObject.prototype.bonk = function() {
+    this.dead || (this.setState(PiranhaPlantObject.STATE.BONK), this.moveSpeed = PiranhaPlantObject.BONK_IMP.x, this.fallSpeed = PiranhaPlantObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
 };
-_0xa70071.prototype.playerCollide = function(_0x3bb251) {
+PiranhaPlantObject.prototype.playerCollide = function(_0x3bb251) {
     this.dead || this.garbage || _0x3bb251.damage(this);
 };
-_0xa70071.prototype.playerStomp = function(_0x8423cf) {
+PiranhaPlantObject.prototype.playerStomp = function(_0x8423cf) {
     this.dead || this.garbage || _0x8423cf.damage(this);
 };
-_0xa70071.prototype.playerBump = function(_0x321a69) {
+PiranhaPlantObject.prototype.playerBump = function(_0x321a69) {
     this.dead || this.garbage || _0x321a69.damage(this);
 };
-_0xa70071.prototype.kill = function() {};
-_0xa70071.prototype.destroy = GameObject.prototype.destroy;
-_0xa70071.prototype.isTangible = GameObject.prototype.isTangible;
-_0xa70071.prototype.setState = function(_0x3f1709) {
+PiranhaPlantObject.prototype.kill = function() {};
+PiranhaPlantObject.prototype.destroy = GameObject.prototype.destroy;
+PiranhaPlantObject.prototype.isTangible = GameObject.prototype.isTangible;
+PiranhaPlantObject.prototype.setState = function(_0x3f1709) {
     _0x3f1709 !== this.state && (this.state = _0x3f1709, 0x0 < _0x3f1709.SPRITE.length && (this.sprite = _0x3f1709.SPRITE[0x0]), this.anim = 0x0);
 };
-_0xa70071.prototype.draw = function(_0x18fbd3) {
-    var _0x1227df;
-    _0x1227df = this.state === _0xa70071.STATE.BONK ? 0x3 : 0x0;
-    if (this.sprite.INDEX instanceof Array)
-        for (var _0x272181 = this.sprite.INDEX, _0x4bdd3b = 0x0; _0x4bdd3b < _0x272181.length; _0x4bdd3b++)
-            for (var _0x3c8e54 = 0x0; _0x3c8e54 < _0x272181[_0x4bdd3b].length; _0x3c8e54++) {
-                var _0x29f699 = _0x272181[_0x1227df ? _0x272181.length - 0x1 - _0x4bdd3b : _0x4bdd3b][_0x3c8e54];
+PiranhaPlantObject.prototype.draw = function(spriteList) {
+    var mode;
+    mode = (this.direction ^ this.state === PiranhaPlantObject.STATE.BONK) ? 0x3 : 0x0;
+    if (this.sprite.INDEX instanceof Array) {
+        var idxs = this.sprite.INDEX;
+        for (var i = 0x0; i < idxs.length; i++)
+            for (var j = 0x0; j < idxs[i].length; j++) {
+                var idx = idxs[mode ? idxs.length - 0x1 - i : i][j];
                 switch (this.variant) {
                     case 0x1:
-                        _0x29f699 += _0xa70071.VARIANT_OFFSET;
+                        idx += PiranhaPlantObject.VARIANT_OFFSET;
                 }
-                _0x18fbd3.push({
-                    'pos': vec2.add(vec2.add(this.pos, vec2.make(_0x3c8e54, _0x4bdd3b)), _0xa70071.SOFFSET),
+                spriteList.push({
+                    'pos': vec2.add(vec2.add(this.pos, vec2.make(j, i)), PiranhaPlantObject.SOFFSET),
                     'reverse': !this.dir,
-                    'index': _0x29f699,
-                    'mode': _0x1227df
+                    'index': idx,
+                    'mode': mode
                 });
-            } else {
-                _0x29f699 = this.sprite.INDEX;
-                switch (this.variant) {
-                    case 0x1:
-                        _0x29f699 += _0xa70071.VARIANT_OFFSET;
-                }
-                _0x18fbd3.push({
-                    'pos': vec2.add(this.pos, _0xa70071.SOFFSET),
-                    'reverse': !this.dir,
-                    'index': _0x29f699,
-                    'mode': _0x1227df
-                });
-            }
+            } 
+    } else {
+        idx = this.sprite.INDEX;
+        switch (this.variant) {
+            case 0x1:
+                idx += PiranhaPlantObject.VARIANT_OFFSET;
+        }
+        spriteList.push({
+            'pos': vec2.add(this.pos, PiranhaPlantObject.SOFFSET),
+            'reverse': !this.dir,
+            'index': idx,
+            'mode': mode
+        });
+    }
 };
-_0xa70071.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0xa70071);
+PiranhaPlantObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(PiranhaPlantObject);
 "use strict";
 
 function _0x25ddce(_0x171be9, _0x49adc1, _0x3c512b, _0xf8ff83, _0x140a9f, _0x26dec7, _0x3b38a6) {
