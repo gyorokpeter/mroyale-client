@@ -380,10 +380,10 @@ img {
   display:inline-block;
   width: 16px;
   height: 16px;
-  margin: 10px;
+  margin: 30px;
   border:2px solid black;
   background: url('../img/game/smb_skin0.png') -208px 0px;
-  transform:scale(2);
+  transform:scale(4);
 }
 
 .skin-select {
@@ -391,11 +391,10 @@ img {
     -webkit-flex-wrap: wrap; /* Safari 6.1+ */
     display: flex;
     flex-wrap: wrap;
-    width: 440px;
-    margin-top: 80px;
+    width: 880px;
+    margin: 20px;
     margin-left: auto;
     margin-right: auto;
-    transform: scale(2);
     background-color: rgb(0,0,0,0);
 }
 
@@ -488,9 +487,9 @@ img {
 }
 
 .pagination {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, 400%);
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
 }
 .pagination,
 .pagination * {

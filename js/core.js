@@ -1,17 +1,19 @@
 (function($) {
     var pagify = {
         items: {},
-        container: null,
-        totalPages: 1,
-        perPage: 3,
-        currentPage: 0,
-        createNavigation: function() {
-            this.totalPages = Math.ceil(this.items.length / this.perPage);
+        container: {},
+        totalPages: {},
+        perPage: {},
+        currentPage: {},
+        navigator: {},
+        pageNavigator: {},
+        createNavigation: function(id) {
+            this.totalPages[id] = Math.ceil(this.items[id].length / this.perPage[id]);
 
-            $('.pagination', this.container.parent()).remove();
+            $('#'+id+"-pagination", this.container[id].parent()).remove();
             var pagination = $('<div class="pagination"></div>').append('<a class="nav prev disabled" data-next="false"><</a>');
 
-            for (var i = 0; i < this.totalPages; i++) {
+            for (var i = 0; i < this.totalPages[id]; i++) {
                 var pageElClass = "page";
                 if (!i)
                     pageElClass = "page current";
@@ -21,79 +23,85 @@
                 pagination.append(pageEl);
             }
             pagination.append('<a class="nav next" data-next="true">></a>');
-
-            this.container.after(pagination);
+            var pgId = id+"-pagination";
+            pagination.attr("id", pgId);
+            this.container[id].after(pagination);
 
             var that = this;
-            $("body").off("click", ".nav");
-            this.navigator = $("body").on("click", ".nav", function() {
+            $("#"+pgId).off("click", ".nav");
+            this.navigator[id] = $("#"+pgId).on("click", ".nav", function() {
                 var el = $(this);
-                that.navigate(el.data("next"));
+                that.navigate(id, el.data("next"));
             });
 
-            $("body").off("click", ".page");
-            this.pageNavigator = $("body").on("click", ".page", function() {
+            $("#"+pgId).off("click", ".page");
+            this.pageNavigator[id] = $("#"+pgId).on("click", ".page", function() {
                 var el = $(this);
-                that.goToPage(el.data("page"));
+                that.goToPage(id, el.data("page"));
             });
         },
-        navigate: function(next) {
-            // default perPage to 5
+        navigate: function(id, next) {
+            // default perPage[id] to 5
             if (isNaN(next) || next === undefined) {
                 next = true;
             }
-            $(".pagination .nav").removeClass("disabled");
+            var pgId = id+"-pagination";
+            $("#"+pgId+" > .nav").removeClass("disabled");
             if (next) {
-                this.currentPage++;
-                if (this.currentPage > (this.totalPages - 1))
-                    this.currentPage = (this.totalPages - 1);
-                if (this.currentPage == (this.totalPages - 1))
-                    $(".pagination .nav.next").addClass("disabled");
+                this.currentPage[id]++;
+                if (this.currentPage[id] > (this.totalPages[id] - 1))
+                    this.currentPage[id] = (this.totalPages[id] - 1);
+                if (this.currentPage[id] == (this.totalPages[id] - 1))
+                    $("#"+pgId+" > .nav.next").addClass("disabled");
                 }
             else {
-                this.currentPage--;
-                if (this.currentPage < 0)
-                    this.currentPage = 0;
-                if (this.currentPage == 0)
-                    $(".pagination .nav.prev").addClass("disabled");
+                this.currentPage[id]--;
+                if (this.currentPage[id] < 0)
+                    this.currentPage[id] = 0;
+                if (this.currentPage[id] == 0)
+                    $("#"+pgId+" > .nav.prev").addClass("disabled");
                 }
 
-            this.showItems();
+            this.showItems(id);
         },
-        updateNavigation: function() {
+        updateNavigation: function(id) {
 
-            var pages = $(".pagination .page");
+            var pgId = id+"-pagination";
+            var pages = $("#"+pgId+" > .page");
             pages.removeClass("current");
-            $('.pagination .page[data-page="' + (
-            this.currentPage + 1) + '"]').addClass("current");
+            $("#"+pgId+" > .page[data-page=\"" + (
+            this.currentPage[id] + 1) + '"]').addClass("current");
         },
-        goToPage: function(page) {
+        goToPage: function(id, page) {
 
-            this.currentPage = page - 1;
+            var pgId = id+"-pagination";
+            this.currentPage[id] = page - 1;
 
-            $(".pagination .nav").removeClass("disabled");
-            if (this.currentPage == (this.totalPages - 1))
-                $(".pagination .nav.next").addClass("disabled");
+            $("#"+pgId+" > .nav").removeClass("disabled");
+            if (this.currentPage[id] == (this.totalPages[id] - 1))
+                $("#"+pgId+" > .nav.next").addClass("disabled");
 
-            if (this.currentPage == 0)
-                $(".pagination .nav.prev").addClass("disabled");
-            this.showItems();
+            if (this.currentPage[id] == 0)
+                $("#"+pgId+" > .nav.prev").addClass("disabled");
+            this.showItems(id);
         },
-        showItems: function() {
-            this.items.hide();
-            var base = this.perPage * this.currentPage;
-            this.items.slice(base, base + this.perPage).show();
+        showItems: function(id) {
+            this.items[id].hide();
+            var base = this.perPage[id] * this.currentPage[id];
+            this.items[id].slice(base, base + this.perPage[id]).show();
 
-            this.updateNavigation();
+            this.updateNavigation(id);
         },
         init: function(container, items, perPage) {
-            this.container = container;
-            this.currentPage = 0;
-            this.totalPages = 1;
-            this.perPage = perPage;
-            this.items = items;
-            this.createNavigation();
-            this.showItems();
+            var id = container.attr("id");
+            gg = this;
+            this.container[id] = container;
+            this.currentPage[id] = 0;
+            this.totalPages[id] = 1;
+            this.perPage[id] = perPage;
+            this.items[id] = items;
+            this.createNavigation(id);
+            this.showItems(id);
         }
     };
 

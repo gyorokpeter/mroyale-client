@@ -1563,6 +1563,8 @@ function genAddSkinButton(screen) {
         elem.addEventListener("click", (function(a){return function() {genSelectSkin(screen, a);};})(i));
         document.getElementById(screen.skinButtonPrefix).appendChild(elem);
     }
+    $("#"+screen.skinButtonPrefix).pagify(33, ".skin-select-button");
+    $("#"+screen.skinButtonPrefix+"-pagination").pagify(10, ".page");
 }
 
 function NameScreen() {
@@ -1733,7 +1735,6 @@ NameScreen.prototype.show = function() {
     }
     if ($("#skin-select div").length === 0) {
         genAddSkinButton(this);
-        $("#skin-select").pagify(33, ".skin-select-button");
     }
     this.selectSkin(savedSkin ? parseInt(savedSkin) : 0);
     this.updPrivateBtn();
@@ -1773,7 +1774,6 @@ ProfileScreen.prototype.show = function(data) {
     this.squadInput.value = data["squad"];
     if ($("#profile-skin-select div").length === 0) {
         genAddSkinButton(this);
-        $("#profile-skin-select").pagify(33, ".skin-select-button");
     }
     genSelectSkin(this, data["skin"]);
     this.reportError("");
