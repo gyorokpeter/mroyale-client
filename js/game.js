@@ -3352,12 +3352,14 @@ PlayerObject.prototype.draw = function(spriteList) {
                     'reverse': this.reverse,
                     'index': _0x5814e0[_0x3f6b38][_0x13a17a],
                     'skin': this.skin,
+                    'pid': this.pid,
                     'mode': 0x0
                 }), spriteList.push({
                     'pos': vec2.add(vec2.add(this.pos, PlayerObject.DIM_OFFSET), vec2.make(this.reverse ? _0x13a17a : -_0x13a17a, _0x3f6b38)),
                     'reverse': this.reverse,
                     'index': _0x5814e0[_0x3f6b38][_0x13a17a],
                     'skin': this.skin,
+                    'pid': this.pid,
                     'mode': _0x5c9425
                 });
         else 0x2 === _0x5c9425 && spriteList.push({
@@ -3365,12 +3367,14 @@ PlayerObject.prototype.draw = function(spriteList) {
             'reverse': this.reverse,
             'index': this.sprite.INDEX,
             'skin': this.skin,
+            'pid': this.pid,
             'mode': 0x0
         }), spriteList.push({
             'pos': vec2.add(this.pos, PlayerObject.DIM_OFFSET),
             'reverse': this.reverse,
             'index': this.sprite.INDEX,
             'skin': this.skin,
+            'pid': this.pid,
             'mode': _0x5c9425
         });
         0x0 < this.arrowFade && (_0x5c9425 = 0xa0 + parseInt(0x20 * this.arrowFade), spriteList.push({
@@ -6935,10 +6939,12 @@ Display.prototype.drawObject = function() {
     skinTextures[0] = this.resource.getTexture("skin0");
     for (var i = 0x0; i < spriteList.length; i++) {
         var sprite = spriteList[i];
-        if (sprite.skin && !(sprite.skin in skinTextures))
-            skinTextures[sprite.skin] = this.resource.getTexture("skin"+sprite.skin);
-        var currObjTexture = (sprite.skin != undefined) ? skinTextures[sprite.skin] : objTexture;
-        if (sprite.skin && currObjTexture === undefined) currObjTexture = skinTextures[0];
+        var skin = sprite.skin;
+        if (this.game.forcemodel && sprite.pid !== undefined && sprite.pid != this.game.pid) skin = 0;
+        if (skin && !(skin in skinTextures))
+            skinTextures[skin] = this.resource.getTexture("skin"+skin);
+        var currObjTexture = (skin != undefined) ? skinTextures[skin] : objTexture;
+        if (skin && currObjTexture === undefined) currObjTexture = skinTextures[0];
         var ti = sprite.index; OBJ_ANIMATION
         if (ti in OBJ_ANIMATION_FILTERED) {
             var anim = OBJ_ANIMATION_FILTERED[ti];
@@ -7015,6 +7021,7 @@ Display.prototype.drawEffect = function() {
         _0x237ab1.restore();
     }
 };
+HudButtonOffset = 0x18 + 0x8;
 Display.prototype.drawUI = function() {
     var context = this.context,
         canvasWidth = this.canvas.width,
@@ -7023,6 +7030,7 @@ Display.prototype.drawUI = function() {
         soundIconIndex = [0xfc, 0xfa],
         musicIconIndex = [0xfb, 0xf9],
         nameIconIndex = [0xcb, 0xca],
+        forcemodelIconIndex = [0xcb, 0xca],
         coinIconIndex = coinIconIndices[parseInt(this.game.frame / 0x3) % coinIconIndices.length],
         objTexture = this.resource.getTexture("obj"),
         skinTexture = this.game.skin != undefined ? this.resource.getTexture("skin" + this.game.skin) : objTexture;
@@ -7127,15 +7135,18 @@ Display.prototype.drawUI = function() {
             txtWidth = context.measureText(txt).width;
             context.fillText(txt, (canvasWidth / 2) - (txtWidth / 2), 0x60);
         }
-        sprite = util.sprite.getSprite(objTexture, musicIconIndex[app.audio.muteMusic ? 0x1 : 0x0]);
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8, 0x28, 0x18, 0x18);
-        sprite = util.sprite.getSprite(objTexture, soundIconIndex[app.audio.muteSound ? 0x1 : 0x0]);
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
-        sprite = util.sprite.getSprite(objTexture, nameIconIndex[this.game.disableText ? 0x1 : 0x0]);
-        context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
+        var off = 0;
+        var drawIcon = function(index, onoff) {
+            off += HudButtonOffset;
+            sprite = util.sprite.getSprite(objTexture, index[onoff ? 0x1 : 0x0]);
+            context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - off, 0x28, 0x18, 0x18);
+        }
+        drawIcon(musicIconIndex, app.audio.muteMusic);
+        drawIcon(soundIconIndex, app.audio.muteSound);
+        drawIcon(nameIconIndex, this.game.disableText);
+        drawIcon(forcemodelIconIndex, this.game.forcemodel);
         if (this.game.input.pad.connected()) {
-            sprite = util.sprite.getSprite(objTexture, 0xf8);
-            context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28, 0x18, 0x18);
+            drawIcon([0xf8], false);
         }
     }
 };
@@ -7410,6 +7421,7 @@ function Game(data) {
     this.touchRun = false;
     this.fillSS = this.cullSS = undefined;
     this.disableText = 0x1 === parseInt(Cookies.get("text"));
+    this.forcemodel = 0x1 === parseInt(Cookies.get("forcemodel"));
     this.victory = this.coins = this.lives = this.remain = 0x0;
     this.victoryMusic = false;
     this.gameOverTimer = this.rate = 0x0;
@@ -7674,12 +7686,12 @@ Game.prototype.doStart = function() {
 };
 
 Game.prototype.doDetermine = function() {
-    var _0xfab5c9 = this.input.pop();
-    0x0 < _0xfab5c9.touch.length ? this.touchMode = true : 0x0 < _0xfab5c9.keyboard.length && (this.touchMode = false);
-    this.touchMode ? this.doTouch(_0xfab5c9) : this.doInput(_0xfab5c9);
+    var lastInput = this.input.pop();
+    0x0 < lastInput.touch.length ? this.touchMode = true : 0x0 < lastInput.keyboard.length && (this.touchMode = false);
+    this.touchMode ? this.doTouch(lastInput) : this.doInput(lastInput);
 };
 
-Game.prototype.doTouch = function(_0x52fc25) {
+Game.prototype.doTouch = function(lastInput) {
     var _0x258db7 = this.input,
         _0x330893 = this.getPlayer();
     this.display.camera.scale = 0x2;
@@ -7689,75 +7701,90 @@ Game.prototype.doTouch = function(_0x52fc25) {
         this.touchFull = true;
     }
     var game = this;
-    for (_0x597311 = this.display.canvas.width, _0x174be8 = this.display.canvas.height, _0x1e64f1 = false, _0x34471a = false, _0x597311 = [{
-            'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0x55),
-            'dim': vec2.make(0x55, 0x55),
-            'press': function() {
-                _0x1e64f1 = true;
-            }
-        }, {
-            'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0xaa),
-            'dim': vec2.make(0x55, 0x55),
-            'press': function() {
-                _0x34471a = true;
-            }
-        }, {
-            'pos': vec2.make(_0x597311 - 0x55, _0x174be8 - 0xff),
-            'dim': vec2.make(0x55, 0x55),
-            'click': function() {
-                game.touchRun = !game.touchRun;
-            }
-        }, {
-            'pos': vec2.make(_0x597311 - 0x18 - 0x8, 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                app.audio.muteMusic = !app.audio.muteMusic;
-                if (app.audioElement !== undefined)
-                    if (app.audio.muteMusic)
-                        app.audioElement.pause();
-                    else
-                        app.audioElement.play();
-                app.audio.saveSettings();
-            }
-        }, {
-            'pos': vec2.make(_0x597311 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                app.audio.muteSound = !app.audio.muteSound;
-                app.audio.saveSettings();
-            }
-        }, {
-            'pos': vec2.make(_0x597311 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                this.disableText = !this.disableText;
-                Cookies.set("text", game.disableText ? 0x1 : 0x0, {
-                    'expires': 0x1e
-                });
-            }
-        }, {
-            'pos': vec2.make(_0x597311 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                app.net.send({
-                    'code': (location.search.split('mcode=')[1] || '').split('&')[0],
-                    'type': "g51"
-                });
-            }
-        }], _0x3308c9, _0x174be8 = 0x0; _0x174be8 < _0x258db7.touch.pos.length; _0x174be8++) {
+    var canvasWidth = this.display.canvas.width
+    var canvasHeight = this.display.canvas.height;
+    var touchAPressed = false;
+    var touchBPressed = false;
+    var off = 0;
+    var triggers = [{
+        'pos': vec2.make(canvasWidth - 0x55, canvasHeight - 0x55),
+        'dim': vec2.make(0x55, 0x55),
+        'press': function() {
+            touchAPressed = true;
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - 0x55, canvasHeight - 0xaa),
+        'dim': vec2.make(0x55, 0x55),
+        'press': function() {
+            touchBPressed = true;
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - 0x55, canvasHeight - 0xff),
+        'dim': vec2.make(0x55, 0x55),
+        'click': function() {
+            game.touchRun = !game.touchRun;
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+        'dim': vec2.make(0x18, 0x18),
+        'click': function() {
+            app.audio.muteMusic = !app.audio.muteMusic;
+            if (app.audioElement !== undefined)
+                if (app.audio.muteMusic)
+                    app.audioElement.pause();
+                else
+                    app.audioElement.play();
+            app.audio.saveSettings();
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+        'dim': vec2.make(0x18, 0x18),
+        'click': function() {
+            app.audio.muteSound = !app.audio.muteSound;
+            app.audio.saveSettings();
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+        'dim': vec2.make(0x18, 0x18),
+        'click': function() {
+            this.disableText = !this.disableText;
+            Cookies.set("text", game.disableText ? 0x1 : 0x0, {
+                'expires': 0x1e
+            });
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+        'dim': vec2.make(0x18, 0x18),
+        'click': function() {
+            this.forcemodel = !this.forcemodel;
+            Cookies.set("forcemodel", game.forcemodel ? 0x1 : 0x0, {
+                'expires': 0x1e
+            });
+        }
+    }, {
+        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+        'dim': vec2.make(0x18, 0x18),
+        'click': function() {
+            app.net.send({
+                'code': (location.search.split('mcode=')[1] || '').split('&')[0],
+                'type': "g51"
+            });
+        }
+    }];
+    for (_0x3308c9, _0x174be8 = 0x0; _0x174be8 < _0x258db7.touch.pos.length; _0x174be8++) {
         var _0x182f56 = _0x258db7.touch.pos[_0x174be8];
         if (this.thumbId === _0x182f56.id) _0x3308c9 = _0x182f56, this.thumbId = _0x182f56.id, this.thumbPos = _0x182f56;
         else
-            for (_0x174be8 = 0x0; _0x174be8 < _0x597311.length; _0x174be8++) {
-                var _0x287903 = _0x597311[_0x174be8];
+            for (_0x174be8 = 0x0; _0x174be8 < triggers.length; _0x174be8++) {
+                var _0x287903 = triggers[_0x174be8];
                 squar.inside(_0x182f56, _0x287903.pos, _0x287903.dim) && _0x287903.press && _0x287903.press();
             }
     }
-    for (_0x174be8 = 0x0; _0x174be8 < _0x52fc25.touch.length; _0x174be8++) {
-        _0x182f56 = _0x52fc25.touch[_0x174be8];
+    for (_0x174be8 = 0x0; _0x174be8 < lastInput.touch.length; _0x174be8++) {
+        _0x182f56 = lastInput.touch[_0x174be8];
         _0x258db7 = false;
-        for (_0x174be8 = 0x0; _0x174be8 < _0x597311.length; _0x174be8++)
-            if (_0x287903 = _0x597311[_0x174be8], squar.inside(_0x182f56, _0x287903.pos, _0x287903.dim)) {
+        for (_0x174be8 = 0x0; _0x174be8 < triggers.length; _0x174be8++)
+            if (_0x287903 = triggers[_0x174be8], squar.inside(_0x182f56, _0x287903.pos, _0x287903.dim)) {
                 _0x258db7 = true;
                 _0x287903.click && _0x287903.click();
                 break;
@@ -7765,22 +7792,21 @@ Game.prototype.doTouch = function(_0x52fc25) {
     }
     var _0x36041a;
     if (_0x3308c9) {
-        _0x52fc25 = Math.min(0x40, vec2.distance(this.thumbPos, this.thumbOrigin));
+        var _0x52fc25 = Math.min(0x40, vec2.distance(this.thumbPos, this.thumbOrigin));
         var _0x3d0185 = vec2.normalize(vec2.subtract(this.thumbPos, this.thumbOrigin));
         _0x36041a = vec2.scale(_0x3d0185, _0x52fc25 / 0x40);
         this.thumbPos = vec2.add(this.thumbOrigin, vec2.scale(_0x3d0185, _0x52fc25));
     } else this.thumbPos = this.thumbOrigin = this.thumbId = undefined;
-    _0x330893 && _0x3d0185 ? (_0x3d0185 = [0x0, 0x0], 0.33 < _0x36041a.x && _0x3d0185[0x0]++, -0.33 > _0x36041a.x && _0x3d0185[0x0]--, 0.33 < _0x36041a.y && _0x3d0185[0x1]--, -0.33 > _0x36041a.y && _0x3d0185[0x1]++, _0x330893.input(_0x3d0185, _0x1e64f1, this.touchRun ? !_0x34471a : _0x34471a)) : _0x330893 && _0x330893.input([0x0, 0x0], _0x1e64f1, this.touchRun ? !_0x34471a : _0x34471a);
+    _0x330893 && _0x3d0185 ? (_0x3d0185 = [0x0, 0x0], 0.33 < _0x36041a.x && _0x3d0185[0x0]++, -0.33 > _0x36041a.x && _0x3d0185[0x0]--, 0.33 < _0x36041a.y && _0x3d0185[0x1]--, -0.33 > _0x36041a.y && _0x3d0185[0x1]++, _0x330893.input(_0x3d0185, touchAPressed, this.touchRun ? !touchBPressed : touchBPressed)) : _0x330893 && _0x330893.input([0x0, 0x0], touchAPressed, this.touchRun ? !touchBPressed : touchBPressed);
 };
 
-Game.prototype.doInput = function(_0x585e08) {
+Game.prototype.doInput = function(lastInput) {
     this.input.pad.update();
     var input = this.input,
         mouse = this.input.mouse,
         keys = this.input.keyboard.keys,
         pad = this.input.pad;
     this.inx27 = keys[0x1b];
-    var _0x5b7c6b;
     var player = this.getPlayer();
     if (player) {
         var abtnD = [0x0, 0x0];
@@ -7799,45 +7825,62 @@ Game.prototype.doInput = function(_0x585e08) {
         }
         player.input(abtnD, abtnA, abtnB, abtnTA);
         var game = this;
-        for (_0xa25dbe = this.display.canvas.width, _0x42b147 = [{
-                'pos': vec2.make(_0xa25dbe - 0x18 - 0x8, 0x28),
-                'dim': vec2.make(0x18, 0x18),
-                'click': function() {
-                    app.audio.muteMusic = !app.audio.muteMusic;
-                    if (app.audioElement !== undefined)
-                        if (app.audio.muteMusic)
-                            app.audioElement.pause();
-                        else
-                            app.audioElement.play();
-                    app.audio.saveSettings();
-                }
-            }, {
-                'pos': vec2.make(_0xa25dbe - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
-                'dim': vec2.make(0x18, 0x18),
-                'click': function() {
-                    app.audio.muteSound = !app.audio.muteSound;
-                    app.audio.saveSettings();
-                }
-            }, {
-                'pos': vec2.make(_0xa25dbe - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
-                'dim': vec2.make(0x18, 0x18),
-                'click': function() {
-                    game.disableText = !game.disableText;
-                    Cookies.set("text", game.disableText ? 0x1 : 0x0, {
-                        'expires': 0x1e
-                    });
-                }
-            }, {
-                'pos': vec2.make(_0xa25dbe - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8 - 0x18 - 0x8, 0x28),
-                'dim': vec2.make(0x18, 0x18),
-                'click': function() {
-                    app.net.send({
-                        'code': (location.search.split('mcode=')[1] || '').split('&')[0],
-                        'type': "g51"
-                    });
-                }
-            }], _0x5b7c6b = 0x0; _0x5b7c6b < _0x585e08.mouse.length; _0x5b7c6b++)
-            for (var _0x133972 = _0x585e08.mouse[_0x5b7c6b], _0x306656 = 0x0; _0x306656 < _0x42b147.length; _0x306656++) _0xa25dbe = _0x42b147[_0x306656], 0x0 === _0x133972.btn && squar.inside(_0x133972.pos, _0xa25dbe.pos, _0xa25dbe.dim) && _0xa25dbe.click();
+        var off = 0;
+        var canvasWidth = this.display.canvas.width;
+        var hudButtons = [{
+            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+            'dim': vec2.make(0x18, 0x18),
+            'click': function() {
+                app.audio.muteMusic = !app.audio.muteMusic;
+                if (app.audioElement !== undefined)
+                    if (app.audio.muteMusic)
+                        app.audioElement.pause();
+                    else
+                        app.audioElement.play();
+                app.audio.saveSettings();
+            }
+        }, {
+            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+            'dim': vec2.make(0x18, 0x18),
+            'click': function() {
+                app.audio.muteSound = !app.audio.muteSound;
+                app.audio.saveSettings();
+            }
+        }, {
+            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+            'dim': vec2.make(0x18, 0x18),
+            'click': function() {
+                game.disableText = !game.disableText;
+                Cookies.set("text", game.disableText ? 0x1 : 0x0, {
+                    'expires': 0x1e
+                });
+            }
+        }, {
+            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+            'dim': vec2.make(0x18, 0x18),
+            'click': function() {
+                game.forcemodel = !game.forcemodel;
+                Cookies.set("forcemodel", game.forcemodel ? 0x1 : 0x0, {
+                    'expires': 0x1e
+                });
+            }
+        }, {
+            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
+            'dim': vec2.make(0x18, 0x18),
+            'click': function() {
+                app.net.send({
+                    'code': (location.search.split('mcode=')[1] || '').split('&')[0],
+                    'type': "g51"
+                });
+            }
+        }];
+        for (var i = 0x0; i < lastInput.mouse.length; i++) {
+            var mouse = lastInput.mouse[i];
+            for (var i = 0x0; i < hudButtons.length; i++) {
+                var hudButton = hudButtons[i];
+                if (0x0 === mouse.btn && squar.inside(mouse.pos, hudButton.pos, hudButton.dim)) hudButton.click();
+            }
+        }
     }
 };
 
