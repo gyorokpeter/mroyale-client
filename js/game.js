@@ -7030,7 +7030,7 @@ Display.prototype.drawUI = function() {
         soundIconIndex = [0xfc, 0xfa],
         musicIconIndex = [0xfb, 0xf9],
         nameIconIndex = [0xcb, 0xca],
-        forcemodelIconIndex = [0xcb, 0xca],
+        forcemodelIconIndex = [0xc8, 0xc9],
         coinIconIndex = coinIconIndices[parseInt(this.game.frame / 0x3) % coinIconIndices.length],
         objTexture = this.resource.getTexture("obj"),
         skinTexture = this.game.skin != undefined ? this.resource.getTexture("skin" + this.game.skin) : objTexture;
