@@ -45,9 +45,9 @@
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@realMarioRoyale" />
 
-        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.4.7'>
-        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.4.7'>
-        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.4.7'>
+        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.4.8'>
+        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.4.8'>
+        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.4.8'>
         <script>
           /* Prevent phones from zooming screen. The webapp handles this. */
           document.addEventListener('touchmove', function(event) {
@@ -71,7 +71,7 @@
         </div>
         <div class="link-l">
           <div class="rtfpn2"></div>
-          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.4.7')" style="display:none;">v3.4.7 Patch Notes</div>
+          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.4.8')" style="display:none;">v3.4.8 Patch Notes</div>
         </div>
         <div class="link-w">
           <div id='win' class="win" style="display:none;"></div>
@@ -80,7 +80,7 @@
           <div class="rtfpn"></div>
           <div>
               <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
-              <div class="link-con" onclick="window.open('./control.html?v=3.4.7')"></div>
+              <div class="link-con" onclick="window.open('./control.html?v=3.4.8')"></div>
           </div>
         </div>
           <div class="link-s">
@@ -280,6 +280,19 @@
             <input type="file" id="levelSelectInput" name="levelSelectInput[]" />
         </div>
         <div id="levelSelectCustomResult" class="levelSelectRow">&nbsp;</div>
+        <div class='dis-lg'>GFX Test</div>
+        <div class="levelSelectRow">
+            <div id="gfxTestSkin" class='levelSelectButton'>Skin</div>
+            <input type="file" id="gfxTestSkinInput" name="gfxTestSkinInput" />
+        </div>
+        <div class="levelSelectRow">
+            <div id="gfxTestMap" class='levelSelectButton'>Map</div>
+            <input type="file" id="gfxTestMapInput" name="gfxTestMapInput" />
+        </div>
+        <div class="levelSelectRow">
+            <div id="gfxTestObj" class='levelSelectButton'>Obj</div>
+            <input type="file" id="gfxTestObjInput" name="gfxTestObjInput" />
+        </div>
       </div>
 
       <!-- Dev Console -->
@@ -310,6 +323,6 @@
       <script src='js/lib/cookie/js.cookie.min.js'></script>
 
       <!-- Core -->
-      <script src='js/core.js?v=3.4.7'></script>
+      <script src='js/core.js?v=3.4.8'></script>
     </body>
 </html>

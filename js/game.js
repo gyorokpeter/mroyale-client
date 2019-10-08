@@ -1580,10 +1580,19 @@ function NameScreen() {
     this.gmBtn = document.getElementById("name-gm-change");
     this.launchBtn = document.getElementById("name-launch");
     this.padLoop = undefined;
+    this.overrideSkinImg = undefined;
+    this.overrideMapImg = undefined;
+    this.overrideObjImg = undefined;
     this.skinButtonPrefix = "skin-select";
     var that = this;
     var elem = document.getElementById("levelSelectInput");
     elem.addEventListener("change", (function(){return function(event) {that.customLevelFileChangeHandler(this, event);};})());
+    elem = document.getElementById("gfxTestSkinInput");
+    elem.addEventListener("change", (function(){return function(event) {that.gfxTestSkinInputChangeHandler(this, event);};})());
+    elem = document.getElementById("gfxTestMapInput");
+    elem.addEventListener("change", (function(){return function(event) {that.gfxTestMapInputChangeHandler(this, event);};})());
+    elem = document.getElementById("gfxTestObjInput");
+    elem.addEventListener("change", (function(){return function(event) {that.gfxTestObjInputChangeHandler(this, event);};})());
     this.launchBtn.onclick = function() {
         that.launch();
     };
@@ -1690,17 +1699,65 @@ NameScreen.prototype.updateLevelSelectButton = function(name) {
     }
     elem.style["border-color"] = "white";
     this.currLevelSelectButton = elem;
-}
+};
 
-NameScreen.prototype.customLevelFileChangeHandler = function(elem, event) {
+function uploadFile(binary, event, callback) {
     var files = event.target.files;
     if (files.length == 0) return;
     var reader = new FileReader();
     reader.onload = function(event) {
-        app.net.send({'type':'gsl', 'name':'custom', 'data':event.target.result});
+        callback(event.target.result);
     }
-    reader.readAsText(files[0]);
+    var file = files[0];
+    if (binary)
+        reader.readAsBinaryString(file);
+    else
+        reader.readAsText(file);
+};
+
+NameScreen.prototype.customLevelFileChangeHandler = function(elem, event) {
+    uploadFile(false, event, function(result){app.net.send({'type':'gsl', 'name':'custom', 'data':result});});
+};
+
+NameScreen.prototype.gfxTestSkinInputChangeHandler = function(elem, event) {
+    var that = this;
+    uploadFile(true, event, function(result){that.setTestSkinImg(result);});
+};
+
+NameScreen.prototype.gfxTestMapInputChangeHandler = function(elem, event) {
+    var that = this;
+    uploadFile(true, event, function(result){that.setTestMapImg(result);});
+};
+
+NameScreen.prototype.gfxTestObjInputChangeHandler = function(elem, event) {
+    var that = this;
+    uploadFile(true, event, function(result){that.setTestObjImg(result);});
+};
+
+function makeImageFromData(data) {
+    var img = document.createElement('img');
+    d_data = data;
+    img.src = "data:image/png;base64," + btoa(data);
+    return img;
 }
+
+NameScreen.prototype.setTestSkinImg = function(data) {
+    var img = makeImageFromData(data);
+    this.overrideSkinImg = img;
+    app.game.display.resource.texture.cache["skin"+app.game.skin] = img;
+};
+
+NameScreen.prototype.setTestMapImg = function(data) {
+    var img = makeImageFromData(data);
+    this.overrideMapImg = img;
+    app.game.display.resource.texture.cache["map"] = img;
+};
+
+NameScreen.prototype.setTestObjImg = function(data) {
+    var img = makeImageFromData(data);
+    this.overrideObjImg = img;
+    app.game.display.resource.texture.cache["obj"] = img;
+};
 
 NameScreen.prototype.launch = function() {
     Cookies.set("name", this.nameInput.value, {
@@ -6491,6 +6548,16 @@ Resource.prototype.addTexture=function(res) {
 }
 Resource.prototype.loadTexture=function(res){
     var texture=this.texture;
+    if (app.menu.name.overrideSkinImg && res.id == "skin"+app.game.skin) {
+        texture.cache[res.id] = app.menu.name.overrideSkinImg;
+        return;
+    } else if (app.menu.name.overrideMapImg && res.id == "map") {
+        texture.cache[res.id] = app.menu.name.overrideMapImg;
+        return;
+    } else if (app.menu.name.overrideObjImg && res.id == "obj") {
+        texture.cache[res.id] = app.menu.name.overrideObjImg;
+        return;
+    }
     if(!texture.cache[res.id] && !this.pendingTexture.includes(res.id)){
         this.pendingTexture.push(res.id);
         var img=new Image();
