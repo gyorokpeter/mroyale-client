@@ -1580,9 +1580,6 @@ function NameScreen() {
     this.gmBtn = document.getElementById("name-gm-change");
     this.launchBtn = document.getElementById("name-launch");
     this.padLoop = undefined;
-    this.overrideSkinImg = undefined;
-    this.overrideMapImg = undefined;
-    this.overrideObjImg = undefined;
     this.skinButtonPrefix = "skin-select";
     var that = this;
     var elem = document.getElementById("levelSelectInput");
@@ -1593,6 +1590,14 @@ function NameScreen() {
     elem.addEventListener("change", (function(){return function(event) {that.gfxTestMapInputChangeHandler(this, event);};})());
     elem = document.getElementById("gfxTestObjInput");
     elem.addEventListener("change", (function(){return function(event) {that.gfxTestObjInputChangeHandler(this, event);};})());
+
+    elem = document.getElementById("gfxTestSkinRemove");
+    elem.addEventListener("click", (function(){return function(event) {that.gfxTestSkinRemove(event);};})());
+    elem = document.getElementById("gfxTestMapRemove");
+    elem.addEventListener("click", (function(){return function(event) {that.gfxTestMapRemove(event);};})());
+    elem = document.getElementById("gfxTestObjRemove");
+    elem.addEventListener("click", (function(){return function(event) {that.gfxTestObjRemove(event);};})());
+
     this.launchBtn.onclick = function() {
         that.launch();
     };
@@ -1734,6 +1739,30 @@ NameScreen.prototype.gfxTestObjInputChangeHandler = function(elem, event) {
     uploadFile(true, event, function(result){that.setTestObjImg(result);});
 };
 
+NameScreen.prototype.gfxTestSkinRemove = function(event) {
+    if (!app.overrideSkinImg) return;
+    app.overrideSkinImg = undefined;
+    delete localStorage["overrideSkinImg"];
+    delete app.game.display.resource.texture.cache["skin"+app.game.skin];
+    app.game.display.resource.loadTexture(app.game.display.resource.texture.res["skin"+app.game.skin]);
+};
+
+NameScreen.prototype.gfxTestMapRemove = function(event) {
+    if (!app.overrideMapImg) return;
+    app.overrideMapImg = undefined;
+    delete localStorage["overrideMapImg"];
+    delete app.game.display.resource.texture.cache["map"];
+    app.game.display.resource.loadTexture(app.game.display.resource.texture.res["map"]);
+};
+
+NameScreen.prototype.gfxTestObjRemove = function(event) {
+    if (!app.overrideObjImg) return;
+    app.overrideObjImg = undefined;
+    delete localStorage["overrideObjImg"];
+    delete app.game.display.resource.texture.cache["obj"];
+    app.game.display.resource.loadTexture(app.game.display.resource.texture.res["obj"]);
+};
+
 function makeImageFromData(data) {
     var img = document.createElement('img');
     d_data = data;
@@ -1743,19 +1772,22 @@ function makeImageFromData(data) {
 
 NameScreen.prototype.setTestSkinImg = function(data) {
     var img = makeImageFromData(data);
-    this.overrideSkinImg = img;
+    localStorage["overrideSkinImg"] = data;
+    app.overrideSkinImg = img;
     app.game.display.resource.texture.cache["skin"+app.game.skin] = img;
 };
 
 NameScreen.prototype.setTestMapImg = function(data) {
     var img = makeImageFromData(data);
-    this.overrideMapImg = img;
+    localStorage["overrideMapImg"] = data;
+    app.overrideMapImg = img;
     app.game.display.resource.texture.cache["map"] = img;
 };
 
 NameScreen.prototype.setTestObjImg = function(data) {
     var img = makeImageFromData(data);
-    this.overrideObjImg = img;
+    localStorage["overrideObjImg"] = data;
+    app.overrideObjImg = img;
     app.game.display.resource.texture.cache["obj"] = img;
 };
 
@@ -6528,6 +6560,7 @@ Input.prototype.destroy=function(){
 function Resource(resource){
     this.texture={};
     this.texture.cache={};
+    this.texture.res={};
     this.pendingTexture=[];
     this.texture.load=0x0;
     this.load(resource);
@@ -6548,14 +6581,15 @@ Resource.prototype.addTexture=function(res) {
 }
 Resource.prototype.loadTexture=function(res){
     var texture=this.texture;
-    if (app.menu.name.overrideSkinImg && res.id == "skin"+app.game.skin) {
-        texture.cache[res.id] = app.menu.name.overrideSkinImg;
+    texture.res[res.id] = res;
+    if (app.overrideSkinImg && res.id.includes("skin")) {
+        texture.cache[res.id] = app.overrideSkinImg;
         return;
-    } else if (app.menu.name.overrideMapImg && res.id == "map") {
-        texture.cache[res.id] = app.menu.name.overrideMapImg;
+    } else if (app.overrideMapImg && res.id == "map") {
+        texture.cache[res.id] = app.overrideMapImg;
         return;
-    } else if (app.menu.name.overrideObjImg && res.id == "obj") {
-        texture.cache[res.id] = app.menu.name.overrideObjImg;
+    } else if (app.overrideObjImg && res.id == "obj") {
+        texture.cache[res.id] = app.overrideObjImg;
         return;
     }
     if(!texture.cache[res.id] && !this.pendingTexture.includes(res.id)){
@@ -7114,7 +7148,7 @@ ingameGuiButtons = [    //right to left
                 'expires': 0x1e
             });
         }},
-    {"name": "showSettings",  "iconIndex": [0xc9], "padMode": false, 'click': function() {
+    {"name": "showSettings",  "iconIndex": [0xeb], "padMode": false, 'click': function() {
         app.settings.showSettings = !app.settings.showSettings;
         document.getElementById("settingsPanel").style.display = app.settings.showSettings?"":"none";
     }},
@@ -8276,6 +8310,9 @@ function App() {
     this.god = false;
     this.reborn = false;
     this.fly = false;
+    this.overrideSkinImg = "overrideSkinImg" in localStorage ? makeImageFromData(localStorage["overrideSkinImg"]) : undefined;
+    this.overrideMapImg = "overrideMapImg" in localStorage ? makeImageFromData(localStorage["overrideMapImg"]) : undefined;
+    this.overrideObjImg = "overrideObjImg" in localStorage ? makeImageFromData(localStorage["overrideObjImg"]) : undefined;
     this.settings = {};
     this.settings.muteMusic = 0x1 === parseInt(Cookies.get("music"));
     this.settings.muteSound = 0x1 === parseInt(Cookies.get("sound"));
