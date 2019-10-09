@@ -6730,14 +6730,12 @@ SpatialSoundFile.prototype.loop = SoundFile.prototype.loop;
 SpatialSoundFile.prototype.done = SoundFile.prototype.done;
 "use strict";
 
-function Audio() {
-    this.initWebAudio() || this.initFallback();
-    this.muteMusic = 0x1 === parseInt(Cookies.get("music"));
-    this.muteSound = 0x1 === parseInt(Cookies.get("sound"));
+function Audio(app) {
+    this.initWebAudio(app) || this.initFallback();
 }
 Audio.FALLOFF_MIN = 0x1;
 Audio.FALLOFF_MAX = 0x18;
-Audio.prototype.initWebAudio = function() {
+Audio.prototype.initWebAudio = function(app) {
     try {
         this.context = new(window.AudioContext || window.webkitAudioContext)();
     } catch (exception) {
@@ -6760,8 +6758,8 @@ Audio.prototype.initWebAudio = function() {
     this.musicVolume.gain.value = 0x1;
     this.musicVolume.connect(this.masterVolume);
     this.masterVolume.gain.value = 0.5;
-    this.effectVolume.gain.value = this.muteSound ? 0x0 : 0.75;
-    this.musicVolume.gain.value = this.muteMusic ? 0x0 : 0.5;
+    this.effectVolume.gain.value = app.settings.muteSound ? 0x0 : 0.75;
+    this.musicVolume.gain.value = app.settings.muteMusic ? 0x0 : 0.5;
     this.context.listener.setPosition(0x0, 0x0, 0x0);
     this.context.listener.setOrientation(0x1, 0x0, 0x0, 0x0, 0x1, 0x0);
     return true;
@@ -6778,9 +6776,9 @@ Audio.prototype.update = function() {
 };
 Audio.prototype.updateVolume = function() {
     this.masterVolume.gain.value = 0.5;
-    this.effectVolume.gain.value = this.muteSound ? 0x0 : 0.75;
-    this.musicVolume.gain.value = this.muteMusic ? 0x0 : 0.5;
-    if (!this.muteSound && !this.muteMusic) {
+    this.effectVolume.gain.value = app.settings.muteSound ? 0x0 : 0.75;
+    this.musicVolume.gain.value = app.settings.muteMusic ? 0x0 : 0.5;
+    if (!app.settings.muteSound && !app.settings.muteMusic) {
         for (var _0x1f6806 = app.game.getZone(), _0x1bcd11 = app.game.getPlayer() ? app.game.getPlayer().pos : app.game.display.camera.pos, _0x4531dc = 0x3e7, _0x9aa837 = 0x0; _0x9aa837 < app.game.objects.length; _0x9aa837++) {
             var _0x21a62e = app.game.objects[_0x9aa837];
             if (_0x21a62e instanceof PlayerObject && _0x21a62e.level === _0x1f6806.level && _0x21a62e.zone === _0x1f6806.id && 0x0 < _0x21a62e.starTimer) {
@@ -6792,10 +6790,10 @@ Audio.prototype.updateVolume = function() {
     }
 };
 Audio.prototype.saveSettings = function() {
-    Cookies.set("music", this.muteMusic ? 0x1 : 0x0, {
+    Cookies.set("music", app.settings.muteMusic ? 0x1 : 0x0, {
         'expires': 0x1e
     });
-    Cookies.set("sound", this.muteSound ? 0x1 : 0x0, {
+    Cookies.set("sound", app.settings.muteSound ? 0x1 : 0x0, {
         'expires': 0x1e
     });
 };
@@ -6993,7 +6991,7 @@ Display.prototype.drawObject = function() {
             obj.pid !== this.game.pid &&
             obj.pos.x >= leftEdge &&
             obj.pos.x <= rightEdge &&
-            (obj.write && !this.game.disableText && obj.write(textList),
+            (obj.write && !app.settings.disableText && obj.write(textList),
             obj.draw && obj.draw(spriteList));
     }
     var player = this.game.getPlayer();
@@ -7007,7 +7005,7 @@ Display.prototype.drawObject = function() {
     for (var i = 0x0; i < spriteList.length; i++) {
         var sprite = spriteList[i];
         var skin = sprite.skin;
-        if (this.game.forcemodel && sprite.pid !== undefined && sprite.pid != this.game.pid) skin = 0;
+        if (app.settings.forcemodel && sprite.pid !== undefined && sprite.pid != this.game.pid) skin = 0;
         if (skin && !(skin in skinTextures))
             skinTextures[skin] = this.resource.getTexture("skin"+skin);
         var currObjTexture = (skin != undefined) ? skinTextures[skin] : objTexture;
@@ -7089,15 +7087,45 @@ Display.prototype.drawEffect = function() {
     }
 };
 HudButtonOffset = 0x18 + 0x8;
+
+ingameGuiButtons = [    //right to left
+    {"name": "music",         "iconIndex": [0xfb, 0xf9], "padMode": false, "settingName": "muteMusic", "click":function() {
+            app.settings.muteMusic = !app.settings.muteMusic;
+            if (app.audioElement !== undefined)
+                if (app.settings.muteMusic)
+                    app.audioElement.pause();
+                else
+                    app.audioElement.play();
+            app.audio.saveSettings();
+        }},
+    {"name": "sound",         "iconIndex": [0xfc, 0xfa], "padMode": false, "settingName": "muteSound", 'click': function() {
+            app.settings.muteSound = !app.settings.muteSound;
+            app.audio.saveSettings();
+        }},
+    {"name": "text",          "iconIndex": [0xcb, 0xca], "padMode": false, "settingName": "disableText", 'click': function() {
+            app.settings.disableText = !app.settings.disableText;
+            Cookies.set("text", app.settings.disableText ? 0x1 : 0x0, {
+                'expires': 0x1e
+            });
+        }},
+    {"name": "forcemodel",    "iconIndex": [0xc8, 0xc9], "padMode": false, "settingName": "forcemodel", 'click': function() {
+            app.settings.forcemodel = !app.settings.forcemodel;
+            Cookies.set("forcemodel", app.settings.forcemodel ? 0x1 : 0x0, {
+                'expires': 0x1e
+            });
+        }},
+    {"name": "showSettings",  "iconIndex": [0xc9], "padMode": false, 'click': function() {
+        app.settings.showSettings = !app.settings.showSettings;
+        document.getElementById("settingsPanel").style.display = app.settings.showSettings?"":"none";
+    }},
+    {"name": "pad",           "iconIndex": [0xf8],       "padMode": true }
+];
+
 Display.prototype.drawUI = function() {
     var context = this.context,
         canvasWidth = this.canvas.width,
         canvasHeight = this.canvas.height,
         coinIconIndices = [0xf0, 0xf1, 0xf2, 0xf1],
-        soundIconIndex = [0xfc, 0xfa],
-        musicIconIndex = [0xfb, 0xf9],
-        nameIconIndex = [0xcb, 0xca],
-        forcemodelIconIndex = [0xc8, 0xc9],
         coinIconIndex = coinIconIndices[parseInt(this.game.frame / 0x3) % coinIconIndices.length],
         objTexture = this.resource.getTexture("obj"),
         skinTexture = this.game.skin != undefined ? this.resource.getTexture("skin" + this.game.skin) : objTexture;
@@ -7208,12 +7236,9 @@ Display.prototype.drawUI = function() {
             sprite = util.sprite.getSprite(objTexture, index[onoff ? 0x1 : 0x0]);
             context.drawImage(objTexture, sprite[0x0], sprite[0x1], Display.TEXRES, Display.TEXRES, canvasWidth - off, 0x28, 0x18, 0x18);
         }
-        drawIcon(musicIconIndex, app.audio.muteMusic);
-        drawIcon(soundIconIndex, app.audio.muteSound);
-        drawIcon(nameIconIndex, this.game.disableText);
-        drawIcon(forcemodelIconIndex, this.game.forcemodel);
-        if (this.game.input.pad.connected()) {
-            drawIcon([0xf8], false);
+        for (var icon of ingameGuiButtons) {
+            if (!icon.padMode || this.game.input.pad.connected())
+                drawIcon(icon.iconIndex, icon.settingName ? app.settings[icon.settingName] : false);
         }
     }
 };
@@ -7468,7 +7493,7 @@ function Game(data) {
     this.display = new Display(this, this.container, this.canvas, data.resource);
     this.display.ensureSkin(app.net.skin);
     if (!(this instanceof LobbyGame) && !(this instanceof JailGame) && app.charMusic && app.net.skin in SKIN_MUSIC_URL) {
-        app.audio.muteMusic = true;
+        app.settings.muteMusic = true;
     }
     this.objects = [];
     this.team = this.pid = undefined;
@@ -7487,8 +7512,6 @@ function Game(data) {
     this.thumbPos = this.thumbOrigin = this.thumbId = undefined;
     this.touchRun = false;
     this.fillSS = this.cullSS = undefined;
-    this.disableText = 0x1 === parseInt(Cookies.get("text"));
-    this.forcemodel = 0x1 === parseInt(Cookies.get("forcemodel"));
     this.victory = this.coins = this.lives = this.remain = 0x0;
     this.victoryMusic = false;
     this.gameOverTimer = this.rate = 0x0;
@@ -7791,52 +7814,6 @@ Game.prototype.doTouch = function(lastInput) {
         'click': function() {
             game.touchRun = !game.touchRun;
         }
-    }, {
-        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-        'dim': vec2.make(0x18, 0x18),
-        'click': function() {
-            app.audio.muteMusic = !app.audio.muteMusic;
-            if (app.audioElement !== undefined)
-                if (app.audio.muteMusic)
-                    app.audioElement.pause();
-                else
-                    app.audioElement.play();
-            app.audio.saveSettings();
-        }
-    }, {
-        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-        'dim': vec2.make(0x18, 0x18),
-        'click': function() {
-            app.audio.muteSound = !app.audio.muteSound;
-            app.audio.saveSettings();
-        }
-    }, {
-        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-        'dim': vec2.make(0x18, 0x18),
-        'click': function() {
-            this.disableText = !this.disableText;
-            Cookies.set("text", game.disableText ? 0x1 : 0x0, {
-                'expires': 0x1e
-            });
-        }
-    }, {
-        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-        'dim': vec2.make(0x18, 0x18),
-        'click': function() {
-            this.forcemodel = !this.forcemodel;
-            Cookies.set("forcemodel", game.forcemodel ? 0x1 : 0x0, {
-                'expires': 0x1e
-            });
-        }
-    }, {
-        'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-        'dim': vec2.make(0x18, 0x18),
-        'click': function() {
-            app.net.send({
-                'code': (location.search.split('mcode=')[1] || '').split('&')[0],
-                'type': "g51"
-            });
-        }
     }];
     for (_0x3308c9, _0x174be8 = 0x0; _0x174be8 < _0x258db7.touch.pos.length; _0x174be8++) {
         var _0x182f56 = _0x258db7.touch.pos[_0x174be8];
@@ -7892,60 +7869,17 @@ Game.prototype.doInput = function(lastInput) {
         }
         player.input(abtnD, abtnA, abtnB, abtnTA);
         var game = this;
-        var off = 0;
         var canvasWidth = this.display.canvas.width;
-        var hudButtons = [{
-            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                app.audio.muteMusic = !app.audio.muteMusic;
-                if (app.audioElement !== undefined)
-                    if (app.audio.muteMusic)
-                        app.audioElement.pause();
-                    else
-                        app.audioElement.play();
-                app.audio.saveSettings();
-            }
-        }, {
-            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                app.audio.muteSound = !app.audio.muteSound;
-                app.audio.saveSettings();
-            }
-        }, {
-            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                game.disableText = !game.disableText;
-                Cookies.set("text", game.disableText ? 0x1 : 0x0, {
-                    'expires': 0x1e
-                });
-            }
-        }, {
-            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                game.forcemodel = !game.forcemodel;
-                Cookies.set("forcemodel", game.forcemodel ? 0x1 : 0x0, {
-                    'expires': 0x1e
-                });
-            }
-        }, {
-            'pos': vec2.make(canvasWidth - (off+=HudButtonOffset), 0x28),
-            'dim': vec2.make(0x18, 0x18),
-            'click': function() {
-                app.net.send({
-                    'code': (location.search.split('mcode=')[1] || '').split('&')[0],
-                    'type': "g51"
-                });
-            }
-        }];
         for (var i = 0x0; i < lastInput.mouse.length; i++) {
             var mouse = lastInput.mouse[i];
-            for (var i = 0x0; i < hudButtons.length; i++) {
-                var hudButton = hudButtons[i];
-                if (0x0 === mouse.btn && squar.inside(mouse.pos, hudButton.pos, hudButton.dim)) hudButton.click();
+            if (0x0 === mouse.btn) {
+                var off = 0;
+                for (var icon of ingameGuiButtons) {
+                    if (!icon.padMode || this.input.pad.connected()) {
+                        off += HudButtonOffset;
+                        if (icon.click && squar.inside(mouse.pos, vec2.make(canvasWidth - (off), 0x28), vec2.make(0x18, 0x18))) icon.click()
+                    }
+                }
             }
         }
     }
@@ -8214,7 +8148,7 @@ function LobbyGame(_0x5a8616) {
         app.audioElement.load;
         app.audioElement.volume = 0.18;
         app.audioElement.loop = true;
-        if (!app.audio.muteMusic)
+        if (!app.settings.muteMusic)
             app.audioElement.play();
     }
 }
@@ -8342,7 +8276,13 @@ function App() {
     this.god = false;
     this.reborn = false;
     this.fly = false;
-    this.audio = new Audio();
+    this.settings = {};
+    this.settings.muteMusic = 0x1 === parseInt(Cookies.get("music"));
+    this.settings.muteSound = 0x1 === parseInt(Cookies.get("sound"));
+    this.settings.disableText = 0x1 === parseInt(Cookies.get("text"));
+    this.settings.forcemodel = 0x1 === parseInt(Cookies.get("forcemodel"));
+    this.settings.showSettings = false;
+    this.audio = new Audio(this);
     this.players = [];
     if (0x1 !== parseInt(Cookies.get("music")))
         this.audioElement.play();
