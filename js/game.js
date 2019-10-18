@@ -844,6 +844,7 @@ NETX.decode = function(/* Uint8Array */ data) {
             case 0x18 : { de.push(NET018.decode(data.slice(i, i+=NET018.BYTES-1))); break; }
             case 0x20 : { de.push(NET020.decode(data.slice(i, i+=NET020.BYTES-1))); break; }
             case 0x21 : { de.push(NET021.decode(data.slice(i, i+=NET021.BYTES-1))); break; }
+            case 0x22 : { de.push(NET022.decode(data.slice(i, i+=NET022.BYTES-1))); break; }
             case 0x30 : { de.push(NET030.decode(data.slice(i, i+=NET030.BYTES-1))); break; }
             default : { if(app) { app.menu.warn.show("Error decoding binary data! desig="+desig); } return de; }
         }
@@ -1053,6 +1054,19 @@ NET021.decode = function(/* NET021_SERV */ a) {
     return {
         designation: NET021.DESIGNATION,
         type: a[0]
+    };
+};
+
+var NET022 = {}; // GET_COIN_LB [0x22] // As Uint8Array
+/* ======================================================================================== */
+NET022.DESIGNATION = 0x22;
+NET022.BYTES = 5;
+
+/* Server->>>Client */
+NET022.decode = function(/* NET022_SERV */ a) {
+    return {
+        designation: NET022.DESIGNATION,
+        coins: (a[3] & 0xFF) | ((a[2] << 8) & 0xFF00) | ((a[1] << 16) & 0xFF0000) | ((a[0] << 24) & 0xFF000000)
     };
 };
 
@@ -3028,8 +3042,15 @@ PlayerObject.STATE = [{
     'ID': 0xfe,
     'SPRITE': [PlayerObject.SPRITE.G_DEAD]
 }];
-PlayerObject.prototype.update = function(_0x60d16c) {
-    this.dead || this.garbage || (this.setState(PlayerObject.SNAME.GHOST), this.level = _0x60d16c.level, this.zone = _0x60d16c.zone, this.pos = _0x60d16c.pos, this.sprite = PlayerObject.SPRITE[_0x60d16c.sprite], this.reverse = _0x60d16c.reverse);
+PlayerObject.prototype.update = function(data) {
+    if (!(this.dead || this.garbage)) {
+        this.setState(PlayerObject.SNAME.GHOST);
+        this.level = data.level;
+        this.zone = data.zone;
+        this.pos = data.pos;
+        this.sprite = PlayerObject.SPRITE[data.sprite];
+        this.reverse = data.reverse;
+    }
 };
 PlayerObject.prototype.trigger = function(_0x121f75) {
     switch (_0x121f75) {
@@ -3329,9 +3350,11 @@ PlayerObject.prototype.powerup = function(object) {
         this.star();
         this.game.out.push(NET013.encode(0x2));
         this.rate = 0x43
-    } else if (object instanceof LifeObject)
+    } else if (object instanceof LifeObject) {
+        var zn = this.game.getZone(this.level, this.zone);
+        zn.effects.push(new RisingLabelEffect(this.pos, "1UP"));
         this.game.lifeage();
-    else if (object instanceof CoinObject) {
+    } else if (object instanceof CoinObject) {
         //this.game.addCoin(false, false);  //server side
     } else if (object instanceof GoldFlowerObject) {
         //this.game.addCoin(true, false);   //server side
@@ -3417,9 +3440,14 @@ PlayerObject.prototype.destroy = function() {
 PlayerObject.prototype.isTangible = function() {
     return GameObject.prototype.isTangible.call(this) && !this.isState(PlayerObject.SNAME.HIDE) && 0x0 >= this.pipeDelay;
 };
-PlayerObject.prototype.setState = function(_0x50b226) {
-    _0x50b226 = this.getStateByPowerIndex(_0x50b226, this.power);
-    _0x50b226 !== this.state && (this.state = _0x50b226, 0x0 < _0x50b226.SPRITE.length && (this.sprite = _0x50b226.SPRITE[0x0]), this.dim = _0x50b226.DIM, this.anim = 0x0);
+PlayerObject.prototype.setState = function(stName) {
+    var state = this.getStateByPowerIndex(stName, this.power);
+    if (state !== this.state) {
+        this.state = state;
+        if (0x0 < state.SPRITE.length) this.sprite = state.SPRITE[0x0];
+        this.dim = state.DIM;
+        this.anim = 0x0;
+    }
 };
 PlayerObject.prototype.getStateByPowerIndex = function(_0x40e9b8, _0x2a26f5) {
     for (var _0x445ce9 = 0x0; _0x445ce9 < PlayerObject.STATE.length; _0x445ce9++) {
@@ -6288,7 +6316,7 @@ TempEffect.prototype.step = function() {
 TempEffect.prototype.destroy = function() {
     this.garbage = true;
 };
-TempEffect.prototype.draw = function(_0x47aa2d) {};
+TempEffect.prototype.draw = function(displayList, textList) {};
 "use strict";
 
 function _0x5296e0(_0x4363a0, _0x2e3146) {
@@ -6343,10 +6371,10 @@ _0x5296e0.prototype.step = function() {
     TempEffect.prototype.step.call(this);
 };
 _0x5296e0.prototype.destroy = TempEffect.prototype.destroy;
-_0x5296e0.prototype.draw = function(_0x13ece1) {
+_0x5296e0.prototype.draw = function(displayList, textList) {
     for (var _0x45d009 = 0x0; _0x45d009 < this.bits.length; _0x45d009++) {
         var _0x34d3ce = this.bits[_0x45d009];
-        _0x13ece1.push({
+        displayList.push({
             'tex': "map",
             'ind': this.sprite,
             'pos': _0x34d3ce.pos,
@@ -6381,12 +6409,32 @@ JumpingCoinEffect.prototype.step = function() {
     this.bits[0x0].pos.y=this.life>=JumpingCoinEffect.DOWN_TIME?this.bits[0x0].pos.y+JumpingCoinEffect.MOVE_SPEED:this.bits[0x0].pos.y-JumpingCoinEffect.MOVE_SPEED;
 };
 JumpingCoinEffect.prototype.destroy=TempEffect.prototype.destroy;
-JumpingCoinEffect.prototype.draw=function(_0x198af3){
+JumpingCoinEffect.prototype.draw = function(displayList, textList){
     for(var _0x148e46=0x0;_0x148e46<this.bits.length;_0x148e46++){
         var _0x50b29b=this.bits[_0x148e46];
-        _0x198af3.push({'tex':"obj",'ind':this.sprite,'pos':_0x50b29b.pos,'off':_0x50b29b.so,'rot':0x0,'sp':_0x50b29b.sp,'ss':_0x50b29b.ss});
+        displayList.push({'tex':"obj",'ind':this.sprite,'pos':_0x50b29b.pos,'off':_0x50b29b.so,'rot':0x0,'sp':_0x50b29b.sp,'ss':_0x50b29b.ss});
     }
 };
+
+function RisingLabelEffect(position, label) {  //position : vec2
+    TempEffect.call(this, vec2.add(position,vec2.make(0,0.5)));
+    this.pos.y = Math.min(this.pos.y,12);
+    this.label = label;
+    this.life = RisingLabelEffect.UP_TIME;
+}
+RisingLabelEffect.SPRITE = [0xf4, 0xf5, 0xf6, 0xf7];
+RisingLabelEffect.ANIMATION_RATE = 0x2;
+RisingLabelEffect.MOVE_SPEED = 0.375;
+RisingLabelEffect.UP_TIME = 60;
+RisingLabelEffect.prototype.step = function() {
+    TempEffect.prototype.step.call(this);
+    this.pos.y += 0.025;
+};
+RisingLabelEffect.prototype.destroy=TempEffect.prototype.destroy;
+RisingLabelEffect.prototype.draw = function(displayList, textList){
+    textList.push({pos:this.pos, color:"white", size:0.4, text:this.label});
+};
+
 "use strict";
 function Input(_0x4377d5,_0x141691){
     this.game=_0x4377d5;
@@ -7091,33 +7139,44 @@ Display.prototype.drawObject = function() {
     }
 };
 Display.prototype.drawEffect = function() {
-    var _0x237ab1 = this.context,
-        _0x4635f2 = this.game.getZone(),
-        _0x53436c = _0x4635f2.dimensions(),
-        _0x126d2a = this.resource.getTexture("map"),
-        _0x29ce32 = this.resource.getTexture("obj"),
-        _0x5cb570 = [];
-    _0x4635f2.getEffects(_0x5cb570);
-    for (_0x4635f2 = 0x0; _0x4635f2 < _0x5cb570.length; _0x4635f2++) {
-        var _0x3e945c = _0x5cb570[_0x4635f2],
-            _0x168b34;
-        switch (_0x3e945c.tex) {
+    var context = this.context,
+        zone = this.game.getZone(),
+        dims = zone.dimensions(),
+        mapTexture = this.resource.getTexture("map"),
+        objTexture = this.resource.getTexture("obj"),
+        displayList = [],
+        textList = [];
+    zone.getEffects(displayList, textList);
+    var zoneSize = zone.dimensions();
+    for (var i = 0x0; i < displayList.length; i++) {
+        var eff = displayList[i],
+            tex;
+        switch (eff.tex) {
             case "map":
-                _0x168b34 = _0x126d2a;
+                tex = mapTexture;
                 break;
             case "obj":
-                _0x168b34 = _0x29ce32;
+                tex = objTexture;
         }
-        var _0x8bc3a5 = util.sprite.getSprite(_0x168b34, _0x3e945c.ind);
-        _0x8bc3a5[0x0] = parseInt(_0x8bc3a5[0x0] + _0x3e945c.sp.x * Display.TEXRES);
-        _0x8bc3a5[0x1] = parseInt(_0x8bc3a5[0x1] + _0x3e945c.sp.y * Display.TEXRES);
-        _0x237ab1.save();
-        _0x237ab1.translate(parseInt(Display.TEXRES * _0x3e945c.ss.x * 0.5), parseInt(Display.TEXRES * _0x3e945c.ss.y * 0.5));
-        _0x237ab1.translate(Display.TEXRES * _0x3e945c.pos.x, Display.TEXRES * (_0x53436c.y - _0x3e945c.pos.y - 0x1));
-        _0x237ab1.rotate(_0x3e945c.rot);
-        _0x237ab1.translate(-parseInt(Display.TEXRES * _0x3e945c.ss.x * 0.5), -parseInt(Display.TEXRES * _0x3e945c.ss.y * 0.5));
-        _0x237ab1.drawImage(_0x168b34, _0x8bc3a5[0x0], _0x8bc3a5[0x1], parseInt(Display.TEXRES * _0x3e945c.ss.x), parseInt(Display.TEXRES * _0x3e945c.ss.y), 0x0, 0x0, parseInt(Display.TEXRES * _0x3e945c.ss.x), parseInt(Display.TEXRES * _0x3e945c.ss.y));
-        _0x237ab1.restore();
+        var spr = util.sprite.getSprite(tex, eff.ind);
+        spr[0x0] = parseInt(spr[0x0] + eff.sp.x * Display.TEXRES);
+        spr[0x1] = parseInt(spr[0x1] + eff.sp.y * Display.TEXRES);
+        context.save();
+        context.translate(parseInt(Display.TEXRES * eff.ss.x * 0.5), parseInt(Display.TEXRES * eff.ss.y * 0.5));
+        context.translate(Display.TEXRES * eff.pos.x, Display.TEXRES * (dims.y - eff.pos.y - 0x1));
+        context.rotate(eff.rot);
+        context.translate(-parseInt(Display.TEXRES * eff.ss.x * 0.5), -parseInt(Display.TEXRES * eff.ss.y * 0.5));
+        context.drawImage(tex, spr[0x0], spr[0x1], parseInt(Display.TEXRES * eff.ss.x), parseInt(Display.TEXRES * eff.ss.y), 0x0, 0x0, parseInt(Display.TEXRES * eff.ss.x), parseInt(Display.TEXRES * eff.ss.y));
+        context.restore();
+    }
+    for (var i = 0x0; i < textList.length; i++) {
+        var txt = textList[i];
+        var dispX = Display.TEXRES * txt.pos.x + 0.5 * Display.TEXRES;
+        var dispY = Display.TEXRES * (zoneSize.y - txt.pos.y - 0x1) + 0.5 * Display.TEXRES;
+        context.fillStyle = txt.color,
+        context.font = txt.size * Display.TEXRES + "px SmbWeb",
+        context.textAlign = "center",
+        context.fillText(txt.text, dispX, dispY);
     }
 };
 HudButtonOffset = 0x18 + 0x8;
@@ -7514,8 +7573,8 @@ Zone.prototype.getTiles = function(pos, dim) {
         }
     return result;
 };
-Zone.prototype.getEffects = function(_0x28bee8) {
-    for (var _0x559764 = 0x0; _0x559764 < this.effects.length; _0x559764++) this.effects[_0x559764].draw(_0x28bee8);
+Zone.prototype.getEffects = function(displayList, textList) {
+    for (var i = 0x0; i < this.effects.length; i++) this.effects[i].draw(displayList, textList);
 };
 "use strict";
 
@@ -7695,20 +7754,21 @@ Game.prototype.updatePacket = function(data) {
     }
 };
 
-Game.prototype.doUpdate = function(data) {
-    for(var i=0;i<data.length;i++) {
-        var n = data[i];
-        switch(n.designation) {
-            case 0x02 : { this.doNET002(n); break; }    //ASSIGN_PID
-            case 0x10 : { this.doNET010(n); break; }    //CREATE_PLAYER_OBJECT
-            case 0x11 : { this.doNET011(n); break; }    //KILL_PLAYER_OBJECT
-            case 0x12 : { this.doNET012(n); break; }    //UPDATE_PLAYER_OBJECT
-            case 0x13 : { this.doNET013(n); break; }    //PLAYER_OBJECT_EVENT
-            case 0x17 : { this.doNET017(n); break; }    //PLAYER_KILL_EVENT
-            case 0x18 : { this.doNET018(n); break; }    //PLAYER_RESULT_REQUEST
-            case 0x20 : { this.doNET020(n); break; }    //OBJECT_EVENT_TRIGGER
-            case 0x21 : { this.doNET021(n); break; }    //GET_COIN
-            case 0x30 : { this.doNET030(n); break; }    //TILE_EVENT_TRIGGER
+Game.prototype.doUpdate = function(datas) {
+    for(var i=0;i<datas.length;i++) {
+        var data = datas[i];
+        switch(data.designation) {
+            case 0x02 : { this.doNET002(data); break; }    //ASSIGN_PID
+            case 0x10 : { this.doNET010(data); break; }    //CREATE_PLAYER_OBJECT
+            case 0x11 : { this.doNET011(data); break; }    //KILL_PLAYER_OBJECT
+            case 0x12 : { this.doNET012(data); break; }    //UPDATE_PLAYER_OBJECT
+            case 0x13 : { this.doNET013(data); break; }    //PLAYER_OBJECT_EVENT
+            case 0x17 : { this.doNET017(data); break; }    //PLAYER_KILL_EVENT
+            case 0x18 : { this.doNET018(data); break; }    //PLAYER_RESULT_REQUEST
+            case 0x20 : { this.doNET020(data); break; }    //OBJECT_EVENT_TRIGGER
+            case 0x21 : { this.doNET021(data); break; }    //GET_COIN
+            case 0x22 : { this.doNET022(data); break; }    //GET_COIN_LB
+            case 0x30 : { this.doNET030(data); break; }    //TILE_EVENT_TRIGGER
         }
     }
 };
@@ -7743,10 +7803,10 @@ Game.prototype.doNET011 = function(n) {
     n.pid !== this.pid && ((n = this.getGhost(n.pid)) && n.kill(), this.remain = this.getRemain());
 };
 
-Game.prototype.doNET012 = function(_0x4eb1fd) {
-    if (_0x4eb1fd.pid !== this.pid) {
-        var _0x498b38 = this.getGhost(_0x4eb1fd.pid);
-        _0x498b38 && _0x498b38.update(_0x4eb1fd);
+Game.prototype.doNET012 = function(data) {
+    if (data.pid !== this.pid) {
+        var ghost = this.getGhost(data.pid);
+        if (ghost) ghost.update(data);
     }
 };
 
@@ -7794,6 +7854,12 @@ Game.prototype.doNET020 = function(data) {
 
 Game.prototype.doNET021 = function(data) {
     this.addCoin(data.type, false);
+};
+
+Game.prototype.doNET022 = function(data) {
+    var pl = this.getPlayer();
+    var zn = this.getZone(pl.level, pl.zone);
+    zn.effects.push(new RisingLabelEffect(pl.pos, "coins: "+data.coins));
 };
 
 Game.prototype.doNET030 = function(data) {
