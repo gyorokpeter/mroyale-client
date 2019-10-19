@@ -2450,6 +2450,8 @@ GameState.prototype.handlePacket = function(data) {
             return this.renamePlayer(data), true;
         case "ghu":
             return app.hurryUp(data), true;
+        case "gtk":
+            return app.tick(data), true;
         default:
             return app.ingame() ? app.game.handlePacket(data) : false;
     }
@@ -7307,7 +7309,11 @@ Display.prototype.drawUI = function() {
             txtWidth = context.measureText(txt).width;
             context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20);
         } else if (this.game instanceof LobbyGame) {
-            txt = app.players.length + (this.game.touchMode ? '' : " / 30 PLAYERS");
+            var pc = app.players.length;
+            txt = this.game.touchMode ? pc :
+                "P:"+pc+"/"+app.maxPlayers
+                +" V:"+(pc < app.minPlayers?"??":Math.floor(100*app.votes/pc)+"/"+Math.floor(100*app.voteRateToStart)+"%")
+                +" T:"+app.ticks;
             txtWidth = context.measureText(txt).width;
             context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20);
         }
@@ -8481,6 +8487,14 @@ App.prototype.enrichPlayers = function(id) {
         x.displayName = getPlayerDisplayName(x);
     });
 };
+App.prototype.tick = function(data) {
+    this.ticks = data.ticks;
+    this.votes = data.votes;
+    this.minPlayers = data.minPlayers;
+    this.maxPlayers = data.maxPlayers;
+    this.voteRateToStart = data.voteRateToStart;
+}
+
 var app = new App();
 print("loading game.min.js finished");
 app.init();
