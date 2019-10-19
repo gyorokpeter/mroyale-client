@@ -7312,7 +7312,7 @@ Display.prototype.drawUI = function() {
             var pc = app.players.length;
             txt = this.game.touchMode ? pc :
                 "P:"+pc+"/"+app.maxPlayers
-                +" V:"+(pc < app.minPlayers?"??":Math.floor(100*app.votes/pc)+"/"+Math.floor(100*app.voteRateToStart)+"%")
+                +" V:"+(pc < app.minPlayers?"<"+app.minPlayers+"P":Math.floor(100*app.votes/pc)+"/"+Math.floor(100*app.voteRateToStart)+"%")
                 +" T:"+app.ticks;
             txtWidth = context.measureText(txt).width;
             context.fillText(txt, canvasWidth - txtWidth - 0x8, 0x20);
