@@ -3336,6 +3336,8 @@ PlayerObject.prototype.invuln = function() {
 PlayerObject.prototype.powerupVisual = function(object) {
     if (object instanceof CoinObject)
         this.game.addCoin(false, true);
+    else if (object instanceof GoldFlowerObject)
+        this.game.addCoin(true, true);
 };
 PlayerObject.prototype.powerup = function(object) {
     if (object instanceof MushroomObject) {
@@ -4973,7 +4975,10 @@ SpringObject.SPRITE_LIST = [{
     'ID': 0x2,
     'INDEX': 0xa3
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < SpringObject.SPRITE_LIST.length; _0x1bec55++) SpringObject.SPRITE[SpringObject.SPRITE_LIST[_0x1bec55].NAME] = SpringObject.SPRITE_LIST[_0x1bec55], SpringObject.SPRITE[SpringObject.SPRITE_LIST[_0x1bec55].ID] = SpringObject.SPRITE_LIST[_0x1bec55];
+for (var i = 0x0; i < SpringObject.SPRITE_LIST.length; i++) {
+    SpringObject.SPRITE[SpringObject.SPRITE_LIST[i].NAME] = SpringObject.SPRITE_LIST[i];
+    SpringObject.SPRITE[SpringObject.SPRITE_LIST[i].ID] = SpringObject.SPRITE_LIST[i];
+}
 SpringObject.STATE = {};
 SpringObject.STATE_LIST = [{
     'NAME': "EXTEND",
@@ -4988,7 +4993,10 @@ SpringObject.STATE_LIST = [{
     'ID': 0x2,
     'SPRITE': [SpringObject.SPRITE.STAGE2]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < SpringObject.STATE_LIST.length; _0x1bec55++) SpringObject.STATE[SpringObject.STATE_LIST[_0x1bec55].NAME] = SpringObject.STATE_LIST[_0x1bec55], SpringObject.STATE[SpringObject.STATE_LIST[_0x1bec55].ID] = SpringObject.STATE_LIST[_0x1bec55];
+for (var i = 0x0; i < SpringObject.STATE_LIST.length; i++) {
+    SpringObject.STATE[SpringObject.STATE_LIST[i].NAME] = SpringObject.STATE_LIST[i];
+    SpringObject.STATE[SpringObject.STATE_LIST[i].ID] = SpringObject.STATE_LIST[i];
+}
 SpringObject.prototype.update = function(_0x348375) {};
 SpringObject.prototype.step = function() {
     this.anim++;
@@ -4996,19 +5004,32 @@ SpringObject.prototype.step = function() {
     this.interaction();
 };
 SpringObject.prototype.interaction = function() {
-    var _0x4c2d7a = this.game.getPlayer();
-    if (_0x4c2d7a && _0x4c2d7a.level === this.level && _0x4c2d7a.zone === this.zone && _0x4c2d7a.isTangible() && squar.intersection(this.pos, this.dim, _0x4c2d7a.pos, _0x4c2d7a.dim)) {
-        var _0x370dd9 = Math.pow(0x1 - 0.5 * Math.min(Math.max(0x0, _0x4c2d7a.pos.y - this.pos.y), 0x2), 0x2);
-        _0x4c2d7a.fallSpeed >= 0.75 * PlayerObject.FALL_SPEED_MAX && _0x4c2d7a.btnA && (_0x4c2d7a.jumping = 0x0, _0x4c2d7a.isSpring = true);
-        _0x4c2d7a.fallSpeed += Math.min(0x2 * PlayerObject.FALL_SPEED_MAX, _0x370dd9 * SpringObject.POWER);
-        _0x4c2d7a.grounded = false;
+    var player = this.game.getPlayer();
+    if (player && player.level === this.level && player.zone === this.zone && player.isTangible() && squar.intersection(this.pos, this.dim, player.pos, player.dim)) {
+        var compression = Math.pow(0x1 - 0.5 * Math.min(Math.max(0x0, player.pos.y - this.pos.y), 0x2), 0x2);
+        if (player.fallSpeed >= 0.75 * PlayerObject.FALL_SPEED_MAX && player.btnA) {
+            player.jumping = 0x0;
+            if (!player.isSpring) {
+                this.game.play("sfx/spring.wav",1,0);
+                player.isSpring = true;
+            }
+        }
+        player.fallSpeed += Math.min(0x2 * PlayerObject.FALL_SPEED_MAX, compression * SpringObject.POWER);
+        player.grounded = false;
     }
-    _0x4c2d7a = 0x2;
-    for (_0x370dd9 = 0x0; _0x370dd9 < this.game.objects.length; _0x370dd9++) {
-        var _0x3645c3 = this.game.objects[_0x370dd9];
-        _0x3645c3 instanceof PlayerObject && _0x3645c3.level === this.level && _0x3645c3.zone === this.zone && _0x3645c3.isTangible() && squar.intersection(this.pos, this.dim, _0x3645c3.pos, _0x3645c3.dim) && (_0x3645c3 = Math.min(Math.max(0x0, _0x3645c3.pos.y - this.pos.y), 0x2), _0x3645c3 < _0x4c2d7a && (_0x4c2d7a = _0x3645c3));
+    var compression = 0x2;
+    for (i = 0x0; i < this.game.objects.length; i++) {
+        var obj = this.game.objects[i];
+        if (obj instanceof PlayerObject && obj.level === this.level && obj.zone === this.zone && obj.isTangible() && squar.intersection(this.pos, this.dim, obj.pos, obj.dim)) {
+            var newCompression = Math.min(Math.max(0x0, obj.pos.y - this.pos.y), 0x2);
+            if (newCompression < compression) compression = newCompression;
+        }
     }
-    _0x4c2d7a < SpringObject.THRESHOLD[0x1] ? this.setState(SpringObject.STATE.COMPRESS) : _0x4c2d7a < SpringObject.THRESHOLD[0x0] ? this.setState(SpringObject.STATE.HALF) : this.setState(SpringObject.STATE.EXTEND);
+    if (compression < SpringObject.THRESHOLD[0x1])
+        this.setState(SpringObject.STATE.COMPRESS)
+    else if (compression < SpringObject.THRESHOLD[0x0])
+        this.setState(SpringObject.STATE.HALF)
+    else this.setState(SpringObject.STATE.EXTEND);
 };
 SpringObject.prototype.kill = function() {};
 SpringObject.prototype.destroy = GameObject.prototype.destroy;
@@ -5769,8 +5790,8 @@ PowerUpObject.prototype.bounce = function() {
     this.grounded && (this.dir = !this.dir);
     this.jump = 0x0;
 };
-PowerUpObject.prototype.playerCollide = function(_0x25bc93) {
-    this.dead || this.garbage || (_0x25bc93.powerup(this), this.kill(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0)));
+PowerUpObject.prototype.playerCollide = function(player) {
+    this.dead || this.garbage || (player.powerup(this), this.kill(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0)));
 };
 PowerUpObject.prototype.playerStomp = function(_0x3025ba) {
     this.playerCollide(_0x3025ba);
@@ -5925,7 +5946,13 @@ GoldFlowerObject.prototype.update = PowerUpObject.prototype.update;
 GoldFlowerObject.prototype.step = PowerUpObject.prototype.step;
 GoldFlowerObject.prototype.control = function() {};
 GoldFlowerObject.prototype.physics = PowerUpObject.prototype.physics;
-GoldFlowerObject.prototype.playerCollide = PowerUpObject.prototype.playerCollide;
+GoldFlowerObject.prototype.playerCollide = function(player) {
+    if (!(this.dead || this.garbage)) {
+        player.powerupVisual(this);
+        this.kill();
+        this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0));
+    }
+};
 GoldFlowerObject.prototype.playerStomp = PowerUpObject.prototype.playerStomp;
 GoldFlowerObject.prototype.playerBump = PowerUpObject.prototype.playerBump;
 GoldFlowerObject.prototype.kill = PowerUpObject.prototype.kill;
@@ -6825,7 +6852,7 @@ Audio.prototype.initWebAudio = function(app) {
     } catch (exception) {
         return app.menu.warn.show("WebAudio not supported. Intializing fallback mode..."), false;
     }
-    var soundList = ["sfx/alert.wav", "sfx/break.wav", "sfx/breath.wav", "sfx/bump.wav", "sfx/gold.wav", "sfx/coin.wav", "sfx/fireball.wav",
+    var soundList = ["sfx/alert.wav", "sfx/break.wav", "sfx/breath.wav", "sfx/bump.wav", "sfx/gold.wav", "sfx/spring.wav", "sfx/coin.wav", "sfx/fireball.wav",
         "sfx/firework.wav", "sfx/flagpole.wav", "sfx/item.wav", "sfx/jump0.wav", "sfx/jump1.wav", "sfx/kick.wav", "sfx/life.wav", "sfx/pipe.wav",
         "sfx/powerup.wav", "sfx/stomp.wav", "sfx/vine.wav", "music/main0.mp3", "music/main1.mp3", "music/main2.mp3", "music/main3.mp3", "music/level.mp3",
         "music/castle.mp3", "music/victory.mp3", "music/star.mp3", "music/dead.mp3", "music/gameover.mp3", "music/hurry.mp3"];
@@ -6915,20 +6942,20 @@ Audio.prototype.getAudioLength = function(path) {
         if (this.sounds[i].path === path) return this.sounds[i].buffer.duration;
     return 1;
 };
-Audio.prototype.getAudio = function(path, _0x1ecf0c, _0x35680c, category) {
-    var volume;
+Audio.prototype.getAudio = function(path, gainValue, playbackRateDeviation, category) {
+    var volumeNode;
     switch (category) {
         case "effect":
-            volume = this.effectVolume;
+            volumeNode = this.effectVolume;
             break;
         case "music":
-            volume = this.musicVolume;
+            volumeNode = this.musicVolume;
             break;
         default:
-            volume = this.effectVolume;
+            volumeNode = this.effectVolume;
     }
     for (var i = 0x0; i < this.sounds.length; i++)
-        if (this.sounds[i].path === path) return new SoundFile(this.context, path, this.sounds[i], _0x1ecf0c, _0x35680c, volume);
+        if (this.sounds[i].path === path) return new SoundFile(this.context, path, this.sounds[i], gainValue, playbackRateDeviation, volumeNode);
     if (this.createAudio(path)) return this.getAudio(path);
     app.menu.warn.show("Failed to load sound: '" + path + '\x27');
     return this.getAudio("default.wav");
@@ -8173,10 +8200,10 @@ Game.prototype.getRemain = function() {
     return result;
 };
 
-Game.prototype.play = function(_0x5b2be8, _0x2c74b6, _0x4f5b18) {
-    _0x5b2be8 = app.audio.getAudio(_0x5b2be8, _0x2c74b6, _0x4f5b18, "effect");
-    _0x5b2be8.play();
-    this.sounds.push(_0x5b2be8);
+Game.prototype.play = function(path, gainValue, playbackRateDeviation) {
+    var audio = app.audio.getAudio(path, gainValue, playbackRateDeviation, "effect");
+    audio.play();
+    this.sounds.push(audio);
 };
 
 Game.prototype.levelWarp = function(_0x4fb258) {
