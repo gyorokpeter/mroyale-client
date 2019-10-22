@@ -1593,6 +1593,7 @@ function NameScreen() {
     this.privateBtn = document.getElementById("name-private-toggle");
     this.gmBtn = document.getElementById("name-gm-change");
     this.launchBtn = document.getElementById("name-launch");
+    this.autoMoveBtn = document.getElementById("autoMove");
     this.padLoop = undefined;
     this.skinButtonPrefix = "skin-select";
     var that = this;
@@ -1611,6 +1612,7 @@ function NameScreen() {
     elem.addEventListener("click", (function(){return function(event) {that.gfxTestMapRemove(event);};})());
     elem = document.getElementById("gfxTestObjRemove");
     elem.addEventListener("click", (function(){return function(event) {that.gfxTestObjRemove(event);};})());
+    this.autoMoveBtn.addEventListener("click",(function(){return function(event) {that.setAutoMove(!app.autoMove);};})());
 
     this.launchBtn.onclick = function() {
         that.launch();
@@ -1804,7 +1806,11 @@ NameScreen.prototype.setTestObjImg = function(data) {
     app.overrideObjImg = img;
     app.game.display.resource.texture.cache["obj"] = img;
 };
-
+NameScreen.prototype.setAutoMove = function(val) {
+    app.autoMove = val;
+    Cookies.set("autoMove", val, {'expires': 0x1e});
+    this.autoMoveBtn.innerText = (val ? "[X]" : "[ ]") + " Auto Move";
+};
 NameScreen.prototype.launch = function() {
     Cookies.set("name", this.nameInput.value, {
         'expires': 0x1e
@@ -1844,6 +1850,7 @@ NameScreen.prototype.show = function() {
     this.updMusicBtn();
     this.updGameModeBtn();
     this.startPad();
+    this.setAutoMove(app.autoMove);
     this.linkElement.style.display = "block";
     this.element.style.display = "block";
 };
@@ -3149,6 +3156,7 @@ PlayerObject.prototype.step = function() {
 };
 PlayerObject.prototype.input = function(abtnD, abtnA, abtnB, abtnTA) {
     this.btnD = abtnD;
+    if (app.autoMove && this.btnD[0] == 0) this.btnD[0] = 1;
     this.btnA = abtnA;
     this.btnB = abtnB;
     if (abtnTA) {
@@ -3269,7 +3277,7 @@ PlayerObject.prototype.physics = function() {
     this.pos = _0x57b791;
     _0x3f505e && _0x3f505e.riding(this);
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) obj = _0x513d1f[_0x5b32b0], squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim) && obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
-    if (this.isState(PlayerObject.SNAME.DOWN) && 0.05 > this.moveSpeed)
+    if (this.isState(PlayerObject.SNAME.DOWN) && 0.05 > Math.abs(this.moveSpeed))
         for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27c16e.length; _0x5b32b0++) obj = _0x27c16e[_0x5b32b0], obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.DOWN);
     if (this.isState(PlayerObject.SNAME.RUN))
         for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x346d1d.length; _0x5b32b0++) obj = _0x346d1d[_0x5b32b0], obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.PUSH);
@@ -3388,14 +3396,15 @@ PlayerObject.prototype.tfm = function(_0x538c99) {
 PlayerObject.prototype.warp = function(_0x3f75ed) {
     if (_0x3f75ed = this.game.world.getLevel(this.level).getWarp(_0x3f75ed)) this.level = _0x3f75ed.level, this.zone = _0x3f75ed.zone, this.pos = _0x3f75ed.pos, this.autoTarget = undefined, this.grounded = false;
 };
-PlayerObject.prototype.pipe = function(_0x157842, _0x266382, _0x3f3ba4) {
-    0x1 !== _0x157842 && 0x2 !== _0x157842 || this.setState(PlayerObject.SNAME.STAND);
-    var _0x327f1a = this.game.world.getLevel(this.level).getWarp(_0x266382);
-    this.pipeWarp = _0x266382;
+PlayerObject.prototype.pipe = function(pipeDir, warp, delay) {
+    this.moveSpeed = 0;
+    if (!(0x1 !== pipeDir && 0x2 !== pipeDir)) this.setState(PlayerObject.SNAME.STAND);
+    var destLevel = this.game.world.getLevel(this.level).getWarp(warp);
+    this.pipeWarp = warp;
     this.pipeTimer = 0x1e;
-    this.pipeDir = _0x157842;
-    this.pipeExt = _0x327f1a.data;
-    this.pipeDelayLength = _0x3f3ba4;
+    this.pipeDir = pipeDir;
+    this.pipeExt = destLevel.data;
+    this.pipeDelayLength = delay;
 };
 PlayerObject.prototype.weedeat = function() {
     for (var _0x5cc521 = 0x0; _0x5cc521 < this.game.objects.length; _0x5cc521++) {
@@ -6468,27 +6477,27 @@ RisingLabelEffect.prototype.draw = function(displayList, textList){
 function Input(_0x4377d5,_0x141691){
     this.game=_0x4377d5;
     this.container=_0x141691;
-    var _0x3b9d05=this;
+    var that=this;
     this.container.onmousemove=function(_0x4377d5){
-        _0x3b9d05.mouse.event(_0x4377d5);
+        that.mouse.event(_0x4377d5);
     };
     this.container.onmousedown=function(_0x4377d5){
-        _0x3b9d05.mouse.event(_0x4377d5,true);
+        that.mouse.event(_0x4377d5,true);
     };
     this.container.onmouseup=function(_0x4377d5){
-        _0x3b9d05.mouse.event(_0x4377d5,false);
+        that.mouse.event(_0x4377d5,false);
     };
     this.container.addEventListener("mousewheel",function(_0x4377d5){
-        _0x3b9d05.mouse.wheel(_0x4377d5);
+        that.mouse.wheel(_0x4377d5);
         },false);
     this.container.addEventListener("DOMMouseScroll",function(_0x4377d5){
-        _0x3b9d05.mouse.wheel(_0x4377d5);
+        that.mouse.wheel(_0x4377d5);
         },false);
-    document.onkeyup=function(_0x4377d5){
-        _0x3b9d05.keyboard.event(_0x4377d5,false);
+    document.onkeyup=function(event){
+        that.keyboard.event(event,false);
     };
-    document.onkeydown=function(_0x4377d5){
-        _0x3b9d05.keyboard.event(_0x4377d5,true);
+    document.onkeydown=function(event){
+        that.keyboard.event(event,true);
     };
     this.touchEvt=function(_0x4377d5){
         app.game.input.touch.event(_0x4377d5);
@@ -6581,8 +6590,8 @@ Input.prototype.mouse.wheel=function(_0x57a9b4){
 Input.prototype.keyboard={};
 Input.prototype.keyboard.inputs=[];
 Input.prototype.keyboard.keys=[];
-Input.prototype.keyboard.event=function(_0x530753,_0x357844){
-    (this.keys[_0x530753.keyCode]=_0x357844)&&this.inputs.push({'key':_0x530753.keyCode,'char':0x1!==_0x530753.key.length?'':_0x530753.key});
+Input.prototype.keyboard.event=function(event,down){
+    (this.keys[event.keyCode]=down)&&this.inputs.push({'key':event.keyCode,'char':0x1!==event.key.length?'':event.key});
 };
 Input.prototype.touch={};
 Input.prototype.touch.inputs=[];
@@ -6615,14 +6624,14 @@ Input.prototype.pop=function(){
     this.mouse.nxtMov.x=0x0;
     this.mouse.nxtMov.y=0x0;
     this.mouse.nxtSpin=0x0;
-    var _0x48e61c={};
-    _0x48e61c.mouse=this.mouse.inputs;
-    _0x48e61c.keyboard=this.keyboard.inputs;
-    _0x48e61c.touch=this.touch.inputs;
+    var res={};
+    res.mouse=this.mouse.inputs;
+    res.keyboard=this.keyboard.inputs;
+    res.touch=this.touch.inputs;
     this.keyboard.inputs=[];
     this.mouse.inputs=[];
     this.touch.inputs=[];
-    return _0x48e61c;
+    return res;
 };
 Input.prototype.destroy=function(){
     this.container.onmousemove=function(){};
@@ -8412,6 +8421,7 @@ function App() {
     this.overrideSkinImg = "overrideSkinImg" in localStorage ? makeImageFromData(localStorage["overrideSkinImg"]) : undefined;
     this.overrideMapImg = "overrideMapImg" in localStorage ? makeImageFromData(localStorage["overrideMapImg"]) : undefined;
     this.overrideObjImg = "overrideObjImg" in localStorage ? makeImageFromData(localStorage["overrideObjImg"]) : undefined;
+    this.autoMove = Cookies.get("autoMove") === "true";
     this.settings = {};
     this.settings.muteMusic = 0x1 === parseInt(Cookies.get("music"));
     this.settings.muteSound = 0x1 === parseInt(Cookies.get("sound"));
