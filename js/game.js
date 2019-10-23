@@ -1359,8 +1359,8 @@ MainScreen.prototype.show = function() {
     app.menu.hideAll();
     app.menu.navigation("main", "main");
     app.menu.background('a');
+    this.updateStatsBar();
     this.winElement.style.display = "block";
-    this.winElement.innerHTML = "Login to track statistics";
     this.startPad();
     this.linkElement.style.display = "block";
     this.element.style.display = "block";
@@ -1380,6 +1380,9 @@ MainScreen.prototype.hide = function() {
         clearInterval(app.statusUpdater);
         app.statusUpdater = null;
     }
+};
+MainScreen.prototype.updateStatsBar = function() {
+    this.winElement.innerHTML = "Login to track statistics";
 };
 "use strict";
 
@@ -5023,7 +5026,8 @@ SpringObject.prototype.interaction = function() {
                 player.isSpring = true;
             }
         }
-        player.fallSpeed += Math.min(0x2 * PlayerObject.FALL_SPEED_MAX, compression * SpringObject.POWER);
+        if (!player.tfmTimer)
+            player.fallSpeed += Math.min(0x2 * PlayerObject.FALL_SPEED_MAX, compression * SpringObject.POWER);
         player.grounded = false;
     }
     var compression = 0x2;
@@ -7681,6 +7685,10 @@ Game.GAME_OVER_TIME = 120;
 Game.COINS_TO_LIFE = 0x1e;
 
 Game.prototype.load = function(data) {
+    if (this instanceof LobbyGame)
+        app.menu.main.winElement.style.display = "";
+    else
+        app.menu.main.winElement.style.display = "none";
     app.menu.load.show();
 
     /* Load world data */
@@ -8446,6 +8454,7 @@ App.prototype.init = function() {
         that.menu.load.show();
 
         if (that.goToLobby && that.session === undefined) {
+            that.menu.main.updateStatsBar();
             var name = Cookies.get("name");
             var team = Cookies.get("team");
             var priv = Cookies.get("priv");

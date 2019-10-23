@@ -446,6 +446,21 @@ img {
   white-space: nowrap;
 }
 
+.container-statsBar {
+  font-family: SmbWeb;
+  color: #FFFFFF;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  background: black;
+
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index:0;
+}
+
 .devConsole-name-input {
   font-family: SmbWeb;
   color: white;

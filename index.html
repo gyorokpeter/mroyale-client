@@ -45,9 +45,9 @@
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@realMarioRoyale" />
 
-        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.5.3'>
-        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.5.3'>
-        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.5.3'>
+        <link rel='stylesheet' type='text/css' href='css/home.css?v=3.5.4'>
+        <link rel='stylesheet' type='text/css' href='css/spinner.css?v=3.5.4'>
+        <link rel='stylesheet' type='text/css' href='css/link.css?v=3.5.4'>
         <script>
           /* Prevent phones from zooming screen. The webapp handles this. */
           document.addEventListener('touchmove', function(event) {
@@ -60,32 +60,6 @@
     <body id='body' ondragstart="return false;" ondrop="return false;">
       <div id="log">
         <p class="debugLog">loading core.js started</p>
-      </div>
-
-      <!-- Links -->
-      <div id='link'>
-        <div class="link-r">
-              <div class="rtfpn3"></div>
-          <div class="link-git" onclick="window.open('https://github.com/mroyale/mroyale-client')"></div>
-          <div class="link-disc" onclick="window.open('https://discordapp.com/invite/uYh4uRv')"></div>
-        </div>
-        <div class="link-l">
-          <div class="rtfpn2"></div>
-          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.5.3')" style="display:none;">v3.5.3 Patch Notes</div>
-        </div>
-        <div class="link-w">
-          <div id='win' class="win" style="display:none;"></div>
-        </div>
-        <div class="link-b">
-          <div class="rtfpn"></div>
-          <div>
-              <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
-              <div class="link-con" onclick="window.open('./control.html?v=3.5.3')"></div>
-          </div>
-        </div>
-          <div class="link-s">
-          <div class="rtfpn4"></div>
-      </div>
       </div>
 
       <!-- Warning -->
@@ -325,6 +299,36 @@
         </div>
       </div>
 
+      <!--Stats bar at the bottom of the screen-->
+      <div id='statsBar' class="container-statsBar">
+        <div id='win' class="win" style="display:none;"></div>
+      </div>
+      <!-- Links -->
+      <div id='link'>
+        <div class="link-r">
+              <div class="rtfpn3"></div>
+          <div class="link-git" onclick="window.open('https://github.com/mroyale/mroyale-client')"></div>
+          <div class="link-disc" onclick="window.open('https://discordapp.com/invite/uYh4uRv')"></div>
+        </div>
+        <div class="link-l">
+          <div class="rtfpn2"></div>
+          <div id="link-patch" class="link-patch" onclick="window.open('./patch.html?v=3.5.4')" style="display:none;">v3.5.4 Patch Notes</div>
+        </div>
+        <div class="link-b">
+          <div class="rtfpn"></div>
+          <div>
+              <div class="link-leaderboard" onclick="showLeaderBoard()">Leader boards</div>
+              <div class="link-con" onclick="window.open('./control.html?v=3.5.4')"></div>
+          </div>
+        </div>
+          <div class="link-s">
+          <div class="rtfpn4"></div>
+        </div>
+      </div>
+
+
+
+
       <div id='return' class='container-return' style='display: none;'>
         <span id='return-lobby' class='launch' onclick='Cookies.set("go_to_lobby", "1");location.reload();'>Return to Lobby</span>
       </div>
@@ -334,6 +338,6 @@
       <script src='js/lib/cookie/js.cookie.min.js'></script>
 
       <!-- Core -->
-      <script src='js/core.js?v=3.5.3'></script>
+      <script src='js/core.js?v=3.5.4'></script>
     </body>
 </html>
