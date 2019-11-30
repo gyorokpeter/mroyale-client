@@ -508,7 +508,7 @@ td32.TILE_PROPERTIES = {
                     game.world.getZone(level, zone).replace(x,y,rep);
                     game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
                     td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    game.world.getZone(level, zone).play(x,y,"item.wav",1.,0.04);
                     break;
                 }
             }
@@ -591,7 +591,7 @@ td32.TILE_PROPERTIES = {
                     game.world.getZone(level, zone).replace(x,y,rep);
                     game.world.getZone(level, zone).grow(x,y+1,vin);
                     td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/vine.wav",1.,0.04);
+                    game.world.getZone(level, zone).play(x,y,"vine.wav",1.,0.04);
                     break;
                 }
             }
@@ -615,7 +615,7 @@ td32.TILE_PROPERTIES = {
                     game.world.getZone(level, zone).replace(x,y,rep);
                     game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
                     td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
-                    game.world.getZone(level, zone).play(x,y,"sfx/item.wav",1.,0.04);
+                    game.world.getZone(level, zone).play(x,y,"item.wav",1.,0.04);
                     break;
                 }
             }
@@ -3080,7 +3080,7 @@ PlayerObject.prototype.step = function() {
         if (this.isState(PlayerObject.SNAME.POLE))
             if (0x0 < this.poleTimer && !this.poleWait) this.poleTimer--;
             else {
-                this.poleSound || (this.poleSound = true, this.play("sfx/flagpole.wav", 0x1, 0x0));
+                this.poleSound || (this.poleSound = true, this.play("flagpole.wav", 0x1, 0x0));
                 if (!this.poleWait)
                     if (0x0 >= this.poleTimer && this.autoTarget) this.setState(PlayerObject.SNAME.STAND);
                     else {
@@ -3110,7 +3110,7 @@ PlayerObject.prototype.step = function() {
         } else this.power = this.tfmTarget, this.tfmTarget = -0x1, this.setState(PlayerObject.SNAME.STAND), this.collisionTest(this.pos, this.dim) && this.setState(PlayerObject.SNAME.DOWN), this.damageTimer = (app.net.gameMode === 1 ? 120 : PlayerObject.DAMAGE_TIME);
         else if (0x0 < this.pipeDelay) this.pipeDelay--;
     else if (0x0 < this.pipeTimer && 0x0 >= this.pipeDelay) {
-        0x1e <= this.pipeTimer && this.play("sfx/pipe.wav", 0x1, 0.04);
+        0x1e <= this.pipeTimer && this.play("pipe.wav", 0x1, 0.04);
         switch (this.pipeDir) {
             case 0x1:
                 this.pos.y += 0.06;
@@ -3200,7 +3200,7 @@ PlayerObject.prototype.control = function() {
         if (this.btnA) {
             if ((this.grounded || app.fly) && !this.btnAHot) {
                 this.jumping = 0x0;
-                this.play(0x0 < this.power ? "sfx/jump1.wav" : "sfx/jump0.wav", 0.7, 0.04);
+                this.play(0x0 < this.power ? "jump1.wav" : "jump0.wav", 0.7, 0.04);
                 this.btnAHot = true;
             }
             if (this.jumping > a) this.jumping = -0x1;
@@ -3330,7 +3330,7 @@ PlayerObject.prototype.attack = function() {
     this.attackCharge -= PlayerObject.ATTACK_CHARGE;
     var _0x328458 = this.reverse ? vec2.add(this.pos, PlayerObject.PROJ_OFFSET) : vec2.add(this.pos, vec2.multiply(PlayerObject.PROJ_OFFSET, vec2.make(-0x1, 0x1)));
     this.game.createObject(_0x6c6f53.ID, this.level, this.zone, _0x328458, [this.reverse, this.pid]);
-    this.play("sfx/fireball.wav", 0x1, 0.04);
+    this.play("fireball.wav", 0x1, 0.04);
 };
 PlayerObject.prototype.bounce = function() {
     this.jumping = 0x0;
@@ -3388,10 +3388,10 @@ PlayerObject.prototype.axe = function(_0x5050d5) {
 PlayerObject.prototype.star = function() {
     this.starMusic && (this.starMusic.stop(), this.starMusic = undefined);
     this.starTimer = PlayerObject.STAR_LENGTH;
-    (this.starMusic = this.play("music/star.mp3", 0x1, 0.04)) && this.starMusic.loop(true);
+    (this.starMusic = this.play("star.mp3", 0x1, 0.04)) && this.starMusic.loop(true);
 };
 PlayerObject.prototype.tfm = function(_0x538c99) {
-    this.power < _0x538c99 ? this.play("sfx/powerup.wav", 0x1, 0.04) : this.play("sfx/pipe.wav", 0x1, 0.04);
+    this.power < _0x538c99 ? this.play("powerup.wav", 0x1, 0.04) : this.play("pipe.wav", 0x1, 0.04);
     this.tfmTarget = _0x538c99;
     this.tfmTimer = PlayerObject.TRANSFORM_TIME;
     this.setState(PlayerObject.SNAME.TRANSFORM);
@@ -3655,7 +3655,7 @@ GoombaObject.prototype.damage = function(_0x5b7e53) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 GoombaObject.prototype.bonk = function() {
-    this.dead || (this.setState(GoombaObject.STATE.BONK), this.moveSpeed = GoombaObject.BONK_IMP.x, this.fallSpeed = GoombaObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(GoombaObject.STATE.BONK), this.moveSpeed = GoombaObject.BONK_IMP.x, this.fallSpeed = GoombaObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 GoombaObject.prototype.playerCollide = function(_0x5ee074) {
     this.dead || this.garbage || _0x5ee074.damage(this);
@@ -3669,7 +3669,7 @@ GoombaObject.prototype.playerBump = function(_0x5e0adc) {
 GoombaObject.prototype.kill = function() {
     this.dead = true;
     this.setState(GoombaObject.STATE.DEAD);
-    this.play("sfx/stomp.wav", 0x1, 0.04);
+    this.play("stomp.wav", 0x1, 0.04);
 };
 GoombaObject.prototype.destroy = GameObject.prototype.destroy;
 GoombaObject.prototype.isTangible = GameObject.prototype.isTangible;
@@ -3895,14 +3895,14 @@ _0xafe583.prototype.damage = function(_0x565802) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0xafe583.prototype.bonk = function() {
-    this.dead || (this.setState(_0xafe583.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0xafe583.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 _0xafe583.prototype.stomped = function(_0x45b447) {
     if (this.state === _0xafe583.STATE.FLY) this.setState(_0xafe583.STATE.RUN), this.jump = -0x1;
     else if (this.state === _0xafe583.STATE.RUN) this.setState(_0xafe583.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
     else if (this.state === _0xafe583.STATE.SPIN) this.setState(_0xafe583.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
     else if (this.state === _0xafe583.STATE.SHELL || this.state === _0xafe583.STATE.TRANSFORM) this.setState(_0xafe583.STATE.SPIN), this.dir = _0x45b447;
-    this.play("sfx/stomp.wav", 0x1, 0.04);
+    this.play("stomp.wav", 0x1, 0.04);
 };
 _0xafe583.prototype.playerCollide = function(_0x49360d) {
     this.dead || this.garbage || (this.state === _0xafe583.STATE.SHELL || this.state === _0xafe583.STATE.TRANSFORM ? (_0x49360d = 0x0 < _0x49360d.pos.x - this.pos.x, this.stomped(_0x49360d), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x49360d ? 0x10 : 0x11)), this.immuneTimer = _0xafe583.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x49360d.damage(this));
@@ -4114,14 +4114,14 @@ _0x5e412e.prototype.enable = _0xafe583.prototype.enable;
 _0x5e412e.prototype.disable = _0xafe583.prototype.disable;
 _0x5e412e.prototype.damage = _0xafe583.prototype.damage;
 _0x5e412e.prototype.bonk = function() {
-    this.dead || (this.setState(_0x5e412e.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x5e412e.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 _0x5e412e.prototype.stomped = function(_0x2f1cbf) {
     if (this.state === _0x5e412e.STATE.FLY) this.setState(_0x5e412e.STATE.RUN);
     else if (this.state === _0x5e412e.STATE.RUN) this.setState(_0x5e412e.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
     else if (this.state === _0x5e412e.STATE.SPIN) this.setState(_0x5e412e.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
     else if (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM) this.setState(_0x5e412e.STATE.SPIN), this.dir = _0x2f1cbf;
-    this.play("sfx/stomp.wav", 0x1, 0.04);
+    this.play("stomp.wav", 0x1, 0.04);
 };
 _0x5e412e.prototype.playerCollide = function(_0x2665f3) {
     this.dead || this.garbage || (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM ? (_0x2665f3 = 0x0 < _0x2665f3.pos.x - this.pos.x, this.stomped(_0x2665f3), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x2665f3 ? 0x10 : 0x11)), this.immuneTimer = _0xafe583.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x2665f3.damage(this));
@@ -4241,7 +4241,7 @@ PiranhaPlantObject.prototype.damage = function(_0x508a32) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 PiranhaPlantObject.prototype.bonk = function() {
-    this.dead || (this.setState(PiranhaPlantObject.STATE.BONK), this.moveSpeed = PiranhaPlantObject.BONK_IMP.x, this.fallSpeed = PiranhaPlantObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(PiranhaPlantObject.STATE.BONK), this.moveSpeed = PiranhaPlantObject.BONK_IMP.x, this.fallSpeed = PiranhaPlantObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 PiranhaPlantObject.prototype.playerCollide = function(_0x3bb251) {
     this.dead || this.garbage || _0x3bb251.damage(this);
@@ -4377,7 +4377,7 @@ _0x25ddce.prototype.damage = function(_0x491a38) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0x25ddce.prototype.bonk = function() {
-    this.dead || (this.setState(_0x25ddce.STATE.BONK), this.moveSpeed = _0x25ddce.BONK_IMP.x, this.fallSpeed = _0x25ddce.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x25ddce.STATE.BONK), this.moveSpeed = _0x25ddce.BONK_IMP.x, this.fallSpeed = _0x25ddce.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 _0x25ddce.prototype.playerCollide = function(_0x28a0cf) {
     this.dead || this.garbage || _0x28a0cf.damage(this);
@@ -4563,7 +4563,7 @@ HammerBroObject.prototype.damage = function(_0x23a76d) {
     this.dead || (this.bonk(), NET020.encode(this.level, this.zone, this.oid, 0x1));
 };
 HammerBroObject.prototype.bonk = function() {
-    this.dead || (this.setState(HammerBroObject.STATE.BONK), this.moveSpeed = HammerBroObject.BONK_IMP.x, this.fallSpeed = HammerBroObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(HammerBroObject.STATE.BONK), this.moveSpeed = HammerBroObject.BONK_IMP.x, this.fallSpeed = HammerBroObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 HammerBroObject.prototype.kill = function() {};
 HammerBroObject.prototype.isTangible = GameObject.prototype.isTangible;
@@ -4750,7 +4750,7 @@ BowserObject.prototype.attack = function() {
     this.attackAnimTimer = BowserObject.ATTACK_ANIM_LENGTH;
     this.attackTimer = 0x0;
     this.game.createObject(FireBreathObject.ID, this.level, this.zone, vec2.add(this.pos, BowserObject.PROJ_OFFSET), []);
-    this.play("sfx/breath.wav", 1.5, 0.04);
+    this.play("breath.wav", 1.5, 0.04);
 };
 BowserObject.prototype.hammerAttack = function() {
     var hammerTime = this.hammerAttackTimer - this.lastHammerTime;
@@ -4774,7 +4774,7 @@ BowserObject.prototype.damage = function(_0x25178b) {
     this.dead || 0x0 >= --this.health && this.bonk();
 };
 BowserObject.prototype.bonk = function() {
-    this.dead || (this.setState(BowserObject.STATE.BONK), this.moveSpeed = BowserObject.BONK_IMP.x, this.fallSpeed = BowserObject.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(BowserObject.STATE.BONK), this.moveSpeed = BowserObject.BONK_IMP.x, this.fallSpeed = BowserObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 BowserObject.prototype.kill = function() {};
 BowserObject.prototype.isTangible = GameObject.prototype.isTangible;
@@ -5022,7 +5022,7 @@ SpringObject.prototype.interaction = function() {
         if (player.fallSpeed >= 0.75 * PlayerObject.FALL_SPEED_MAX && player.btnA) {
             player.jumping = 0x0;
             if (!player.isSpring) {
-                this.game.play("sfx/spring.wav",1,0);
+                this.game.play("spring.wav",1,0);
                 player.isSpring = true;
             }
         }
@@ -5311,7 +5311,7 @@ _0x458a57.prototype.sound = GameObject.prototype.sound;
 _0x458a57.prototype.fire = function() {
     this.fireTimer = 0x0;
     this.game.createObject(_0x30df09.ID, this.level, this.zone, vec2.copy(this.pos), [undefined, this.shootDirection]);
-    this.play("sfx/firework.wav", 0x1, 0.04);
+    this.play("firework.wav", 0x1, 0.04);
 };
 _0x458a57.prototype.kill = function() {};
 _0x458a57.prototype.isTangible = GameObject.prototype.isTangible;
@@ -5382,13 +5382,13 @@ _0x30df09.prototype.enable = function() {
 };
 _0x30df09.prototype.damage = function(_0x582020) {};
 _0x30df09.prototype.bonk = function() {
-    this.dead || (this.setState(_0x30df09.STATE.BONK), this.moveSpeed = _0x30df09.BONK_IMP.x, this.fallSpeed = _0x30df09.BONK_IMP.y, this.dead = true, this.play("sfx/kick.wav", 0x1, 0.04));
+    this.dead || (this.setState(_0x30df09.STATE.BONK), this.moveSpeed = _0x30df09.BONK_IMP.x, this.fallSpeed = _0x30df09.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
 _0x30df09.prototype.playerCollide = function(_0x15f7e9) {
     this.dead || this.garbage || _0x15f7e9.damage(this);
 };
 _0x30df09.prototype.playerStomp = function(_0x53a4e6) {
-    this.dead || this.garbage || (this.bonk(), _0x53a4e6.bounce(), this.play("sfx/stomp.wav", 0x1, 0.04), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
+    this.dead || this.garbage || (this.bonk(), _0x53a4e6.bounce(), this.play("stomp.wav", 0x1, 0.04), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
 _0x30df09.prototype.playerBump = function(_0x5a4a67) {
     this.playerCollide(_0x5a4a67);
@@ -5510,7 +5510,7 @@ _0x6c6f53.prototype.playerStomp = function(_0x282b15) {};
 _0x6c6f53.prototype.playerBump = function(_0xad5318) {};
 _0x6c6f53.prototype.kill = function() {
     this.setState(_0x6c6f53.STATE.DEAD);
-    this.play("sfx/firework.wav", 0.7, 0.04);
+    this.play("firework.wav", 0.7, 0.04);
     this.dead = true;
 };
 _0x6c6f53.prototype.isTangible = GameObject.prototype.isTangible;
@@ -6740,25 +6740,40 @@ Camera.prototype.unproject = function(_0x23bf45) {
 };
 "use strict";
 
-function AudioData(context, path) {
+function AudioData(context, path, prefixes) {
     this.path = path;
+    this.prefixes = prefixes.slice();
+    this.context = context;
+    this.startLoad();
+}
+
+AudioData.prototype.startLoad = function() {
     var sound = this,
         ajax = new XMLHttpRequest();
-    ajax.open("GET", "audio/" + path + "?v=" + VERSION, true);
+    ajax.open("GET", "audio/" + this.prefixes[0] + "/" + this.path + "?v=" + VERSION, true);
     ajax.responseType = "arraybuffer";
     ajax.onload = function() {
-        sound.onload(ajax, context);
+        sound.onload(ajax, sound.context);
     };
     ajax.send();
-}
+};
 AudioData.prototype.onload = function(ajax, context) {
+    if(ajax.status != 200) {
+        this.prefixes.shift();
+        if(this.prefixes.length) {
+            this.startLoad();
+        } else {
+            this.onError(ajax.statusText);
+        }
+        return;
+    }
     var sound = this;
     context.decodeAudioData(ajax.response, function(buffer) {
         sound.buffer = buffer;
-    }, e => sound.onError(e, this));
+    }, e => sound.onError(e));
 };
-AudioData.prototype.onError = function(e, that) {
-    console.error("Error while decoding audio data "+that.path+": " + e)
+AudioData.prototype.onError = function(e) {
+    console.error("Error while decoding audio data "+this.path+": " + e);
 };
 AudioData.prototype.ready = function() {
     return undefined !== this.buffer;
@@ -6855,23 +6870,39 @@ SpatialSoundFile.prototype.done = SoundFile.prototype.done;
 "use strict";
 
 function Audio(app) {
+    this.soundPrefix = ["sfx"];
+    this.musicPrefix = ["music"];
     this.initWebAudio(app) || this.initFallback();
 }
 Audio.FALLOFF_MIN = 0x1;
 Audio.FALLOFF_MAX = 0x18;
+
+Audio.prototype.setCustomSoundPrefix = function(val) {
+    this.customSoundPrefix = val;
+    this.soundPrefix = [val, "sfx"];
+}
+
+Audio.prototype.setCustomMusicPrefix = function(val) {
+    this.customMusicPrefix = val;
+    this.musicPrefix = [val, "music"];
+}
+
 Audio.prototype.initWebAudio = function(app) {
     try {
         this.context = new(window.AudioContext || window.webkitAudioContext)();
     } catch (exception) {
         return app.menu.warn.show("WebAudio not supported. Intializing fallback mode..."), false;
     }
-    var soundList = ["sfx/alert.wav", "sfx/break.wav", "sfx/breath.wav", "sfx/bump.wav", "sfx/gold.wav", "sfx/spring.wav", "sfx/coin.wav", "sfx/fireball.wav",
-        "sfx/firework.wav", "sfx/flagpole.wav", "sfx/item.wav", "sfx/jump0.wav", "sfx/jump1.wav", "sfx/kick.wav", "sfx/life.wav", "sfx/pipe.wav",
-        "sfx/powerup.wav", "sfx/stomp.wav", "sfx/vine.wav", "music/main0.mp3", "music/main1.mp3", "music/main2.mp3", "music/main3.mp3", "music/level.mp3",
-        "music/castle.mp3", "music/victory.mp3", "music/star.mp3", "music/dead.mp3", "music/gameover.mp3", "music/hurry.mp3"];
+    var soundList = ["alert.wav", "break.wav", "breath.wav", "bump.wav", "gold.wav", "spring.wav", "coin.wav", "fireball.wav",
+        "firework.wav", "flagpole.wav", "item.wav", "jump0.wav", "jump1.wav", "kick.wav", "life.wav", "pipe.wav",
+        "powerup.wav", "stomp.wav", "vine.wav"];
+    var musicList = ["main0.mp3", "main1.mp3", "main2.mp3", "main3.mp3", "level.mp3",
+        "castle.mp3", "victory.mp3", "star.mp3", "dead.mp3", "gameover.mp3", "hurry.mp3"];
     this.sounds = [];
     for (var i = 0x0; i < soundList.length; i++)
-        if (!this.createAudio(soundList[i])) return false;
+        if (!this.createAudio(soundList[i], this.soundPrefix)) return false;
+    for (var i = 0x0; i < musicList.length; i++)
+        if (!this.createAudio(musicList[i], this.musicPrefix)) return false;
     this.masterVolume = this.context.createGain();
     this.masterVolume.gain.value = 0x1;
     this.masterVolume.connect(this.context.destination);
@@ -6935,8 +6966,8 @@ Audio.prototype.setMusic = function(path, loop) {
 Audio.prototype.stopMusic = function() {
     this.music && (this.music.stop(), this.music = undefined);
 };
-Audio.prototype.createAudio = function(path) {
-    sound = new AudioData(this.context, path);
+Audio.prototype.createAudio = function(path, prefix) {
+    sound = new AudioData(this.context, path, prefix);
     this.sounds.push(sound);
     return true;
 };
@@ -6948,7 +6979,7 @@ Audio.prototype.createCustomAudio = function(_0x4d725a) {
 Audio.prototype.addMusic = function(path) {
     for (var i = 0x0; i < this.sounds.length; i++)
         if (this.sounds[i].path === path) return;
-    this.createAudio(path);
+    this.createAudio(path, this.musicPrefix);
 };
 Audio.prototype.getAudioLength = function(path) {
     for (var i = 0x0; i < this.sounds.length; i++)
@@ -6969,7 +7000,7 @@ Audio.prototype.getAudio = function(path, gainValue, playbackRateDeviation, cate
     }
     for (var i = 0x0; i < this.sounds.length; i++)
         if (this.sounds[i].path === path) return new SoundFile(this.context, path, this.sounds[i], gainValue, playbackRateDeviation, volumeNode);
-    if (this.createAudio(path)) return this.getAudio(path);
+    if (this.createAudio(path, category == "music" ? this.musicPrefix : this.soundPrefix)) return this.getAudio(path);
     app.menu.warn.show("Failed to load sound: '" + path + '\x27');
     return this.getAudio("default.wav");
 };
@@ -6987,7 +7018,7 @@ Audio.prototype.getSpatialAudio = function(path, gainValue, playbackRateDeviatio
     }
     for (var i = 0x0; i < this.sounds.length; i++)
         if (this.sounds[i].path === path) return new SpatialSoundFile(this.context, path, this.sounds[i], gainValue, playbackRateDeviation, volume);
-    if (this.createAudio(path)) return this.getSpatialAudio(path);
+    if (this.createAudio(path, category == "music" ? this.musicPrefix : this.soundPrefix)) return this.getSpatialAudio(path);
     app.menu.warn.show("Failed to load sound: '" + path + '\x27');
     return this.getSpatialAudio("multi/default.wav");
 };
@@ -7554,7 +7585,7 @@ Zone.prototype.bump = function(x, y) {
         'x': x,
         'y': y2
     });
-    this.play(x, y, "sfx/bump.wav", 0.5, 0.04);
+    this.play(x, y, "bump.wav", 0.5, 0.04);
 };
 Zone.prototype.replace = function(x, y, rep) {
     y = this.height() - 0x1 - y;
@@ -7573,7 +7604,7 @@ Zone.prototype.break = function(x, y, rep) {
         tile = td32.decode16(this.mainLayer.data[y2][x]);
     this.mainLayer.data[y2][x] = rep;
     this.effects.push(new _0x5296e0(vec2.make(x, y), tile.index));
-    this.play(x, y, "sfx/break.wav", 1.5, 0.04);
+    this.play(x, y, "break.wav", 1.5, 0.04);
 };
 Zone.prototype.coin = function(x, y) {
     this.dimensions();
@@ -7693,6 +7724,17 @@ Game.prototype.load = function(data) {
 
     /* Load world data */
     this.world = new World(this, data);
+    var reloadAudio = false;
+    if(data.soundOverridePath) {
+        app.audio.setCustomSoundPrefix(data.soundOverridePath);
+        reloadAudio = true;
+    }
+    if(data.musicOverridePath) {
+        app.audio.setCustomMusicPrefix(data.musicOverridePath);
+        reloadAudio = true;
+    }
+    if(reloadAudio)
+        app.audio.initWebAudio(app);
 
     var filterByTileset = function(dict, tileset) {
         return Object.keys(dict).filter(x=>dict[x].tilesets.length == 0 || dict[x].tilesets.includes(tileset))
@@ -7771,7 +7813,7 @@ Game.prototype.stopGameTimer = function() {
 
 /* G13 */
 Game.prototype.gameStartTimer = function(packet) {
-    if(this.startTimer < 0) { this.play("sfx/alert.wav",1.,0.); }
+    if(this.startTimer < 0) { this.play("alert.wav",1.,0.); }
     if(packet.time > 0) { this.startTimer = packet.time; this.remain = app.players.length; }
     else { this.doStart(); }
 };
@@ -8110,19 +8152,19 @@ Game.prototype.doMusic = function() {
     var player = this.getPlayer(),
         zone = this.getZone();
     if (this.gameOver) {
-        app.audio.setMusic("music/gameover.mp3", false);
+        app.audio.setMusic("gameover.mp3", false);
     } else if (player && player.dead)
-        app.audio.setMusic("music/dead.mp3", false);
+        app.audio.setMusic("dead.mp3", false);
     else if (player && player.autoTarget && 0x0 >= this.victory)
-        app.audio.setMusic(zone.winmusic || "music/level.mp3", false);
+        app.audio.setMusic(zone.winmusic || "level.mp3", false);
     else if (0x0 < this.victory && !this.victoryMusic) {
-        app.audio.setMusic(zone.winmusic || "music/castle.mp3", false);
+        app.audio.setMusic(zone.winmusic || "castle.mp3", false);
         this.victoryMusic = true;
     } else if (0x0 < this.victory && 0x4 > this.victory && this.victoryMusic && !app.audio.music.playing) {
-        app.audio.setMusic("music/victory.mp3", false);
+        app.audio.setMusic("victory.mp3", false);
     } else if (app.hurryingUp) {
-        if ((Date.now()-app.hurryUpStart) < 1000*app.audio.getAudioLength("music/hurry.mp3")) {
-            app.audio.setMusic("music/hurry.mp3", false);
+        if ((Date.now()-app.hurryUpStart) < 1000*app.audio.getAudioLength("hurry.mp3")) {
+            app.audio.setMusic("hurry.mp3", false);
         } else {
             if ('' !== zone.fastMusic)
                 app.audio.setMusic(zone.fastMusic, true);
@@ -8232,9 +8274,9 @@ Game.prototype.levelWarp = function(_0x4fb258) {
 Game.prototype.addCoin = function(jackpot, visual) {
     if (visual) {
         if (jackpot)
-            this.play("sfx/gold.wav", 1, 0x0);
+            this.play("gold.wav", 1, 0x0);
         else {
-            this.play("sfx/coin.wav", 0.4, 0x0);
+            this.play("coin.wav", 0.4, 0x0);
         }
     } else {
         this.coinsCollected += 1;
@@ -8245,7 +8287,7 @@ Game.prototype.addCoin = function(jackpot, visual) {
 
 Game.prototype.lifeage = function() {
     this.lives = Math.min(0x63, this.lives + 0x1);
-    this.play("sfx/life.wav", 0x1, 0x0);
+    this.play("life.wav", 0x1, 0x0);
 };
 
 firstLoop = true;
