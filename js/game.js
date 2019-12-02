@@ -2108,12 +2108,6 @@ function GameScreen() {
     document.getElementById("devConsole-ban").onclick = function(){that.banPlayer()};
     document.getElementById("devConsole-rename").onclick = function(){that.startRenamePlayer()};
     document.getElementById("devConsole-renameDone").onclick = function(){that.finishRenamePlayer()};
-    var eg = document.getElementById("devConsole-g");
-    eg.onclick = function(){app.god = !app.god; eg.style.color=app.god?"red":"white";};
-    var er = document.getElementById("devConsole-r");
-    er.onclick = function(){app.reborn = !app.reborn; er.style.color=app.reborn?"red":"white";};
-    var ef = document.getElementById("devConsole-f");
-    ef.onclick = function(){app.fly = !app.fly; ef.style.color=app.fly?"red":"white";};
 }
 GameScreen.prototype.show = function() {
     app.menu.hideAll();
@@ -3198,7 +3192,7 @@ PlayerObject.prototype.control = function() {
         }
         for (var a = this.isSpring ? 0xe : 0x7, b = this.isSpring ? PlayerObject.SPRING_LENGTH_MIN : this.isBounce ? PlayerObject.BOUNCE_LENGTH_MIN : PlayerObject.JUMP_LENGTH_MIN, _0x4f2d3c = 0x0; _0x4f2d3c < PlayerObject.JUMP_SPEED_INC_THRESHOLD.length && Math.abs(this.moveSpeed) >= PlayerObject.JUMP_SPEED_INC_THRESHOLD[_0x4f2d3c]; _0x4f2d3c++) a++;
         if (this.btnA) {
-            if ((this.grounded || app.fly) && !this.btnAHot) {
+            if ((this.grounded) && !this.btnAHot) {
                 this.jumping = 0x0;
                 this.play(0x0 < this.power ? "jump1.wav" : "jump0.wav", 0.7, 0.04);
                 this.btnAHot = true;
@@ -3337,7 +3331,6 @@ PlayerObject.prototype.bounce = function() {
     this.isBounce = true;
 };
 PlayerObject.prototype.damage = function(source) {
-    if (app.god) return;
     0x0 < this.damageTimer || 0x0 < this.starTimer || this.isState(PlayerObject.SNAME.TRANSFORM) || this.isState(PlayerObject.SNAME.CLIMB) || this.isState(PlayerObject.SNAME.POLE) || this.pipeWarp || 0x0 < this.pipeTimer || 0x0 < this.pipeDelay || this.autoTarget || (0x0 < this.power ? (this.tfm(0x0), this.damageTimer = PlayerObject.DAMAGE_TIME) : this.kill());
 };
 PlayerObject.prototype.invuln = function() {
@@ -8121,7 +8114,7 @@ Game.prototype.doStep = function() {
             }
         } else
             this.gameOverTimer = 0x0;
-    } else if ((0x0 < this.lives || app.reborn) && 0x0 >= this.victory) {
+    } else if ((0x0 < this.lives) && 0x0 >= this.victory) {
         _0x504fb1 = this.getZone().level;
         this.doSpawn();
         this.levelWarp(_0x504fb1);
@@ -8465,9 +8458,6 @@ function App() {
     this.hurryingUp = false;
     this.hurryUpStart = null;
     this.hurryUpTime = null;
-    this.god = false;
-    this.reborn = false;
-    this.fly = false;
     this.overrideSkinImg = "overrideSkinImg" in localStorage ? makeImageFromData(localStorage["overrideSkinImg"]) : undefined;
     this.overrideMapImg = "overrideMapImg" in localStorage ? makeImageFromData(localStorage["overrideMapImg"]) : undefined;
     this.overrideObjImg = "overrideObjImg" in localStorage ? makeImageFromData(localStorage["overrideObjImg"]) : undefined;
