@@ -2089,6 +2089,7 @@ function GameScreen() {
     this.devConsoleOn = false;
     this.devConsoleRenameForm = document.getElementById("devConsole-renameForm");
     this.devConsoleRenameField = document.getElementById("devConsole-renameField");
+    this.devConsoleReSquadField = document.getElementById("devConsole-resquadField");
     this.selectedPlayerId = null;
     this.renamingPlayerId = null;
     this.selectedPlayerTr = null;
@@ -2108,6 +2109,7 @@ function GameScreen() {
     document.getElementById("devConsole-ban").onclick = function(){that.banPlayer()};
     document.getElementById("devConsole-rename").onclick = function(){that.startRenamePlayer()};
     document.getElementById("devConsole-renameDone").onclick = function(){that.finishRenamePlayer()};
+    document.getElementById("devConsole-resquadDone").onclick = function(){that.finishReSquadPlayer()};
 }
 GameScreen.prototype.show = function() {
     app.menu.hideAll();
@@ -2177,7 +2179,9 @@ GameScreen.prototype.banPlayer = function() {
 GameScreen.prototype.startRenamePlayer = function() {
     if (this.selectedPlayerId === null) return;
     this.renamingPlayerId = this.selectedPlayerId;
-    this.devConsoleRenameField.value = app.getPlayerInfo(this.selectedPlayerId).name;
+    var playerInfo = app.getPlayerInfo(this.selectedPlayerId);
+    this.devConsoleRenameField.value = playerInfo.name;
+    this.devConsoleReSquadField.value = playerInfo.team;
     this.devConsoleRenameForm.style.display = "";
 };
 
@@ -2187,6 +2191,19 @@ GameScreen.prototype.finishRenamePlayer = function() {
     if (newName === "") return;
     app.game.send({
         'type': "gnm",
+        'pid': this.renamingPlayerId,
+        'name': newName
+    });
+    this.renamingPlayerId = null;
+    this.devConsoleRenameForm.style.display = "none";
+};
+
+GameScreen.prototype.finishReSquadPlayer = function() {
+    if (this.selectedPlayerId === null) return;
+    var newName = this.devConsoleReSquadField.value;
+    if (newName === "") return;
+    app.game.send({
+        'type': "gsq",
         'pid': this.renamingPlayerId,
         'name': newName
     });
@@ -2452,6 +2469,8 @@ GameState.prototype.handlePacket = function(data) {
             return this.recieveLevelSelectResult(data), true;
         case "gnm":
             return this.renamePlayer(data), true;
+        case "gsq":
+            return this.resquadPlayer(data), true;
         case "ghu":
             return app.hurryUp(data), true;
         case "gtk":
@@ -2546,6 +2565,28 @@ GameState.prototype.renamePlayer = function(data) {
     }
     if (data.pid == app.game.pid && player.isGuest) {
         Cookies.set("name", data.name, {'expires': 0x1e});
+    }
+};
+GameState.prototype.resquadPlayer = function(data) {
+    var player = app.getPlayerInfo(data.pid);
+    player.team = data.name;
+    app.menu.game.updatePlayerList(app.players);
+    if (data.pid == app.game.pid) {
+        app.game.team = data.name;
+        for (var obj of app.game.objects) {
+            if (undefined !== obj.pid) {
+                var player1 = app.getPlayerInfo(obj.pid);
+                obj.name = (player1.team == app.game.team) ? player1.displayName : undefined;
+            }
+        }
+    } else {
+        var ghost = app.game.getGhost(data.pid);
+        if (ghost) {
+            ghost.name = (player.team == app.game.team) ? player.displayName : undefined;
+        }
+    }
+    if (data.pid == app.game.pid && player.isGuest) {
+        Cookies.set("team", data.name, {'expires': 0x1e});
     }
 };
 GameState.prototype.send = function(data) {
