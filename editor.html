@@ -171,10 +171,6 @@
               <div class='tool-var'>Tile Data</div><div class='tool-type'>td32</div>
               <div id='editor-tool-tile-raw' class="tool-val-im"></div>
             </div>
-            <div class='tool-box'>
-              <div class='tool-var'>Definition Name</div><div class='tool-type'>string</div>
-              <div id='editor-tool-tile-name' class="tool-val-im"></div>
-            </div>
             <div class='tool-div'></div>
             <div class='tool-box'>
               <div class='tool-var'>Sprite Index</div><div class='tool-type'>11bit int</div>
@@ -190,11 +186,15 @@
             </div>
             <div class='tool-box'>
               <div class='tool-var'>Tile Definition</div><div class='tool-type'>byte</div>
-              <input id='editor-tool-tile-def' type='text' class="tool-val"/>
+              <select id='editor-tool-tile-def' class="tool-val"></select>
             </div>
             <div class='tool-box'>
-              <div class='tool-var'>Extra Data</div><div class='tool-type'>byte</div>
+              <div id='editor-tool-tile-data-name' class='tool-var'>Extra Data</div><div class='tool-type'>byte</div>
               <input id='editor-tool-tile-data' type='text' class="tool-val"/>
+              <select id='editor-tool-tile-data-objid' class="tool-val"></select>
+            </div>
+            <div class='tool-box'>
+              <div id="editor-tool-tile-brush-change-warning" class='tool-warning' style="display:none">Modified tile not placed</div>
             </div>
             <div class='tool-div'></div>
             <div class='tool-box' style='font-size: 80%'>
@@ -339,7 +339,8 @@
       <script src='js/lib/jquery/jquery-3.1.1.min.js'></script>
       
       <!-- Core -->
-      <script src='js/editor.min.js?v=2.1.2'></script>
+      <script src='js/defs.js?v=2.1.2'></script>
+      <script src='js/editor.js?v=2.1.2'></script>
 
-    </body>        
+    </body>
 </html>

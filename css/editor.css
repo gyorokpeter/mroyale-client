@@ -165,6 +165,13 @@ html,body {
   margin-right: 8px;
 }
 
+.tool-warning {
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 8px;
+  color: red;
+}
+
 .tool-type {
   display: inline-block;
   font-size: 75%;

@@ -397,9 +397,8 @@ td32.GEN_FUNC.BREAK = function(game, pid, td, level, zone, x, y, type) {
 };
 
 td32.TILE_PROPERTIES = {
-    /* Nothing */
+    /* Air */
     0x00: {
-        NAME: "AIR",
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
@@ -407,7 +406,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Solid Standard */
     0x01: {
-        NAME: "SOLID STANDARD",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
@@ -415,7 +413,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Solid Bumpable */
     0x02: {
-        NAME: "SOLID BUMPABLE",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -434,7 +431,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Solid Breakable Normal */
     0x03: {
-        NAME: "SOLID BREAKABLE NORMAL",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -457,7 +453,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Solid Damage */
     0x04: {
-        NAME: "SOLID DAMAGE",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
@@ -474,7 +469,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Semisolid */
     0x05: {
-        NAME: "SEMISOLID",
         COLLIDE: true,
         PLATFORM: true,
         HIDDEN: false,
@@ -483,16 +477,39 @@ td32.TILE_PROPERTIES = {
     },
     /* Semisolid Weak */
     0x06: {
-        NAME: "SEMISOLID WEAK",
         COLLIDE: true,
         PLATFORM: "WEAK",
         HIDDEN: false,
         ASYNC: true,
         TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
     },
-    /* Item Block Normal */
+    /* Water Standard */
+    7: {
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        WATER: 1,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
+    /* Water Surface */
+    8: {
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        WATER: 2,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
+    /* Water Current */
+    9: {
+        COLLIDE: false,
+        HIDDEN: false,
+        ASYNC: true,
+        WATER: 1,
+        WATER_CURRENT: true,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {}
+    },
+    /* Item Block Standard */
     0x11: {
-        NAME: "ITEM BLOCK STANDARD",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -514,9 +531,8 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
-    /* Coin Block Normal */
+    /* Coin Block Standard */
     0x12: {
-        NAME: "COIN BLOCK STANDARD",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -541,7 +557,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Coin Block Multi */
     0x13: {
-        NAME: "COIN BLOCK MULTI",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -575,7 +590,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Vine Block */
     0x18: {
-        NAME: "VINE BLOCK",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -599,7 +613,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Item Block Invisible */
     0x15: {
-        NAME: "ITEM BLOCK INVISIBLE",
         COLLIDE: true,
         HIDDEN: true,
         ASYNC: false,
@@ -623,7 +636,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Coin Block INVISIBLE */
     0x16: {
-        NAME: "COIN BLOCK INVISIBLE",
         COLLIDE: true,
         HIDDEN: true,
         ASYNC: false,
@@ -648,7 +660,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Warp Tile */
     0x51: {
-        NAME: "WARP TILE",
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
@@ -663,9 +674,8 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
-    /* Warp Pipe */
+    /* Warp Pipe Slow */
     0x52: {
-        NAME: "WARP PIPE SLOW",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
@@ -689,9 +699,8 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
-    /* Warp Pipe Horiz */
+    /* Warp Pipe Right Slow */
     0x53: {
-        NAME: "WARP PIPE RIGHT SLOW",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
@@ -706,9 +715,8 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
-    /* Warp Pipe */
+    /* Warp Pipe Fast */
     0x54: {
-        NAME: "WARP PIPE FAST",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
@@ -732,9 +740,8 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
-    /* Warp Pipe Horiz */
+    /* Warp Pipe Right Fast */
     0x55: {
-        NAME: "WARP PIPE RIGHT FAST",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: true,
@@ -749,9 +756,8 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
-    /* End of Level Warp */
+    /* Level End Warp */
     0x56: {
-        NAME: "LEVEL END WARP",
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
@@ -768,7 +774,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Flagpole */
     0xA0: {
-        NAME: "FLAGPOLE",
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
@@ -786,7 +791,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Vine */
     0xA5: {
-        NAME: "VINE",
         COLLIDE: false,
         HIDDEN: false,
         ASYNC: true,
@@ -804,7 +808,6 @@ td32.TILE_PROPERTIES = {
     },
     /* Vote Block */
     0xF0: {
-        NAME: "VOTE BLOCK",
         COLLIDE: true,
         HIDDEN: false,
         ASYNC: false,
@@ -2660,6 +2663,7 @@ function PlayerObject(game, level, zone, pos, pid, skin, isDev) {
     this.fallSpeed = this.moveSpeed = 0x0;
     this.jumping = -0x1;
     this.grounded = this.isSpring = this.isBounce = false;
+    this.underWater = 0;    //0:no, 1:standard, 2:surface
     this.name = undefined;
     this.starTimer = this.power = 0x0;
     this.starMusic = undefined;
@@ -3119,8 +3123,14 @@ PlayerObject.prototype.step = function() {
                 if (!this.poleWait)
                     if (0x0 >= this.poleTimer && this.autoTarget) this.setState(PlayerObject.SNAME.STAND);
                     else {
-                        for (var _0x4d4e5b = vec2.add(this.pos, vec2.make(0x0, -0.25)), _0x280236 = vec2.make(this.pos.x, this.pos.y - 0.25), _0x191ffc = vec2.make(this.dim.x, this.dim.y + 0.25), _0x280236 = this.game.world.getZone(this.level, this.zone).getTiles(_0x280236, _0x191ffc), _0x191ffc = vec2.make(0x1, 0x1), _0x1f539b = false, _0x5a99db = 0x0; _0x5a99db < _0x280236.length; _0x5a99db++) {
-                            var _0x4eb640 = _0x280236[_0x5a99db];
+                        var _0x4d4e5b = vec2.add(this.pos, vec2.make(0x0, -0.25));
+                        var _0x280236 = vec2.make(this.pos.x, this.pos.y - 0.25);
+                        var _0x191ffc = vec2.make(this.dim.x, this.dim.y + 0.25);
+                        var _0x280236 = this.game.world.getZone(this.level, this.zone).getTiles(_0x280236, _0x191ffc);
+                        var _0x191ffc = vec2.make(0x1, 0x1);
+                        var _0x1f539b = false;
+                        for (var i = 0x0; i < _0x280236.length; i++) {
+                            var _0x4eb640 = _0x280236[i];
                             if (squar.intersection(_0x4eb640.pos, _0x191ffc, _0x4d4e5b, this.dim) && _0x4eb640.definition.COLLIDE) {
                                 _0x1f539b = true;
                                 break;
@@ -3218,30 +3228,34 @@ PlayerObject.prototype.control = function() {
                 this.moveSpeed += PlayerObject.MOVE_SPEED_DECEL * this.btnD[0x0];
                 this.setState(PlayerObject.SNAME.SLIDE);
             } else {
-                this.moveSpeed = this.btnD[0x0] * Math.min(Math.abs(this.moveSpeed) + 0.0125, this.btnBg ? 0.315 : 0.215);
+                this.moveSpeed = this.btnD[0x0] * Math.min(Math.abs(this.moveSpeed) + 0.0125, this.underWater ? 0.200 : this.btnBg ? 0.315 : 0.215);
                 this.setState(PlayerObject.SNAME.RUN);
             }
-            if (this.grounded) this.reverse = 0x0 <= this.btnD[0x0];
+            if (this.grounded || this.underWater) this.reverse = 0x0 <= this.btnD[0x0];
         } else {
-            if (0.01 < Math.abs(this.moveSpeed)) {
-                this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0);
-                this.setState(PlayerObject.SNAME.RUN);
-            } else {
-                this.moveSpeed = 0x0, this.setState(PlayerObject.SNAME.STAND);
+            if (this.grounded) {
+                if (0.01 < Math.abs(this.moveSpeed)) {
+                    this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0);
+                    this.setState(PlayerObject.SNAME.RUN);
+                } else {
+                    this.moveSpeed = 0x0, this.setState(PlayerObject.SNAME.STAND);
+                }
+                if (-0x1 === this.btnD[0x1]) this.setState(PlayerObject.SNAME.DOWN);
             }
-            if (-0x1 === this.btnD[0x1]) this.setState(PlayerObject.SNAME.DOWN);
         }
-        for (var a = this.isSpring ? 0xe : 0x7, b = this.isSpring ? PlayerObject.SPRING_LENGTH_MIN : this.isBounce ? PlayerObject.BOUNCE_LENGTH_MIN : PlayerObject.JUMP_LENGTH_MIN, _0x4f2d3c = 0x0; _0x4f2d3c < PlayerObject.JUMP_SPEED_INC_THRESHOLD.length && Math.abs(this.moveSpeed) >= PlayerObject.JUMP_SPEED_INC_THRESHOLD[_0x4f2d3c]; _0x4f2d3c++) a++;
+        var a = this.isSpring ? 0xe : this.underWater==1 ? 0.1 : 0x7;
+        var b = this.isSpring ? PlayerObject.SPRING_LENGTH_MIN : this.isBounce ? PlayerObject.BOUNCE_LENGTH_MIN : PlayerObject.JUMP_LENGTH_MIN;
+        for (i = 0x0; i < PlayerObject.JUMP_SPEED_INC_THRESHOLD.length && Math.abs(this.moveSpeed) >= PlayerObject.JUMP_SPEED_INC_THRESHOLD[i]; i++) a++;
         if (this.btnA) {
-            if ((this.grounded) && !this.btnAHot) {
+            if ((this.grounded || this.underWater) && !this.btnAHot) {
                 this.jumping = 0x0;
-                this.play(0x0 < this.power ? "jump1.wav" : "jump0.wav", 0.7, 0.04);
+                this.play(this.underWater ? "stomp.wav" : 0x0 < this.power ? "jump1.wav" : "jump0.wav", 0.7, 0.04);
                 this.btnAHot = true;
             }
             if (this.jumping > a) this.jumping = -0x1;
         } else {
             this.btnAHot = false;
-            this.jumping > b && (this.jumping = -0x1);
+            if (this.jumping > b) this.jumping = -0x1;
         }
         this.grounded || this.setState(PlayerObject.SNAME.FALL);
         this.btnB && !this.btnBde && 0x2 === this.power && !this.isState(PlayerObject.SNAME.DOWN) && !this.isState(PlayerObject.SNAME.SLIDE) && 0x1 > this.attackTimer && this.attackCharge >= PlayerObject.ATTACK_CHARGE && (this.attack(), this.game.out.push(NET013.encode(0x1)));
@@ -3249,72 +3263,111 @@ PlayerObject.prototype.control = function() {
         0x0 < this.attackTimer && 0x2 === this.power && (this.isState(PlayerObject.SNAME.STAND) || this.isState(PlayerObject.SNAME.RUN)) && this.setState(PlayerObject.SNAME.ATTACK);
     }
 };
+
 PlayerObject.prototype.physics = function() {
-    -0x1 !== this.jumping ? (this.fallSpeed = 0.45 - 0.005 * this.jumping, this.jumping++, this.grounded = false) : (this.isSpring = this.isBounce = false, this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - 0.085, -0.45));
-    for (var _0x57b791 = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), _0x513d1f = vec2.make(this.pos.x + Math.min(0x0, this.moveSpeed), this.pos.y + Math.min(0x0, this.fallSpeed)), _0x208a75 = vec2.make(this.dim.x + Math.max(0x0, this.moveSpeed), this.dim.y + Math.max(0x0, this.fallSpeed)), _0x513d1f = this.game.world.getZone(this.level, this.zone).getTiles(_0x513d1f, _0x208a75), _0x20e6e6 = this.game.getPlatforms(), _0x208a75 = vec2.make(0x1, 0x1), grounded = false, tilePlatform = [], tilePlatformColliding = [], _0x27521c = [], _0x27c16e = [], _0x346d1d = [], _0x50b7b9 = [], _0x535e81 = [], _0x3f505e, _0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) {
-        var obj = _0x513d1f[_0x5b32b0];
+    if (-0x1 !== this.jumping) {
+        this.fallSpeed = (this.underWater==1?0.3:0.45) - 0.005 * this.jumping;
+        this.jumping++;
+        this.grounded = false;
+    } else {
+        this.isSpring = this.isBounce = false;
+        if (this.grounded) this.fallSpeed = 0x0;
+        this.fallSpeed = Math.max(this.fallSpeed + (this.underWater==1?-0.03:-0.085), -0.45);
+    }
+    var newPos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed));
+    var tilePosMin = vec2.make(this.pos.x + Math.min(0x0, this.moveSpeed), this.pos.y + Math.min(0x0, this.fallSpeed));
+    var tilePosMax = vec2.make(this.dim.x + Math.max(0x0, this.moveSpeed), this.dim.y + Math.max(0x0, this.fallSpeed));
+    var tiles = this.game.world.getZone(this.level, this.zone).getTiles(tilePosMin, tilePosMax);
+    var _0x20e6e6 = this.game.getPlatforms();
+    var oneByOne = vec2.make(0x1, 0x1);
+    var grounded = false;
+    var tilePlatform = [];
+    tilePlatformColliding = [];
+    var _0x27521c = [];
+    var _0x27c16e = [];
+    var _0x346d1d = [];
+    var _0x50b7b9 = [];
+    var _0x535e81 = [];
+    var _0x3f505e;
+    var newUnderWater = 0;
+    var waterCurrentA = 0;
+    var waterCurrentB = 0;
+    for (i = 0x0; i < tiles.length; i++) {
+        var obj = tiles[i];
         if (obj.definition.PLATFORM) tilePlatform.push(obj);
         else if (obj.definition.COLLIDE)
             if (obj.definition.HIDDEN) _0x27521c.push(obj);
-            else if (squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim) || squar.intersection(obj.pos, _0x208a75, this.pos, this.dim)) 0.01 < Math.abs(this.moveSpeed) && this.grounded && this.pos.y <= obj.pos.y && _0x346d1d.push(obj), _0x27521c.push(obj);
+            else if (squar.intersection(obj.pos, oneByOne, newPos, this.dim) || squar.intersection(obj.pos, oneByOne, this.pos, this.dim)) 0.01 < Math.abs(this.moveSpeed) && this.grounded && this.pos.y <= obj.pos.y && _0x346d1d.push(obj), _0x27521c.push(obj);
+        if (obj.definition.WATER == 2 && newUnderWater == 0) newUnderWater = 2;
+        else if (obj.definition.WATER == 1) {
+            newUnderWater = 1;
+            if (obj.definition.WATER_CURRENT && squar.intersection(obj.pos, oneByOne, newPos, this.dim)) {
+                var d = obj.data;
+                if (d<128) waterCurrentA = Math.min(waterCurrentA,d-128);
+                if (d>=128) waterCurrentB = Math.max(waterCurrentB,d-127);
+            }
+        }
     }
-    for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x20e6e6.length; _0x5b32b0++) obj = _0x20e6e6[_0x5b32b0], squar.intersection(obj.pos, obj.dim, _0x57b791, this.dim) && _0x535e81.push(obj);
-    for (_0x5b32b0 = 0x0; _0x5b32b0 < tilePlatform.length; _0x5b32b0++) obj = tilePlatform[_0x5b32b0], squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim) && tilePlatformColliding.push(obj);
-    _0x20e6e6 = vec2.make(_0x57b791.x, this.pos.y);
+    var waterCurrent = (waterCurrentA+waterCurrentB)*0.0025;
+    newPos = vec2.add(newPos, vec2.make(waterCurrent, 0));
+    this.underWater = newUnderWater;
+    for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x20e6e6.length; _0x5b32b0++) obj = _0x20e6e6[_0x5b32b0], squar.intersection(obj.pos, obj.dim, newPos, this.dim) && _0x535e81.push(obj);
+    for (_0x5b32b0 = 0x0; _0x5b32b0 < tilePlatform.length; _0x5b32b0++) obj = tilePlatform[_0x5b32b0], squar.intersection(obj.pos, oneByOne, newPos, this.dim) && tilePlatformColliding.push(obj);
+    _0x20e6e6 = vec2.make(newPos.x, this.pos.y);
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27521c.length; _0x5b32b0++) {
         obj = _0x27521c[_0x5b32b0];
-        if (!obj.definition.HIDDEN && squar.intersection(obj.pos, _0x208a75, _0x20e6e6, this.dim)) {
+        if (!obj.definition.HIDDEN && squar.intersection(obj.pos, oneByOne, _0x20e6e6, this.dim)) {
             obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
-            _0x20e6e6.x = _0x20e6e6.x + 0.5 * this.dim.x < obj.pos.x + 0.5 * _0x208a75.x ? obj.pos.x - this.dim.x : obj.pos.x + _0x208a75.x;
+            _0x20e6e6.x = _0x20e6e6.x + 0.5 * this.dim.x < obj.pos.x + 0.5 * oneByOne.x ? obj.pos.x - this.dim.x : obj.pos.x + oneByOne.x;
             this.moveSpeed *= 0.33;
         }
     }
-    _0x57b791.x = _0x20e6e6.x;
+    newPos.x = _0x20e6e6.x;
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27521c.length; _0x5b32b0++) {
          obj = _0x27521c[_0x5b32b0];
-         if (squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim)) {
+         if (squar.intersection(obj.pos, oneByOne, newPos, this.dim)) {
             if (this.fallSpeed > PlayerObject.BLOCK_BUMP_THRESHOLD) { _0x50b7b9.push(obj); }
             if (0x0 > this.fallSpeed && this.pos.y >= obj.pos.y) { _0x27c16e.push(obj); }
          }
     }
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27521c.length; _0x5b32b0++) {
         obj = _0x27521c[_0x5b32b0];
-        if (squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim)) {
+        if (squar.intersection(obj.pos, oneByOne, newPos, this.dim)) {
             obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
-            if (this.pos.y >= _0x57b791.y) {
+            if (this.pos.y >= newPos.y) {
                 if (!obj.definition.HIDDEN) {
-                    _0x57b791.y = obj.pos.y + _0x208a75.y;
+                    newPos.y = obj.pos.y + oneByOne.y;
                     this.fallSpeed = 0x0;
                     grounded = true;
                 }
             }
             else {
-                _0x57b791.y = obj.pos.y - this.dim.y;
+                newPos.y = obj.pos.y - this.dim.y;
                 this.fallSpeed = 0;
             }
         }
     }
     for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x535e81.length; _0x5b32b0++)
-        if (obj = _0x535e81[_0x5b32b0], this.pos.y >= _0x57b791.y && obj.pos.y + obj.dim.y - this.pos.y < PlayerObject.PLATFORM_SNAP_DIST) {
-            _0x57b791.y = obj.pos.y + obj.dim.y;
+        if (obj = _0x535e81[_0x5b32b0], this.pos.y >= newPos.y && obj.pos.y + obj.dim.y - this.pos.y < PlayerObject.PLATFORM_SNAP_DIST) {
+            newPos.y = obj.pos.y + obj.dim.y;
             grounded = true;
             _0x3f505e = obj;
             break;
         }
     for (_0x5b32b0 = 0x0; _0x5b32b0 < tilePlatformColliding.length; _0x5b32b0++) {
         obj = tilePlatformColliding[_0x5b32b0];
-        if (squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim)) {
-            if (this.pos.y - (obj.definition.PLATFORM && obj.definition.PLATFORM === "WEAK" ? this.dim : _0x208a75).y >= obj.pos.y) {
-                _0x57b791.y = obj.pos.y + _0x208a75.y;
+        if (squar.intersection(obj.pos, oneByOne, newPos, this.dim)) {
+            if (this.pos.y - (obj.definition.PLATFORM && obj.definition.PLATFORM === "WEAK" ? this.dim : oneByOne).y >= obj.pos.y) {
+                newPos.y = obj.pos.y + oneByOne.y;
                 this.fallSpeed = 0x0;
                 grounded = true;
             }
         }
     }
     this.grounded = grounded;
-    this.pos = _0x57b791;
+    this.pos = newPos;
     _0x3f505e && _0x3f505e.riding(this);
-    for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x513d1f.length; _0x5b32b0++) obj = _0x513d1f[_0x5b32b0], squar.intersection(obj.pos, _0x208a75, _0x57b791, this.dim) && obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
+    for (_0x5b32b0 = 0x0; _0x5b32b0 < tiles.length; _0x5b32b0++) obj = tiles[_0x5b32b0], squar.intersection(obj.pos, oneByOne, newPos, this.dim) && obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.TOUCH);
     if (this.isState(PlayerObject.SNAME.DOWN) && 0.05 > Math.abs(this.moveSpeed))
         for (_0x5b32b0 = 0x0; _0x5b32b0 < _0x27c16e.length; _0x5b32b0++) obj = _0x27c16e[_0x5b32b0], obj.definition.TRIGGER(this.game, this.pid, obj, this.level, this.zone, obj.pos.x, obj.pos.y, td32.TRIGGER.TYPE.DOWN);
     if (this.isState(PlayerObject.SNAME.RUN))
@@ -3505,8 +3558,8 @@ PlayerObject.prototype.getStateByPowerIndex = function(_0x40e9b8, _0x2a26f5) {
         if (_0x44768c.NAME === _0x40e9b8 && (_0x44768c.ID >= PlayerObject.GENERIC_INDEX || _0x44768c.ID >= PlayerObject.POWER_INDEX_SIZE * _0x2a26f5 && _0x44768c.ID < PlayerObject.POWER_INDEX_SIZE * (_0x2a26f5 + 0x1))) return _0x44768c;
     }
 };
-PlayerObject.prototype.isState = function(_0x5b2890) {
-    return _0x5b2890 === this.state.NAME;
+PlayerObject.prototype.isState = function(stName) {
+    return stName === this.state.NAME;
 };
 PlayerObject.prototype.draw = function(spriteList) {
     if (!(this.isState(PlayerObject.SNAME.HIDE) || 0x0 < this.pipeDelay || 0x0 < this.damageTimer && 0x1 < this.damageTimer % 0x3)) {

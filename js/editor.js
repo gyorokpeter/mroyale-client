@@ -1253,20 +1253,20 @@ WorldTool.prototype.destroy = function() {
 };
 "use strict";
 
-function LevelTool(_0x2a125e) {
-    this.editor = _0x2a125e;
+function LevelTool(editor) {
+    this.editor = editor;
     this.element = document.getElementById("editor-tool-level");
     this.valId = document.getElementById("editor-tool-level-id");
     this.valName = document.getElementById("editor-tool-level-name");
     this.valInitial = document.getElementById("editor-tool-level-initial");
-    var _0x11c83b = this;
+    var that = this;
     this.btnApply = document.getElementById("editor-tool-level-apply");
     this.btnApply.onclick = function() {
-        _0x11c83b.reload();
+        that.reload();
     };
     this.btnNew = document.getElementById("editor-tool-level-new");
     this.btnNew.onclick = function() {
-        _0x11c83b.addZone();
+        that.addZone();
     };
 }
 LevelTool.prototype.addZone = function() {
@@ -1502,26 +1502,38 @@ function TileTool(editor) {
     this.editor = editor;
     this.element = document.getElementById("editor-tool-tile");
     this.valRaw = document.getElementById("editor-tool-tile-raw");
-    this.valName = document.getElementById("editor-tool-tile-name");
     this.valIndex = document.getElementById("editor-tool-tile-index");
     this.valBump = document.getElementById("editor-tool-tile-bump");
     this.valDepth = document.getElementById("editor-tool-tile-depth");
     this.valDef = document.getElementById("editor-tool-tile-def");
-    this.valData = document.getElementById("editor-tool-tile-data");
+    this.valTileData = document.getElementById("editor-tool-tile-data");
+    this.valTileDataName = document.getElementById("editor-tool-tile-data-name");
+    this.valTileDataObjId = document.getElementById("editor-tool-tile-data-objid");
+    this.brushChangeWarning = document.getElementById("editor-tool-tile-brush-change-warning");
     var that = this;
     this.valIndex.onchange = function() {
+        that.brushChangeWarning.style.display="";
         that.update();
     };
     this.valBump.onchange = function() {
+        that.brushChangeWarning.style.display="";
         that.update();
     };
     this.valDepth.onchange = function() {
+        that.brushChangeWarning.style.display="";
         that.update();
     };
     this.valDef.onchange = function() {
+        that.brushChangeWarning.style.display="";
         that.update();
     };
-    this.valData.onchange = function() {
+    this.valTileData.onchange = function() {
+        that.brushChangeWarning.style.display="";
+        that.update();
+    };
+    this.valTileDataObjId.onchange = function() {
+        that.brushChangeWarning.style.display="";
+        that.valTileData.value = that.valTileDataObjId.value;
         that.update();
     };
     this.brush = emptyTile;
@@ -1546,8 +1558,10 @@ TileTool.prototype.input = function(lastInput, mouse, keys) {
             if (0x0 > targetTile.x || targetTile.x > dims.x - 0x1 || 0x0 > targetTile.y || targetTile.y > dims.y - 0x1) {
             } else {
                 if (mouse.lmb) {
+                    this.brushChangeWarning.style.display="none";
                     zoneData[targetTile.y][targetTile.x] = this.brush;
                 } else if (mouse.mmb) {
+                    this.brushChangeWarning.style.display="none";
                     this.setBrush(zoneData[targetTile.y][targetTile.x]);
                 }
             }
@@ -1560,23 +1574,27 @@ TileTool.prototype.update = function() {
             _0x2b097c = Math.max(0x0, Math.min(0xf, parseInt(this.valBump.value))),
             _0x835d38 = Math.max(0x0, Math.min(0x1, parseInt(this.valDepth.value))),
             _0x2de802 = Math.max(0x0, Math.min(0xff, parseInt(this.valDef.value))),
-            _0x244c28 = Math.max(0x0, Math.min(0xff, parseInt(this.valData.value)));
+            _0x244c28 = Math.max(0x0, Math.min(0xff, parseInt(this.valTileData.value)));
         if (isNaN(_0x357177) || isNaN(_0x2b097c) || isNaN(_0x835d38) || isNaN(_0x2de802) || isNaN(_0x244c28)) throw "oof";
         this.setBrush(td32.encode(_0x357177, _0x2b097c, _0x835d38, _0x2de802, _0x244c28));
     } catch (_0x379519) {
         this.valRaw.classList.add("red");
     }
 };
-TileTool.prototype.setBrush = function(_0x4e9cce) {
-    this.brush = _0x4e9cce;
-    _0x4e9cce = td32.asArray(this.brush);
-    this.valIndex.value = _0x4e9cce[0x0];
-    this.valBump.value = _0x4e9cce[0x1];
-    this.valDepth.value = _0x4e9cce[0x2] ? 0x1 : 0x0;
-    this.valDef.value = _0x4e9cce[0x3];
-    this.valData.value = _0x4e9cce[0x4];
+TileTool.prototype.setBrush = function(newBrush) {
+    this.brush = newBrush;
+    var brushData = td32.asArray(this.brush);
+    this.valIndex.value = brushData[0x0];
+    this.valBump.value = brushData[0x1];
+    this.valDepth.value = brushData[0x2] ? 0x1 : 0x0;
+    var def = brushData[0x3];
+    this.valDef.value = def;
+    this.valTileData.value = brushData[0x4];
+    this.valTileData.style.display = tileDefs[def].extraDataType !== 'objId' ? "" : "none";
+    this.valTileDataObjId.value = brushData[0x4];
+    this.valTileDataObjId.style.display = tileDefs[def].extraDataType === 'objId' ? "" : "none";
+    this.valTileDataName.innerText = 'extraDataName' in tileDefs[def] ? tileDefs[def].extraDataName : 'Unused Data';
     this.valRaw.innerHTML = this.brush;
-    this.valName.innerHTML = td32.decode(this.brush).definition.NAME;
     this.valRaw.classList.remove("red");
 };
 TileTool.prototype.reload = function() {
@@ -1596,7 +1614,7 @@ TileTool.prototype.destroy = function() {
     this.valBump.onchange = void 0x0;
     this.valDepth.onchange = void 0x0;
     this.valDef.onchange = void 0x0;
-    this.valData.onchange = void 0x0;
+    this.valTileData.onchange = void 0x0;
 };
 "use strict";
 
@@ -6329,6 +6347,20 @@ function Editor(data) {
     this.middle = document.getElementById("editor-middle");
     this.container = document.getElementById("editor-display");
     this.canvas = document.getElementById("editor-display-canvas");
+    var tileDef = document.getElementById("editor-tool-tile-def");
+    for (var x in tileDefs) {
+        var elem = document.createElement("option");
+        elem.value = x;
+        elem.innerText = x+" - "+tileDefs[x].name;
+        tileDef.appendChild(elem);
+    }
+    var tileDataObjId = document.getElementById("editor-tool-tile-data-objid");
+    for (var x in objDefs) {
+        var elem = document.createElement("option");
+        elem.value = x;
+        elem.innerText = x+" - "+objDefs[x].name;
+        tileDataObjId.appendChild(elem);
+    }
     this.input = new Input(this, this.canvas);
     this.display = new EditorDisplay(this, this.container, this.canvas, data.resource);
     this.load(data);
