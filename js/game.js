@@ -3416,8 +3416,8 @@ PlayerObject.prototype.sound = GameObject.prototype.sound;
 PlayerObject.prototype.attack = function() {
     this.attackTimer = PlayerObject.ATTACK_DELAY;
     this.attackCharge -= PlayerObject.ATTACK_CHARGE;
-    var _0x328458 = this.reverse ? vec2.add(this.pos, PlayerObject.PROJ_OFFSET) : vec2.add(this.pos, vec2.multiply(PlayerObject.PROJ_OFFSET, vec2.make(-0x1, 0x1)));
-    this.game.createObject(_0x6c6f53.ID, this.level, this.zone, _0x328458, [this.reverse, this.pid]);
+    var dir = this.reverse ? vec2.add(this.pos, PlayerObject.PROJ_OFFSET) : vec2.add(this.pos, vec2.multiply(PlayerObject.PROJ_OFFSET, vec2.make(-0x1, 0x1)));
+    this.game.createObject(FireballObject.ID, this.level, this.zone, dir, [this.reverse, this.pid, this.skin]);
     this.play("fireball.wav", 0x1, 0.04);
 };
 PlayerObject.prototype.bounce = function() {
@@ -5500,76 +5500,77 @@ _0x30df09.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(_0x30df09);
 "use strict";
 
-function _0x6c6f53(_0x36213e, _0xed9c2f, _0xdb3ba1, _0x192895, _0x145ee8, _0x367c0a) {
-    GameObject.call(this, _0x36213e, _0xed9c2f, _0xdb3ba1, _0x192895);
-    this.owner = _0x367c0a;
-    this.state = _0x6c6f53.STATE.IDLE;
+function FireballObject(game, level, zone, pos, dir, owner, skin) {
+    GameObject.call(this, game, level, zone, pos);
+    this.owner = owner;
+    this.skin = skin;
+    this.state = FireballObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.deadTimer = this.anim = 0x0;
     this.dim = vec2.make(0.5, 0.5);
-    this.fallSpeed = -_0x6c6f53.FALL_SPEED_MAX;
-    this.dir = _0x145ee8;
+    this.fallSpeed = -FireballObject.FALL_SPEED_MAX;
+    this.dir = dir;
 }
-_0x6c6f53.ASYNC = true;
-_0x6c6f53.ID = 0xa1;
-_0x6c6f53.NAME = "FIREBALL PROJECTILE";
-_0x6c6f53.ANIMATION_RATE = 0x2;
-_0x6c6f53.SOFFSET = vec2.make(-0.25, -0.25);
-_0x6c6f53.DEAD_ANIM_LENGTH = 0x3;
-_0x6c6f53.SPEED = 0.475;
-_0x6c6f53.BOUNCE_SPEED = 0.375;
-_0x6c6f53.FALL_SPEED_MAX = 0.425;
-_0x6c6f53.FALL_SPEED_ACCEL = 0.065;
-_0x6c6f53.SPRITE = {};
-_0x6c6f53.SPRITE_LIST = [{
+FireballObject.ASYNC = true;
+FireballObject.ID = 0xa1;
+FireballObject.NAME = "FIREBALL PROJECTILE";
+FireballObject.ANIMATION_RATE = 0x2;
+FireballObject.SOFFSET = vec2.make(-0.25, -0.25);
+FireballObject.DEAD_ANIM_LENGTH = 0x3;
+FireballObject.SPEED = 0.475;
+FireballObject.BOUNCE_SPEED = 0.375;
+FireballObject.FALL_SPEED_MAX = 0.425;
+FireballObject.FALL_SPEED_ACCEL = 0.065;
+FireballObject.SPRITE = {};
+FireballObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
-    'INDEX': 0xbc
+    'INDEX': 0x01
 }, {
     'NAME': "IDLE1",
     'ID': 0x1,
-    'INDEX': 0xbd
+    'INDEX': 0x02
 }, {
     'NAME': "IDLE2",
     'ID': 0x2,
-    'INDEX': 0xbe
+    'INDEX': 0x03
 }, {
     'NAME': "IDLE3",
     'ID': 0x3,
-    'INDEX': 0xbf
+    'INDEX': 0x04
 }, {
     'NAME': "DEAD0",
     'ID': 0x4,
-    'INDEX': 0xd4
+    'INDEX': 0x0e
 }, {
     'NAME': "DEAD1",
     'ID': 0x5,
-    'INDEX': 0xd5
+    'INDEX': 0x0f
 }, {
     'NAME': "DEAD2",
     'ID': 0x6,
-    'INDEX': 0xd6
+    'INDEX': 0x1f
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x6c6f53.SPRITE_LIST.length; _0x1bec55++) _0x6c6f53.SPRITE[_0x6c6f53.SPRITE_LIST[_0x1bec55].NAME] = _0x6c6f53.SPRITE_LIST[_0x1bec55], _0x6c6f53.SPRITE[_0x6c6f53.SPRITE_LIST[_0x1bec55].ID] = _0x6c6f53.SPRITE_LIST[_0x1bec55];
-_0x6c6f53.STATE = {};
-_0x6c6f53.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < FireballObject.SPRITE_LIST.length; _0x1bec55++) FireballObject.SPRITE[FireballObject.SPRITE_LIST[_0x1bec55].NAME] = FireballObject.SPRITE_LIST[_0x1bec55], FireballObject.SPRITE[FireballObject.SPRITE_LIST[_0x1bec55].ID] = FireballObject.SPRITE_LIST[_0x1bec55];
+FireballObject.STATE = {};
+FireballObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x6c6f53.SPRITE.IDLE0, _0x6c6f53.SPRITE.IDLE1, _0x6c6f53.SPRITE.IDLE2, _0x6c6f53.SPRITE.IDLE3]
+    'SPRITE': [FireballObject.SPRITE.IDLE0, FireballObject.SPRITE.IDLE1, FireballObject.SPRITE.IDLE2, FireballObject.SPRITE.IDLE3]
 }, {
     'NAME': "DEAD",
     'ID': 0x50,
-    'SPRITE': [_0x6c6f53.SPRITE.DEAD0, _0x6c6f53.SPRITE.DEAD1, _0x6c6f53.SPRITE.DEAD2]
+    'SPRITE': [FireballObject.SPRITE.DEAD0, FireballObject.SPRITE.DEAD1, FireballObject.SPRITE.DEAD2]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x6c6f53.STATE_LIST.length; _0x1bec55++) _0x6c6f53.STATE[_0x6c6f53.STATE_LIST[_0x1bec55].NAME] = _0x6c6f53.STATE_LIST[_0x1bec55], _0x6c6f53.STATE[_0x6c6f53.STATE_LIST[_0x1bec55].ID] = _0x6c6f53.STATE_LIST[_0x1bec55];
-_0x6c6f53.prototype.update = function(_0x244c91) {};
-_0x6c6f53.prototype.step = function() {
-    this.state === _0x6c6f53.STATE.DEAD ? this.deadTimer < _0x6c6f53.DEAD_ANIM_LENGTH ? this.sprite = this.state.SPRITE[this.deadTimer++] : this.destroy() : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x6c6f53.ANIMATION_RATE) % this.state.SPRITE.length], this.control(), this.physics(), this.interaction(), this.sound(), 0x0 > this.pos.y && this.kill());
+for (_0x1bec55 = 0x0; _0x1bec55 < FireballObject.STATE_LIST.length; _0x1bec55++) FireballObject.STATE[FireballObject.STATE_LIST[_0x1bec55].NAME] = FireballObject.STATE_LIST[_0x1bec55], FireballObject.STATE[FireballObject.STATE_LIST[_0x1bec55].ID] = FireballObject.STATE_LIST[_0x1bec55];
+FireballObject.prototype.update = function(_0x244c91) {};
+FireballObject.prototype.step = function() {
+    this.state === FireballObject.STATE.DEAD ? this.deadTimer < FireballObject.DEAD_ANIM_LENGTH ? this.sprite = this.state.SPRITE[this.deadTimer++] : this.destroy() : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / FireballObject.ANIMATION_RATE) % this.state.SPRITE.length], this.control(), this.physics(), this.interaction(), this.sound(), 0x0 > this.pos.y && this.kill());
 };
-_0x6c6f53.prototype.control = function() {};
-_0x6c6f53.prototype.physics = function() {
-    var _0x3236a4 = this.dir ? _0x6c6f53.SPEED : -_0x6c6f53.SPEED;
-    this.fallSpeed = Math.max(this.fallSpeed - _0x6c6f53.FALL_SPEED_ACCEL, -_0x6c6f53.FALL_SPEED_MAX);
+FireballObject.prototype.control = function() {};
+FireballObject.prototype.physics = function() {
+    var _0x3236a4 = this.dir ? FireballObject.SPEED : -FireballObject.SPEED;
+    this.fallSpeed = Math.max(this.fallSpeed - FireballObject.FALL_SPEED_ACCEL, -FireballObject.FALL_SPEED_MAX);
     for (var _0x129f7c = vec2.add(this.pos, vec2.make(_0x3236a4, this.fallSpeed)), _0x42654a = vec2.make(this.pos.x + Math.min(0x0, _0x3236a4), this.pos.y + Math.min(0x0, this.fallSpeed)), _0x3236a4 = vec2.make(this.dim.x + Math.max(0x0, _0x3236a4), this.dim.y + Math.max(0x0, this.fallSpeed)), _0x10832b = this.game.world.getZone(this.level, this.zone).getTiles(_0x42654a, _0x3236a4), _0x42654a = vec2.make(0x1, 0x1), _0x3236a4 = [], _0x564789 = 0x0; _0x564789 < _0x10832b.length; _0x564789++) {
         var _0x1dc741 = _0x10832b[_0x564789];
         _0x1dc741.definition.COLLIDE && (squar.intersection(_0x1dc741.pos, _0x42654a, _0x129f7c, this.dim) || squar.intersection(_0x1dc741.pos, _0x42654a, this.pos, this.dim)) && _0x3236a4.push(_0x1dc741);
@@ -5577,10 +5578,10 @@ _0x6c6f53.prototype.physics = function() {
     _0x10832b = vec2.make(_0x129f7c.x, this.pos.y);
     for (_0x564789 = 0x0; _0x564789 < _0x3236a4.length; _0x564789++) _0x1dc741 = _0x3236a4[_0x564789], squar.intersection(_0x1dc741.pos, _0x42654a, _0x10832b, this.dim) && (_0x10832b.x = _0x10832b.x + 0.5 * this.dim.x < _0x1dc741.pos.x + 0.5 * _0x42654a.x ? _0x1dc741.pos.x - this.dim.x : _0x1dc741.pos.x + _0x42654a.x, this.kill());
     _0x129f7c.x = _0x10832b.x;
-    for (_0x564789 = 0x0; _0x564789 < _0x3236a4.length; _0x564789++) _0x1dc741 = _0x3236a4[_0x564789], squar.intersection(_0x1dc741.pos, _0x42654a, _0x129f7c, this.dim) && (this.pos.y >= _0x129f7c.y ? (_0x129f7c.y = _0x1dc741.pos.y + _0x42654a.y, this.fallSpeed = _0x6c6f53.BOUNCE_SPEED) : (_0x129f7c.y = _0x1dc741.pos.y - this.dim.y, this.fallSpeed = -_0x6c6f53.BOUNCE_SPEED));
+    for (_0x564789 = 0x0; _0x564789 < _0x3236a4.length; _0x564789++) _0x1dc741 = _0x3236a4[_0x564789], squar.intersection(_0x1dc741.pos, _0x42654a, _0x129f7c, this.dim) && (this.pos.y >= _0x129f7c.y ? (_0x129f7c.y = _0x1dc741.pos.y + _0x42654a.y, this.fallSpeed = FireballObject.BOUNCE_SPEED) : (_0x129f7c.y = _0x1dc741.pos.y - this.dim.y, this.fallSpeed = -FireballObject.BOUNCE_SPEED));
     this.pos = _0x129f7c;
 };
-_0x6c6f53.prototype.interaction = function() {
+FireballObject.prototype.interaction = function() {
     for (var _0x51d7a3 = 0x0; _0x51d7a3 < this.game.objects.length; _0x51d7a3++) {
         var _0x1f6129 = this.game.objects[_0x51d7a3];
         if (_0x1f6129 !== this && _0x1f6129.pid !== this.owner && _0x1f6129.isTangible() && (!(_0x1f6129 instanceof PlayerObject) || app.net.gameMode === 1) && _0x1f6129.damage && _0x1f6129.level === this.level && _0x1f6129.zone === this.zone && squar.intersection(_0x1f6129.pos, _0x1f6129.dim, this.pos, this.dim)) {
@@ -5591,30 +5592,31 @@ _0x6c6f53.prototype.interaction = function() {
         }
     }
 };
-_0x6c6f53.prototype.sound = GameObject.prototype.sound;
-_0x6c6f53.prototype.playerCollide = function(_0x596050) {};
-_0x6c6f53.prototype.playerStomp = function(_0x282b15) {};
-_0x6c6f53.prototype.playerBump = function(_0xad5318) {};
-_0x6c6f53.prototype.kill = function() {
-    this.setState(_0x6c6f53.STATE.DEAD);
+FireballObject.prototype.sound = GameObject.prototype.sound;
+FireballObject.prototype.playerCollide = function(_0x596050) {};
+FireballObject.prototype.playerStomp = function(_0x282b15) {};
+FireballObject.prototype.playerBump = function(_0xad5318) {};
+FireballObject.prototype.kill = function() {
+    this.setState(FireballObject.STATE.DEAD);
     this.play("firework.wav", 0.7, 0.04);
     this.dead = true;
 };
-_0x6c6f53.prototype.isTangible = GameObject.prototype.isTangible;
-_0x6c6f53.prototype.destroy = GameObject.prototype.destroy;
-_0x6c6f53.prototype.setState = function(_0x37987d) {
+FireballObject.prototype.isTangible = GameObject.prototype.isTangible;
+FireballObject.prototype.destroy = GameObject.prototype.destroy;
+FireballObject.prototype.setState = function(_0x37987d) {
     _0x37987d !== this.state && (this.state = _0x37987d, this.sprite = _0x37987d.SPRITE[0x0], this.anim = 0x0);
 };
-_0x6c6f53.prototype.draw = function(_0x12ec20) {
+FireballObject.prototype.draw = function(_0x12ec20) {
     _0x12ec20.push({
-        'pos': vec2.add(this.pos, _0x6c6f53.SOFFSET),
+        'pos': vec2.add(this.pos, FireballObject.SOFFSET),
         'reverse': false,
         'index': this.sprite.INDEX,
+        'skin': this.skin,
         'mode': 0x0
     });
 };
-_0x6c6f53.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x6c6f53);
+FireballObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(FireballObject);
 "use strict";
 
 function FireBreathObject(_0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8) {
