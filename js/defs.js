@@ -22,6 +22,7 @@ var tileDefs = {
     85: {'name': 'WARP PIPE RIGHT FAST', 'extraDataName': 'Target Warp ID'},
     86: {'name': 'LEVEL END WARP', 'extraDataName': 'Target Level ID'},
     160:{'name': 'FLAGPOLE', 'extraDataName': 'Coin Award (0=no, 1=yes)'},
+    165:{'name': 'VINE'},
     240:{'name': 'VOTE BLOCK'},
 };
 
