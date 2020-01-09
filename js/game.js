@@ -1385,7 +1385,7 @@ MainScreen.prototype.hide = function() {
     }
 };
 MainScreen.prototype.updateStatsBar = function() {
-    this.winElement.innerHTML = "Login to track statistics";
+    this.winElement.innerHTML = "Login to track statistics and use all skins";
 };
 "use strict";
 
@@ -1545,20 +1545,26 @@ MainAsMemberScreen.prototype.updGameModeBtn = function() {
 }
 function genSelectSkin(screen, skinIdx) {
     if (screen.skin !== undefined) {
-        document.getElementById(screen.skinButtonPrefix+screen.skin).style["border-color"] = "black";
+        document.getElementById(screen.skinButtonPrefix+"-"+screen.skin).style["border-color"] = "black";
     }
     screen.skin = skinIdx;
-    var elem = document.getElementById(screen.skinButtonPrefix+screen.skin);
+    var elem = document.getElementById(screen.skinButtonPrefix+"-"+screen.skin);
     if (elem) {
         elem.style["border-color"] = "white";
     } else {
-        screen.skin = 0;
-        document.getElementById(screen.skinButtonPrefix+screen.skin).style["border-color"] = "white";
+        var chld = document.getElementById("skin-select").children;
+        if (0 == chld.length) throw "no skins?!";
+        screen.skin = parseInt(chld[0].id.split("-").slice(-1)[0]);
+        document.getElementById(screen.skinButtonPrefix+"-"+screen.skin).style["border-color"] = "white";
     }
 }
 
-function genAddSkinButton(screen) {
+function genAddSkinButton(screen, guest) {
     for (var i=0; i<SKINCOUNT; i++) {
+        if (guest) {
+            if (GUEST_SKINS.length && !GUEST_SKINS.includes(i))
+                continue;
+        }
         if (DEV_SKINS.includes(i) && (!(screen instanceof ProfileScreen) || !(
            ["taliondiscord",
             "damonj17",
@@ -1578,7 +1584,7 @@ function genAddSkinButton(screen) {
         }
         var elem = document.createElement("div");
         elem.setAttribute("class", "skin-select-button");
-        elem.setAttribute("id", screen.skinButtonPrefix+i);
+        elem.setAttribute("id", screen.skinButtonPrefix+"-"+i);
         elem.style["background-image"] = "url('img/game/smb_skin" + i +".png')";
         elem.addEventListener("click", (function(a){return function() {genSelectSkin(screen, a);};})(i));
         document.getElementById(screen.skinButtonPrefix).appendChild(elem);
@@ -1849,7 +1855,7 @@ NameScreen.prototype.show = function() {
         this.teamInput.placeholder = "[ PRIVATE ]";
     }
     if ($("#skin-select div").length === 0) {
-        genAddSkinButton(this);
+        genAddSkinButton(this, true);
     }
     this.selectSkin(savedSkin ? parseInt(savedSkin) : 0);
     this.updPrivateBtn();
@@ -1889,7 +1895,7 @@ ProfileScreen.prototype.show = function(data) {
     this.nicknameInput.value = data["nickname"];
     this.squadInput.value = data["squad"];
     if ($("#profile-skin-select div").length === 0) {
-        genAddSkinButton(this);
+        genAddSkinButton(this, false);
     }
     genSelectSkin(this, data["skin"]);
     this.reportError("");

@@ -4,6 +4,7 @@ var SKINCOUNT = 1;
 var SKIN_MUSIC_URL = {};
 var TILE_ANIMATION = {};
 var OBJ_ANIMATION = {};
+var GUEST_SKINS = [];
 (function() {
     var assetData = resources["assets.json"];
     if (assetData.skins.count != undefined)
@@ -13,6 +14,7 @@ var OBJ_ANIMATION = {};
         var music = prop[i].music;
         if (music != undefined)
             SKIN_MUSIC_URL[prop[i].id] = music;
+        if (prop[i].forGuests) GUEST_SKINS.push(prop[i].id);
     }
     if (assetData.tileAnim) {
         for (var anim of assetData.tileAnim) {
