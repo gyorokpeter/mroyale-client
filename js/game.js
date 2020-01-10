@@ -3569,11 +3569,11 @@ PlayerObject.prototype.isState = function(stName) {
 };
 PlayerObject.prototype.draw = function(spriteList) {
     if (!(this.isState(PlayerObject.SNAME.HIDE) || 0x0 < this.pipeDelay || 0x0 < this.damageTimer && 0x1 < this.damageTimer % 0x3)) {
-        var _0x5c9425;
-        _0x5c9425 = 0x0 < this.starTimer ? 0x2 : this.isState(PlayerObject.SNAME.GHOST) || this.isState(PlayerObject.SNAME.DEADGHOST) ? 0x1 : 0x0;
+        var mode;
+        mode = 0x0 < this.starTimer ? 0x2 : ((this.isState(PlayerObject.SNAME.GHOST) || this.isState(PlayerObject.SNAME.DEADGHOST)) && !this.isDev) ? 0x1 : 0x0;
         if (this.sprite.INDEX instanceof Array)
             for (var _0x5814e0 = this.sprite.INDEX, _0x3f6b38 = 0x0; _0x3f6b38 < _0x5814e0.length; _0x3f6b38++)
-                for (var _0x13a17a = 0x0; _0x13a17a < _0x5814e0[_0x3f6b38].length; _0x13a17a++) 0x2 === _0x5c9425 && spriteList.push({
+                for (var _0x13a17a = 0x0; _0x13a17a < _0x5814e0[_0x3f6b38].length; _0x13a17a++) 0x2 === mode && spriteList.push({
                     'pos': vec2.add(vec2.add(this.pos, PlayerObject.DIM_OFFSET), vec2.make(this.reverse ? _0x13a17a : -_0x13a17a, _0x3f6b38)),
                     'reverse': this.reverse,
                     'index': _0x5814e0[_0x3f6b38][_0x13a17a],
@@ -3586,9 +3586,9 @@ PlayerObject.prototype.draw = function(spriteList) {
                     'index': _0x5814e0[_0x3f6b38][_0x13a17a],
                     'skin': this.skin,
                     'pid': this.pid,
-                    'mode': _0x5c9425
+                    'mode': mode
                 });
-        else 0x2 === _0x5c9425 && spriteList.push({
+        else 0x2 === mode && spriteList.push({
             'pos': vec2.add(this.pos, PlayerObject.DIM_OFFSET),
             'reverse': this.reverse,
             'index': this.sprite.INDEX,
@@ -3601,13 +3601,13 @@ PlayerObject.prototype.draw = function(spriteList) {
             'index': this.sprite.INDEX,
             'skin': this.skin,
             'pid': this.pid,
-            'mode': _0x5c9425
+            'mode': mode
         });
-        0x0 < this.arrowFade && (_0x5c9425 = 0xa0 + parseInt(0x20 * this.arrowFade), spriteList.push({
+        0x0 < this.arrowFade && (mode = 0xa0 + parseInt(0x20 * this.arrowFade), spriteList.push({
             'pos': vec2.add(vec2.add(this.pos, vec2.make(0x0, this.dim.y)), PlayerObject.ARROW_OFFSET),
             'reverse': false,
             'index': PlayerObject.ARROW_SPRITE,
-            'mode': _0x5c9425
+            'mode': mode
         }));
     }
 };
