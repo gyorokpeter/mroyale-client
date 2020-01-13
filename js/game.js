@@ -3239,7 +3239,7 @@ PlayerObject.prototype.control = function() {
             }
             if (this.grounded || this.underWater) this.reverse = 0x0 <= this.btnD[0x0];
         } else {
-            if (!this.underWater) { //decelerate when not holding a button
+            if (!this.underWater || this.grounded) { //decelerate when not holding a button
                 if (0.01 < Math.abs(this.moveSpeed)) {
                     this.moveSpeed = Math.sign(this.moveSpeed) * Math.max(Math.abs(this.moveSpeed) - PlayerObject.MOVE_SPEED_DECEL, 0x0);
                     this.setState(PlayerObject.SNAME.RUN);
