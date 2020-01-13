@@ -3750,8 +3750,8 @@ GoombaObject.prototype.damage = function(_0x5b7e53) {
 GoombaObject.prototype.bonk = function() {
     this.dead || (this.setState(GoombaObject.STATE.BONK), this.moveSpeed = GoombaObject.BONK_IMP.x, this.fallSpeed = GoombaObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
-GoombaObject.prototype.playerCollide = function(_0x5ee074) {
-    this.dead || this.garbage || _0x5ee074.damage(this);
+GoombaObject.prototype.playerCollide = function(player) {
+    this.dead || this.garbage || player.damage(this);
 };
 GoombaObject.prototype.playerStomp = function(_0x584473) {
     this.dead || this.garbage || (this.kill(), _0x584473.bounce(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x0)));
@@ -3806,11 +3806,11 @@ GoombaObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(GoombaObject);
 "use strict";
 
-function _0xafe583(_0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726, _0xe543eb, _0x547d60, _0xdab7ae) {
+function KoopaObject(_0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726, _0xe543eb, _0x547d60, _0xdab7ae) {
     GameObject.call(this, _0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726);
     this.oid = _0xe543eb;
     this.variant = isNaN(parseInt(_0xdab7ae)) ? 0x0 : parseInt(_0xdab7ae);
-    this.setState(parseInt(_0x547d60) ? _0xafe583.STATE.FLY : _0xafe583.STATE.RUN);
+    this.setState(parseInt(_0x547d60) ? KoopaObject.STATE.FLY : KoopaObject.STATE.RUN);
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
@@ -3823,28 +3823,28 @@ function _0xafe583(_0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726, _0xe543eb, _0x547
     this.dir = true;
     this.disable();
 }
-_0xafe583.ASYNC = false;
-_0xafe583.ID = 0x12;
-_0xafe583.NAME = "KOOPA";
-_0xafe583.ANIMATION_RATE = 0x3;
-_0xafe583.VARIANT_OFFSET = 0x20;
-_0xafe583.ENABLE_FADE_TIME = 0xf;
-_0xafe583.ENABLE_DIST = 0x1a;
-_0xafe583.BONK_TIME = 0x5a;
-_0xafe583.BONK_IMP = vec2.make(0.25, 0.4);
-_0xafe583.BONK_DECEL = 0.925;
-_0xafe583.BONK_FALL_SPEED = 0.5;
-_0xafe583.PLAYER_IMMUNE_TIME = 0x6;
-_0xafe583.MOVE_SPEED_MAX = 0.075;
-_0xafe583.SHELL_MOVE_SPEED_MAX = 0.35;
-_0xafe583.FALL_SPEED_MAX = 0.35;
-_0xafe583.FALL_SPEED_ACCEL = 0.085;
-_0xafe583.JUMP_LENGTH_MAX = 0x14;
-_0xafe583.JUMP_DECEL = 0.025;
-_0xafe583.TRANSFORM_TIME = 0xaf;
-_0xafe583.TRANSFORM_THRESHOLD = 0x4b;
-_0xafe583.SPRITE = {};
-_0xafe583.SPRITE_LIST = [{
+KoopaObject.ASYNC = false;
+KoopaObject.ID = 0x12;
+KoopaObject.NAME = "KOOPA";
+KoopaObject.ANIMATION_RATE = 0x3;
+KoopaObject.VARIANT_OFFSET = 0x20;
+KoopaObject.ENABLE_FADE_TIME = 0xf;
+KoopaObject.ENABLE_DIST = 0x1a;
+KoopaObject.BONK_TIME = 0x5a;
+KoopaObject.BONK_IMP = vec2.make(0.25, 0.4);
+KoopaObject.BONK_DECEL = 0.925;
+KoopaObject.BONK_FALL_SPEED = 0.5;
+KoopaObject.PLAYER_IMMUNE_TIME = 0x6;
+KoopaObject.MOVE_SPEED_MAX = 0.075;
+KoopaObject.SHELL_MOVE_SPEED_MAX = 0.35;
+KoopaObject.FALL_SPEED_MAX = 0.35;
+KoopaObject.FALL_SPEED_ACCEL = 0.085;
+KoopaObject.JUMP_LENGTH_MAX = 0x14;
+KoopaObject.JUMP_DECEL = 0.025;
+KoopaObject.TRANSFORM_TIME = 0xaf;
+KoopaObject.TRANSFORM_THRESHOLD = 0x4b;
+KoopaObject.SPRITE = {};
+KoopaObject.SPRITE_LIST = [{
     'NAME': "FLY0",
     'ID': 0x0,
     'INDEX': [
@@ -3881,35 +3881,35 @@ _0xafe583.SPRITE_LIST = [{
     'ID': 0x5,
     'INDEX': 0x50
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0xafe583.SPRITE_LIST.length; _0x1bec55++) _0xafe583.SPRITE[_0xafe583.SPRITE_LIST[_0x1bec55].NAME] = _0xafe583.SPRITE_LIST[_0x1bec55], _0xafe583.SPRITE[_0xafe583.SPRITE_LIST[_0x1bec55].ID] = _0xafe583.SPRITE_LIST[_0x1bec55];
-_0xafe583.STATE = {};
-_0xafe583.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < KoopaObject.SPRITE_LIST.length; _0x1bec55++) KoopaObject.SPRITE[KoopaObject.SPRITE_LIST[_0x1bec55].NAME] = KoopaObject.SPRITE_LIST[_0x1bec55], KoopaObject.SPRITE[KoopaObject.SPRITE_LIST[_0x1bec55].ID] = KoopaObject.SPRITE_LIST[_0x1bec55];
+KoopaObject.STATE = {};
+KoopaObject.STATE_LIST = [{
     'NAME': "FLY",
     'ID': 0x0,
-    'SPRITE': [_0xafe583.SPRITE.FLY0, _0xafe583.SPRITE.FLY1]
+    'SPRITE': [KoopaObject.SPRITE.FLY0, KoopaObject.SPRITE.FLY1]
 }, {
     'NAME': "RUN",
     'ID': 0x1,
-    'SPRITE': [_0xafe583.SPRITE.RUN0, _0xafe583.SPRITE.RUN1]
+    'SPRITE': [KoopaObject.SPRITE.RUN0, KoopaObject.SPRITE.RUN1]
 }, {
     'NAME': "TRANSFORM",
     'ID': 0x2,
-    'SPRITE': [_0xafe583.SPRITE.SHELL, _0xafe583.SPRITE.TRANSFORM]
+    'SPRITE': [KoopaObject.SPRITE.SHELL, KoopaObject.SPRITE.TRANSFORM]
 }, {
     'NAME': "SHELL",
     'ID': 0x3,
-    'SPRITE': [_0xafe583.SPRITE.SHELL]
+    'SPRITE': [KoopaObject.SPRITE.SHELL]
 }, {
     'NAME': "SPIN",
     'ID': 0x4,
-    'SPRITE': [_0xafe583.SPRITE.SHELL]
+    'SPRITE': [KoopaObject.SPRITE.SHELL]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0xafe583.STATE_LIST.length; _0x1bec55++) _0xafe583.STATE[_0xafe583.STATE_LIST[_0x1bec55].NAME] = _0xafe583.STATE_LIST[_0x1bec55], _0xafe583.STATE[_0xafe583.STATE_LIST[_0x1bec55].ID] = _0xafe583.STATE_LIST[_0x1bec55];
-_0xafe583.prototype.update = function(_0x432173) {
+for (_0x1bec55 = 0x0; _0x1bec55 < KoopaObject.STATE_LIST.length; _0x1bec55++) KoopaObject.STATE[KoopaObject.STATE_LIST[_0x1bec55].NAME] = KoopaObject.STATE_LIST[_0x1bec55], KoopaObject.STATE[KoopaObject.STATE_LIST[_0x1bec55].ID] = KoopaObject.STATE_LIST[_0x1bec55];
+KoopaObject.prototype.update = function(_0x432173) {
     switch (_0x432173) {
         case 0x1:
             this.bonk();
@@ -3924,13 +3924,13 @@ _0xafe583.prototype.update = function(_0x432173) {
             this.enable();
     }
 };
-_0xafe583.prototype.step = function() {
+KoopaObject.prototype.step = function() {
     if (this.disabled) this.proximity();
-    else if (0x0 < this.disabledTimer && this.disabledTimer--, this.state === _0xafe583.STATE.BONK) this.bonkTimer++ > _0xafe583.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0xafe583.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.BONK_FALL_SPEED));
+    else if (0x0 < this.disabledTimer && this.disabledTimer--, this.state === KoopaObject.STATE.BONK) this.bonkTimer++ > KoopaObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= KoopaObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.BONK_FALL_SPEED));
     else {
         this.anim++;
-        this.sprite = this.state.SPRITE[parseInt(this.anim / _0xafe583.ANIMATION_RATE) % this.state.SPRITE.length];
-        if (this.state === _0xafe583.STATE.SHELL || this.state === _0xafe583.STATE.TRANSFORM) --this.transformTimer < _0xafe583.TRANSFORM_THRESHOLD && this.setState(_0xafe583.STATE.TRANSFORM), 0x0 >= this.transformTimer && this.setState(_0xafe583.STATE.RUN);
+        this.sprite = this.state.SPRITE[parseInt(this.anim / KoopaObject.ANIMATION_RATE) % this.state.SPRITE.length];
+        if (this.state === KoopaObject.STATE.SHELL || this.state === KoopaObject.STATE.TRANSFORM) --this.transformTimer < KoopaObject.TRANSFORM_THRESHOLD && this.setState(KoopaObject.STATE.TRANSFORM), 0x0 >= this.transformTimer && this.setState(KoopaObject.STATE.RUN);
         0x0 < this.immuneTimer && this.immuneTimer--;
         this.control();
         this.physics();
@@ -3939,17 +3939,17 @@ _0xafe583.prototype.step = function() {
         0x0 > this.pos.y && this.destroy();
     }
 };
-_0xafe583.prototype.control = function() {
-    if (this.state === _0xafe583.STATE.FLY) this.moveSpeed = this.dir ? -_0xafe583.MOVE_SPEED_MAX : _0xafe583.MOVE_SPEED_MAX, this.grounded && (this.jump = 0x0);
-    else if (this.state === _0xafe583.STATE.RUN) this.moveSpeed = this.dir ? -_0xafe583.MOVE_SPEED_MAX : _0xafe583.MOVE_SPEED_MAX;
-    else if (this.state === _0xafe583.STATE.SPIN) this.moveSpeed = this.dir ? -_0xafe583.SHELL_MOVE_SPEED_MAX : _0xafe583.SHELL_MOVE_SPEED_MAX;
-    else if (this.state === _0xafe583.STATE.SHELL || this.state === _0xafe583.STATE.TRANSFORM) this.moveSpeed = 0x0;
-    this.jump > _0xafe583.JUMP_LENGTH_MAX && (this.jump = -0x1);
+KoopaObject.prototype.control = function() {
+    if (this.state === KoopaObject.STATE.FLY) this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX, this.grounded && (this.jump = 0x0);
+    else if (this.state === KoopaObject.STATE.RUN) this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX;
+    else if (this.state === KoopaObject.STATE.SPIN) this.moveSpeed = this.dir ? -KoopaObject.SHELL_MOVE_SPEED_MAX : KoopaObject.SHELL_MOVE_SPEED_MAX;
+    else if (this.state === KoopaObject.STATE.SHELL || this.state === KoopaObject.STATE.TRANSFORM) this.moveSpeed = 0x0;
+    this.jump > KoopaObject.JUMP_LENGTH_MAX && (this.jump = -0x1);
 };
-_0xafe583.prototype.physics = function() {
-    -0x1 !== this.jump ? (this.fallSpeed = _0xafe583.FALL_SPEED_MAX - this.jump * _0xafe583.JUMP_DECEL, this.jump++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX));
+KoopaObject.prototype.physics = function() {
+    -0x1 !== this.jump ? (this.fallSpeed = KoopaObject.FALL_SPEED_MAX - this.jump * KoopaObject.JUMP_DECEL, this.jump++, this.grounded = false) : (this.grounded && (this.fallSpeed = 0x0), this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.FALL_SPEED_MAX));
     this.grounded && (this.fallSpeed = 0x0);
-    this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX);
+    this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.FALL_SPEED_MAX);
     var _0x228c79 = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
         _0xa7c94d = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
         _0x186c6d = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
@@ -3966,69 +3966,78 @@ _0xafe583.prototype.physics = function() {
     this.pos = vec2.make(_0x228c79.x, _0xa7c94d.y);
     _0x350f0e && (this.dir = !this.dir);
 };
-_0xafe583.prototype.interaction = function() {
-    if (this.state === _0xafe583.STATE.SPIN)
+KoopaObject.prototype.interaction = function() {
+    if (this.state === KoopaObject.STATE.SPIN)
         for (var _0x369f51 = 0x0; _0x369f51 < this.game.objects.length; _0x369f51++) {
             var _0x597333 = this.game.objects[_0x369f51];
             _0x597333 === this || _0x597333 instanceof PlayerObject || !_0x597333.isTangible() || !_0x597333.damage || _0x597333.level === this.level && _0x597333.zone === this.zone && squar.intersection(_0x597333.pos, _0x597333.dim, this.pos, this.dim) && _0x597333.damage(this);
         }
 };
-_0xafe583.prototype.proximity = function() {
+KoopaObject.prototype.proximity = function() {
     var _0x12bcf2 = this.game.getPlayer();
-    _0x12bcf2 && !_0x12bcf2.dead && _0x12bcf2.level === this.level && _0x12bcf2.zone === this.zone && !this.proxHit && vec2.distance(_0x12bcf2.pos, this.pos) < _0xafe583.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
+    _0x12bcf2 && !_0x12bcf2.dead && _0x12bcf2.level === this.level && _0x12bcf2.zone === this.zone && !this.proxHit && vec2.distance(_0x12bcf2.pos, this.pos) < KoopaObject.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
 };
-_0xafe583.prototype.sound = GameObject.prototype.sound;
-_0xafe583.prototype.enable = function() {
-    this.disabled && (this.disabled = false, this.disabledTimer = _0xafe583.ENABLE_FADE_TIME);
+KoopaObject.prototype.sound = GameObject.prototype.sound;
+KoopaObject.prototype.enable = function() {
+    this.disabled && (this.disabled = false, this.disabledTimer = KoopaObject.ENABLE_FADE_TIME);
 };
-_0xafe583.prototype.disable = function() {
+KoopaObject.prototype.disable = function() {
     this.disabled = true;
 };
-_0xafe583.prototype.damage = function(_0x565802) {
+KoopaObject.prototype.damage = function(_0x565802) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0xafe583.prototype.bonk = function() {
-    this.dead || (this.setState(_0xafe583.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
+KoopaObject.prototype.bonk = function() {
+    this.dead || (this.setState(KoopaObject.STATE.BONK), this.moveSpeed = KoopaObject.BONK_IMP.x, this.fallSpeed = KoopaObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
-_0xafe583.prototype.stomped = function(_0x45b447) {
-    if (this.state === _0xafe583.STATE.FLY) this.setState(_0xafe583.STATE.RUN), this.jump = -0x1;
-    else if (this.state === _0xafe583.STATE.RUN) this.setState(_0xafe583.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
-    else if (this.state === _0xafe583.STATE.SPIN) this.setState(_0xafe583.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
-    else if (this.state === _0xafe583.STATE.SHELL || this.state === _0xafe583.STATE.TRANSFORM) this.setState(_0xafe583.STATE.SPIN), this.dir = _0x45b447;
+KoopaObject.prototype.stomped = function(_0x45b447) {
+    if (this.state === KoopaObject.STATE.FLY) this.setState(KoopaObject.STATE.RUN), this.jump = -0x1;
+    else if (this.state === KoopaObject.STATE.RUN) this.setState(KoopaObject.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
+    else if (this.state === KoopaObject.STATE.SPIN) this.setState(KoopaObject.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
+    else if (this.state === KoopaObject.STATE.SHELL || this.state === KoopaObject.STATE.TRANSFORM) this.setState(KoopaObject.STATE.SPIN), this.dir = _0x45b447;
     this.play("stomp.wav", 0x1, 0.04);
 };
-_0xafe583.prototype.playerCollide = function(_0x49360d) {
-    this.dead || this.garbage || (this.state === _0xafe583.STATE.SHELL || this.state === _0xafe583.STATE.TRANSFORM ? (_0x49360d = 0x0 < _0x49360d.pos.x - this.pos.x, this.stomped(_0x49360d), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x49360d ? 0x10 : 0x11)), this.immuneTimer = _0xafe583.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x49360d.damage(this));
+KoopaObject.prototype.playerCollide = function(player) {
+    if (!(this.dead || this.garbage)) {
+        if (this.state === KoopaObject.STATE.SHELL || this.state === KoopaObject.STATE.TRANSFORM) {
+            var dir = 0x0 < player.pos.x - this.pos.x;
+            this.stomped(dir);
+            this.game.out.push(NET020.encode(this.level, this.zone, this.oid, dir ? 0x10 : 0x11));
+            this.immuneTimer = KoopaObject.PLAYER_IMMUNE_TIME;
+        } else {
+            if (0x0 >= this.immuneTimer) player.damage(this);
+        }
+    }
 };
-_0xafe583.prototype.playerStomp = function(_0x4a7d08) {
+KoopaObject.prototype.playerStomp = function(_0x4a7d08) {
     if (!this.dead && !this.garbage) {
         var _0x2f4f3f = 0x0 < _0x4a7d08.pos.x - this.pos.x;
         _0x4a7d08.bounce();
         this.stomped(_0x2f4f3f);
-        this.immuneTimer = _0xafe583.PLAYER_IMMUNE_TIME;
+        this.immuneTimer = KoopaObject.PLAYER_IMMUNE_TIME;
         this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x2f4f3f ? 0x10 : 0x11));
     }
 };
-_0xafe583.prototype.playerBump = function(_0x542091) {
+KoopaObject.prototype.playerBump = function(_0x542091) {
     this.dead || this.garbage || _0x542091.damage(this);
 };
-_0xafe583.prototype.kill = function() {};
-_0xafe583.prototype.destroy = GameObject.prototype.destroy;
-_0xafe583.prototype.isTangible = GameObject.prototype.isTangible;
-_0xafe583.prototype.setState = function(_0x1ddca8) {
+KoopaObject.prototype.kill = function() {};
+KoopaObject.prototype.destroy = GameObject.prototype.destroy;
+KoopaObject.prototype.isTangible = GameObject.prototype.isTangible;
+KoopaObject.prototype.setState = function(_0x1ddca8) {
     _0x1ddca8 !== this.state && (this.state = _0x1ddca8, 0x0 < _0x1ddca8.SPRITE.length && (this.sprite = _0x1ddca8.SPRITE[0x0]), this.anim = 0x0);
 };
-_0xafe583.prototype.draw = function(_0x43f21f) {
+KoopaObject.prototype.draw = function(_0x43f21f) {
     if (!this.disabled) {
         var _0x345a76;
-        _0x345a76 = this.state === _0xafe583.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / _0xafe583.ENABLE_FADE_TIME)) : 0x0;
+        _0x345a76 = this.state === KoopaObject.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / KoopaObject.ENABLE_FADE_TIME)) : 0x0;
         if (this.sprite.INDEX instanceof Array)
             for (var _0x5bdb01 = this.sprite.INDEX, _0x98a94 = 0x0; _0x98a94 < _0x5bdb01.length; _0x98a94++)
                 for (var _0x3f41db = 0x0; _0x3f41db < _0x5bdb01[_0x98a94].length; _0x3f41db++) {
                     var _0x3b8db1 = _0x5bdb01[0x3 !== _0x345a76 ? _0x98a94 : _0x5bdb01.length - 0x1 - _0x98a94][_0x3f41db];
                     switch (this.variant) {
                         case 0x1:
-                            _0x3b8db1 += _0xafe583.VARIANT_OFFSET;
+                            _0x3b8db1 += KoopaObject.VARIANT_OFFSET;
                     }
                     _0x43f21f.push({
                         'pos': vec2.add(this.pos, vec2.make(_0x3f41db, _0x98a94)),
@@ -4040,7 +4049,7 @@ _0xafe583.prototype.draw = function(_0x43f21f) {
                     _0x3b8db1 = this.sprite.INDEX;
                     switch (this.variant) {
                         case 0x1:
-                            _0x3b8db1 += _0xafe583.VARIANT_OFFSET;
+                            _0x3b8db1 += KoopaObject.VARIANT_OFFSET;
                     }
                     _0x43f21f.push({
                         'pos': this.pos,
@@ -4051,17 +4060,17 @@ _0xafe583.prototype.draw = function(_0x43f21f) {
                 }
     }
 };
-_0xafe583.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0xafe583);
+KoopaObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(KoopaObject);
 "use strict";
 
-function _0x5e412e(_0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183, _0xc898a6, _0x35c708, _0x10c5aa) {
+function KoopaParatroopaObject(_0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183, _0xc898a6, _0x35c708, _0x10c5aa) {
     GameObject.call(this, _0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183);
     this.oid = _0xc898a6;
     this.variant = isNaN(parseInt(_0x10c5aa)) ? 0x0 : parseInt(_0x10c5aa);
-    this.setState(parseInt(_0x35c708) ? _0x5e412e.STATE.FLY : _0x5e412e.STATE.RUN);
+    this.setState(parseInt(_0x35c708) ? KoopaParatroopaObject.STATE.FLY : KoopaParatroopaObject.STATE.RUN);
     this.bonkTimer = this.anim = 0x0;
-    this.loc = [this.pos.y + 0.5 * _0x5e412e.FLY_DISTANCE, this.pos.y - 0.5 * _0x5e412e.FLY_DISTANCE];
+    this.loc = [this.pos.y + 0.5 * KoopaParatroopaObject.FLY_DISTANCE, this.pos.y - 0.5 * KoopaParatroopaObject.FLY_DISTANCE];
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
     this.disabled = this.grounded = false;
@@ -4072,15 +4081,15 @@ function _0x5e412e(_0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183, _0xc898a6, _0x35c
     this.dir = true;
     this.disable();
 }
-_0x5e412e.ASYNC = false;
-_0x5e412e.ID = 0x13;
-_0x5e412e.NAME = "KOOPA TROOPA";
-_0x5e412e.FLY_DISTANCE = 0x3;
-_0x5e412e.FLY_ACCEL = 0.0025;
-_0x5e412e.FLY_SPEED_MAX = 0.075;
-_0x5e412e.CHECK_DIST = 0.1;
-_0x5e412e.SPRITE = {};
-_0x5e412e.SPRITE_LIST = [{
+KoopaParatroopaObject.ASYNC = false;
+KoopaParatroopaObject.ID = 0x13;
+KoopaParatroopaObject.NAME = "KOOPA TROOPA";
+KoopaParatroopaObject.FLY_DISTANCE = 0x3;
+KoopaParatroopaObject.FLY_ACCEL = 0.0025;
+KoopaParatroopaObject.FLY_SPEED_MAX = 0.075;
+KoopaParatroopaObject.CHECK_DIST = 0.1;
+KoopaParatroopaObject.SPRITE = {};
+KoopaParatroopaObject.SPRITE_LIST = [{
     'NAME': "FLY0",
     'ID': 0x0,
     'INDEX': [
@@ -4117,42 +4126,42 @@ _0x5e412e.SPRITE_LIST = [{
     'ID': 0x5,
     'INDEX': 0x60
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x5e412e.SPRITE_LIST.length; _0x1bec55++) _0x5e412e.SPRITE[_0x5e412e.SPRITE_LIST[_0x1bec55].NAME] = _0x5e412e.SPRITE_LIST[_0x1bec55], _0x5e412e.SPRITE[_0x5e412e.SPRITE_LIST[_0x1bec55].ID] = _0x5e412e.SPRITE_LIST[_0x1bec55];
-_0x5e412e.STATE = {};
-_0x5e412e.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < KoopaParatroopaObject.SPRITE_LIST.length; _0x1bec55++) KoopaParatroopaObject.SPRITE[KoopaParatroopaObject.SPRITE_LIST[_0x1bec55].NAME] = KoopaParatroopaObject.SPRITE_LIST[_0x1bec55], KoopaParatroopaObject.SPRITE[KoopaParatroopaObject.SPRITE_LIST[_0x1bec55].ID] = KoopaParatroopaObject.SPRITE_LIST[_0x1bec55];
+KoopaParatroopaObject.STATE = {};
+KoopaParatroopaObject.STATE_LIST = [{
     'NAME': "FLY",
     'ID': 0x0,
-    'SPRITE': [_0x5e412e.SPRITE.FLY0, _0x5e412e.SPRITE.FLY1]
+    'SPRITE': [KoopaParatroopaObject.SPRITE.FLY0, KoopaParatroopaObject.SPRITE.FLY1]
 }, {
     'NAME': "RUN",
     'ID': 0x1,
-    'SPRITE': [_0x5e412e.SPRITE.RUN0, _0x5e412e.SPRITE.RUN1]
+    'SPRITE': [KoopaParatroopaObject.SPRITE.RUN0, KoopaParatroopaObject.SPRITE.RUN1]
 }, {
     'NAME': "TRANSFORM",
     'ID': 0x2,
-    'SPRITE': [_0x5e412e.SPRITE.SHELL, _0x5e412e.SPRITE.TRANSFORM]
+    'SPRITE': [KoopaParatroopaObject.SPRITE.SHELL, KoopaParatroopaObject.SPRITE.TRANSFORM]
 }, {
     'NAME': "SHELL",
     'ID': 0x3,
-    'SPRITE': [_0x5e412e.SPRITE.SHELL]
+    'SPRITE': [KoopaParatroopaObject.SPRITE.SHELL]
 }, {
     'NAME': "SPIN",
     'ID': 0x4,
-    'SPRITE': [_0x5e412e.SPRITE.SHELL]
+    'SPRITE': [KoopaParatroopaObject.SPRITE.SHELL]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x5e412e.STATE_LIST.length; _0x1bec55++) _0x5e412e.STATE[_0x5e412e.STATE_LIST[_0x1bec55].NAME] = _0x5e412e.STATE_LIST[_0x1bec55], _0x5e412e.STATE[_0x5e412e.STATE_LIST[_0x1bec55].ID] = _0x5e412e.STATE_LIST[_0x1bec55];
-_0x5e412e.prototype.update = _0xafe583.prototype.update;
-_0x5e412e.prototype.step = function() {
+for (_0x1bec55 = 0x0; _0x1bec55 < KoopaParatroopaObject.STATE_LIST.length; _0x1bec55++) KoopaParatroopaObject.STATE[KoopaParatroopaObject.STATE_LIST[_0x1bec55].NAME] = KoopaParatroopaObject.STATE_LIST[_0x1bec55], KoopaParatroopaObject.STATE[KoopaParatroopaObject.STATE_LIST[_0x1bec55].ID] = KoopaParatroopaObject.STATE_LIST[_0x1bec55];
+KoopaParatroopaObject.prototype.update = KoopaObject.prototype.update;
+KoopaParatroopaObject.prototype.step = function() {
     if (this.disabled) this.proximity();
-    else if (0x0 < this.disabledTimer && this.disabledTimer--, this.state === _0x5e412e.STATE.BONK) this.bonkTimer++ > _0xafe583.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0xafe583.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.BONK_FALL_SPEED));
+    else if (0x0 < this.disabledTimer && this.disabledTimer--, this.state === KoopaParatroopaObject.STATE.BONK) this.bonkTimer++ > KoopaObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= KoopaObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.BONK_FALL_SPEED));
     else {
         this.anim++;
-        this.sprite = this.state.SPRITE[parseInt(this.anim / _0xafe583.ANIMATION_RATE) % this.state.SPRITE.length];
-        if (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM) --this.transformTimer < _0xafe583.TRANSFORM_THRESHOLD && this.setState(_0x5e412e.STATE.TRANSFORM), 0x0 >= this.transformTimer && this.setState(_0x5e412e.STATE.RUN);
+        this.sprite = this.state.SPRITE[parseInt(this.anim / KoopaObject.ANIMATION_RATE) % this.state.SPRITE.length];
+        if (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM) --this.transformTimer < KoopaObject.TRANSFORM_THRESHOLD && this.setState(KoopaParatroopaObject.STATE.TRANSFORM), 0x0 >= this.transformTimer && this.setState(KoopaParatroopaObject.STATE.RUN);
         0x0 < this.immuneTimer && this.immuneTimer--;
         this.control();
         this.physics();
@@ -4161,17 +4170,17 @@ _0x5e412e.prototype.step = function() {
         0x0 > this.pos.y && this.destroy();
     }
 };
-_0x5e412e.prototype.control = function() {
-    this.state === _0x5e412e.STATE.FLY && (this.moveSpeed = this.dir ? -_0xafe583.MOVE_SPEED_MAX : _0xafe583.MOVE_SPEED_MAX);
-    this.state === _0x5e412e.STATE.RUN && (this.grounded && !this.checkGround() && (this.dir = !this.dir), this.moveSpeed = this.dir ? -_0xafe583.MOVE_SPEED_MAX : _0xafe583.MOVE_SPEED_MAX);
-    this.state === _0x5e412e.STATE.SPIN && (this.moveSpeed = this.dir ? -_0xafe583.SHELL_MOVE_SPEED_MAX : _0xafe583.SHELL_MOVE_SPEED_MAX);
-    if (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM) this.moveSpeed = 0x0;
+KoopaParatroopaObject.prototype.control = function() {
+    this.state === KoopaParatroopaObject.STATE.FLY && (this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX);
+    this.state === KoopaParatroopaObject.STATE.RUN && (this.grounded && !this.checkGround() && (this.dir = !this.dir), this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX);
+    this.state === KoopaParatroopaObject.STATE.SPIN && (this.moveSpeed = this.dir ? -KoopaObject.SHELL_MOVE_SPEED_MAX : KoopaObject.SHELL_MOVE_SPEED_MAX);
+    if (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM) this.moveSpeed = 0x0;
 };
-_0x5e412e.prototype.physics = function() {
-    if (this.state === _0x5e412e.STATE.FLY) this.rev ? (this.fallSpeed = Math.min(_0x5e412e.FLY_SPEED_MAX, this.fallSpeed + _0x5e412e.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y >= this.loc[0x0] && (this.rev = false)) : (this.fallSpeed = Math.max(-_0x5e412e.FLY_SPEED_MAX, this.fallSpeed - _0x5e412e.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y <= this.loc[0x1] && (this.rev = true));
+KoopaParatroopaObject.prototype.physics = function() {
+    if (this.state === KoopaParatroopaObject.STATE.FLY) this.rev ? (this.fallSpeed = Math.min(KoopaParatroopaObject.FLY_SPEED_MAX, this.fallSpeed + KoopaParatroopaObject.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y >= this.loc[0x0] && (this.rev = false)) : (this.fallSpeed = Math.max(-KoopaParatroopaObject.FLY_SPEED_MAX, this.fallSpeed - KoopaParatroopaObject.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y <= this.loc[0x1] && (this.rev = true));
     else {
         this.grounded && (this.fallSpeed = 0x0);
-        this.fallSpeed = Math.max(this.fallSpeed - _0xafe583.FALL_SPEED_ACCEL, -_0xafe583.FALL_SPEED_MAX);
+        this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.FALL_SPEED_MAX);
         var _0x487bc8 = vec2.add(this.pos, vec2.make(this.moveSpeed, 0x0)),
             _0x41141f = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)),
             _0x26638d = vec2.make(0x0 <= this.moveSpeed ? this.pos.x : this.pos.x + this.moveSpeed, 0x0 >= this.fallSpeed ? this.pos.y : this.pos.y + this.fallSpeed),
@@ -4189,53 +4198,53 @@ _0x5e412e.prototype.physics = function() {
         _0x58fc4d && (this.dir = !this.dir);
     }
 };
-_0x5e412e.prototype.interaction = function() {
-    if (this.state === _0x5e412e.STATE.SPIN)
+KoopaParatroopaObject.prototype.interaction = function() {
+    if (this.state === KoopaParatroopaObject.STATE.SPIN)
         for (var _0x55c0e3 = 0x0; _0x55c0e3 < this.game.objects.length; _0x55c0e3++) {
             var _0xa2c7b4 = this.game.objects[_0x55c0e3];
             _0xa2c7b4 === this || _0xa2c7b4 instanceof PlayerObject || !_0xa2c7b4.isTangible() || !_0xa2c7b4.damage || _0xa2c7b4.level === this.level && _0xa2c7b4.zone === this.zone && squar.intersection(_0xa2c7b4.pos, _0xa2c7b4.dim, this.pos, this.dim) && _0xa2c7b4.damage();
         }
 };
-_0x5e412e.prototype.sound = GameObject.prototype.sound;
-_0x5e412e.prototype.checkGround = function() {
-    var _0x1e7bcc = this.dir ? vec2.add(this.pos, vec2.make(-_0x5e412e.CHECK_DIST, 0x0)) : vec2.add(this.pos, vec2.make(_0x5e412e.CHECK_DIST + this.dim.x, 0x0));
+KoopaParatroopaObject.prototype.sound = GameObject.prototype.sound;
+KoopaParatroopaObject.prototype.checkGround = function() {
+    var _0x1e7bcc = this.dir ? vec2.add(this.pos, vec2.make(-KoopaParatroopaObject.CHECK_DIST, 0x0)) : vec2.add(this.pos, vec2.make(KoopaParatroopaObject.CHECK_DIST + this.dim.x, 0x0));
     _0x1e7bcc.y -= 1.5;
     return this.game.world.getZone(this.level, this.zone).getTile(_0x1e7bcc).definition.COLLIDE;
 };
-_0x5e412e.prototype.proximity = _0xafe583.prototype.proximity;
-_0x5e412e.prototype.enable = _0xafe583.prototype.enable;
-_0x5e412e.prototype.disable = _0xafe583.prototype.disable;
-_0x5e412e.prototype.damage = _0xafe583.prototype.damage;
-_0x5e412e.prototype.bonk = function() {
-    this.dead || (this.setState(_0x5e412e.STATE.BONK), this.moveSpeed = _0xafe583.BONK_IMP.x, this.fallSpeed = _0xafe583.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
+KoopaParatroopaObject.prototype.proximity = KoopaObject.prototype.proximity;
+KoopaParatroopaObject.prototype.enable = KoopaObject.prototype.enable;
+KoopaParatroopaObject.prototype.disable = KoopaObject.prototype.disable;
+KoopaParatroopaObject.prototype.damage = KoopaObject.prototype.damage;
+KoopaParatroopaObject.prototype.bonk = function() {
+    this.dead || (this.setState(KoopaParatroopaObject.STATE.BONK), this.moveSpeed = KoopaObject.BONK_IMP.x, this.fallSpeed = KoopaObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
-_0x5e412e.prototype.stomped = function(_0x2f1cbf) {
-    if (this.state === _0x5e412e.STATE.FLY) this.setState(_0x5e412e.STATE.RUN);
-    else if (this.state === _0x5e412e.STATE.RUN) this.setState(_0x5e412e.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
-    else if (this.state === _0x5e412e.STATE.SPIN) this.setState(_0x5e412e.STATE.SHELL), this.transformTimer = _0xafe583.TRANSFORM_TIME;
-    else if (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM) this.setState(_0x5e412e.STATE.SPIN), this.dir = _0x2f1cbf;
+KoopaParatroopaObject.prototype.stomped = function(_0x2f1cbf) {
+    if (this.state === KoopaParatroopaObject.STATE.FLY) this.setState(KoopaParatroopaObject.STATE.RUN);
+    else if (this.state === KoopaParatroopaObject.STATE.RUN) this.setState(KoopaParatroopaObject.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
+    else if (this.state === KoopaParatroopaObject.STATE.SPIN) this.setState(KoopaParatroopaObject.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
+    else if (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM) this.setState(KoopaParatroopaObject.STATE.SPIN), this.dir = _0x2f1cbf;
     this.play("stomp.wav", 0x1, 0.04);
 };
-_0x5e412e.prototype.playerCollide = function(_0x2665f3) {
-    this.dead || this.garbage || (this.state === _0x5e412e.STATE.SHELL || this.state === _0x5e412e.STATE.TRANSFORM ? (_0x2665f3 = 0x0 < _0x2665f3.pos.x - this.pos.x, this.stomped(_0x2665f3), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x2665f3 ? 0x10 : 0x11)), this.immuneTimer = _0xafe583.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x2665f3.damage(this));
+KoopaParatroopaObject.prototype.playerCollide = function(_0x2665f3) {
+    this.dead || this.garbage || (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM ? (_0x2665f3 = 0x0 < _0x2665f3.pos.x - this.pos.x, this.stomped(_0x2665f3), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x2665f3 ? 0x10 : 0x11)), this.immuneTimer = KoopaObject.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x2665f3.damage(this));
 };
-_0x5e412e.prototype.playerStomp = _0xafe583.prototype.playerStomp;
-_0x5e412e.prototype.playerBump = _0xafe583.prototype.playerBump;
-_0x5e412e.prototype.kill = _0xafe583.prototype.kill;
-_0x5e412e.prototype.destroy = _0xafe583.prototype.destroy;
-_0x5e412e.prototype.isTangible = _0xafe583.prototype.isTangible;
-_0x5e412e.prototype.setState = _0xafe583.prototype.setState;
-_0x5e412e.prototype.draw = function(_0x6357b4) {
+KoopaParatroopaObject.prototype.playerStomp = KoopaObject.prototype.playerStomp;
+KoopaParatroopaObject.prototype.playerBump = KoopaObject.prototype.playerBump;
+KoopaParatroopaObject.prototype.kill = KoopaObject.prototype.kill;
+KoopaParatroopaObject.prototype.destroy = KoopaObject.prototype.destroy;
+KoopaParatroopaObject.prototype.isTangible = KoopaObject.prototype.isTangible;
+KoopaParatroopaObject.prototype.setState = KoopaObject.prototype.setState;
+KoopaParatroopaObject.prototype.draw = function(_0x6357b4) {
     if (!this.disabled) {
         var _0x249e88;
-        _0x249e88 = this.state === _0x5e412e.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / _0xafe583.ENABLE_FADE_TIME)) : 0x0;
+        _0x249e88 = this.state === KoopaParatroopaObject.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / KoopaObject.ENABLE_FADE_TIME)) : 0x0;
         if (this.sprite.INDEX instanceof Array)
             for (var _0xe3aa3a = this.sprite.INDEX, _0x331f7c = 0x0; _0x331f7c < _0xe3aa3a.length; _0x331f7c++)
                 for (var _0x55c5a9 = 0x0; _0x55c5a9 < _0xe3aa3a[_0x331f7c].length; _0x55c5a9++) {
                     var _0x1d1e23 = _0xe3aa3a[0x3 !== _0x249e88 ? _0x331f7c : _0xe3aa3a.length - 0x1 - _0x331f7c][_0x55c5a9];
                     switch (this.variant) {
                         case 0x1:
-                            _0x1d1e23 += _0xafe583.VARIANT_OFFSET;
+                            _0x1d1e23 += KoopaObject.VARIANT_OFFSET;
                     }
                     _0x6357b4.push({
                         'pos': vec2.add(this.pos, vec2.make(_0x55c5a9, _0x331f7c)),
@@ -4247,7 +4256,7 @@ _0x5e412e.prototype.draw = function(_0x6357b4) {
                     _0x1d1e23 = this.sprite.INDEX;
                     switch (this.variant) {
                         case 0x1:
-                            _0x1d1e23 += _0xafe583.VARIANT_OFFSET;
+                            _0x1d1e23 += KoopaObject.VARIANT_OFFSET;
                     }
                     _0x6357b4.push({
                         'pos': this.pos,
@@ -4258,8 +4267,8 @@ _0x5e412e.prototype.draw = function(_0x6357b4) {
                 }
     }
 };
-_0x5e412e.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x5e412e);
+KoopaParatroopaObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(KoopaParatroopaObject);
 "use strict";
 
 function PiranhaPlantObject(game, level, zone, pos, oid, variant, direction) {
@@ -4267,7 +4276,7 @@ function PiranhaPlantObject(game, level, zone, pos, oid, variant, direction) {
     this.oid = oid;
     this.variant = isNaN(parseInt(variant)) ? 0x0 : parseInt(variant);
     this.direction = isNaN(parseInt(direction)) ? 0x0 : parseInt(direction);
-    if (this.direction) this.pos = vec2.add(this.pos, vec2.make(0,0.5));
+    if (this.direction) this.pos = vec2.add(this.pos, vec2.make(0,1.25));
     this.setState(PiranhaPlantObject.STATE.IDLE);
     this.bonkTimer = this.anim = 0x0;
     this.loc = [vec2.copy(this.pos), vec2.add(this.pos, vec2.make(0x0, -1.5))];
@@ -4279,7 +4288,7 @@ PiranhaPlantObject.ID = 0x16;
 PiranhaPlantObject.NAME = "UNSPELLABLE PLANT";
 PiranhaPlantObject.ANIMATION_RATE = 0x3;
 PiranhaPlantObject.VARIANT_OFFSET = 0x20;
-PiranhaPlantObject.SOFFSET = vec2.make(-0.1, 0x0);
+PiranhaPlantObject.SOFFSET = [vec2.make(-0.1, 0x0), vec2.make(-0.1, -0.75)];
 PiranhaPlantObject.BONK_TIME = 0x5a;
 PiranhaPlantObject.BONK_IMP = vec2.make(0.25, 0.4);
 PiranhaPlantObject.BONK_DECEL = 0.925;
@@ -4364,7 +4373,7 @@ PiranhaPlantObject.prototype.draw = function(spriteList) {
                         idx += PiranhaPlantObject.VARIANT_OFFSET;
                 }
                 spriteList.push({
-                    'pos': vec2.add(vec2.add(this.pos, vec2.make(j, i)), PiranhaPlantObject.SOFFSET),
+                    'pos': vec2.add(vec2.add(this.pos, vec2.make(j, i)), PiranhaPlantObject.SOFFSET[this.direction]),
                     'reverse': !this.dir,
                     'index': idx,
                     'mode': mode
@@ -4377,7 +4386,7 @@ PiranhaPlantObject.prototype.draw = function(spriteList) {
                 idx += PiranhaPlantObject.VARIANT_OFFSET;
         }
         spriteList.push({
-            'pos': vec2.add(this.pos, PiranhaPlantObject.SOFFSET),
+            'pos': vec2.add(this.pos, PiranhaPlantObject.SOFFSET[this.direction]),
             'reverse': !this.dir,
             'index': idx,
             'mode': mode
