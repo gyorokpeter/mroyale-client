@@ -1618,20 +1618,21 @@ TileTool.prototype.destroy = function() {
 };
 "use strict";
 
-function ObjectTool(_0x331a2c) {
-    this.editor = _0x331a2c;
+function ObjectTool(editor) {
+    this.editor = editor;
     this.element = document.getElementById("editor-tool-object");
-    this.valName = document.getElementById("editor-tool-object-name");
     this.valType = document.getElementById("editor-tool-object-type");
     this.valPos = document.getElementById("editor-tool-object-pos");
-    this.valParam = document.getElementById("editor-tool-object-param");
-    var _0xd714f8 = this;
+    var that = this;
     this.valType.onchange = function() {
-        _0xd714f8.update();
+        that.update();
     };
-    this.valParam.onchange = function() {
-        _0xd714f8.update();
-    };
+    for (var i=0; i<this.editor.objParamLimit; ++i) {
+        var valParam = document.getElementById("editor-tool-object-param-"+i);
+        valParam.onchange = function() {
+            that.update();
+        };
+    }
     this.moveTimer = 0x0;
     this.mmbx = false;
     this.obj = {};
@@ -1686,36 +1687,64 @@ ObjectTool.prototype.input = function(lastInput, mouse, keys) {
         }
     }
 };
+ObjectTool.prototype.updParamTools = function() {
+    var pdef = objDefs[this.obj.type].paramDefs;
+    var currParamLimit = pdef ? pdef.length : 0;
+    for (var i=0;i<this.editor.objParamLimit;++i) {
+        var box = document.getElementById("editor-tool-object-param-box-"+i);
+        box.style.display = (i<currParamLimit) ? "" : "none";
+        if (i<currParamLimit) {
+            var paramNameLabel = document.getElementById("editor-tool-object-param-name-"+i);
+            paramNameLabel.innerText = pdef[i].name;
+            var paramTypeLabel = document.getElementById("editor-tool-object-param-type-"+i);
+            paramTypeLabel.innerText = pdef[i].type||"string";
+        }
+    }
+}
 ObjectTool.prototype.update = function() {
     try {
-        var _0x38b1fc = Math.max(0x0, Math.min(0xff, parseInt(this.valType.value))),
-            _0x52d1f5 = this.valParam.value.trim().split(',');
-        if (isNaN(_0x38b1fc) || void 0x0 === _0x52d1f5) throw "oof";
-        this.selected && (this.selected.type = _0x38b1fc, this.selected.param = _0x52d1f5);
-        this.obj.type = _0x38b1fc;
-        this.obj.param = _0x52d1f5;
-        var _0x1a7dd2 = GameObject.OBJECT(_0x38b1fc);
-        _0x1a7dd2 && _0x1a7dd2.NAME && (this.valName.innerHTML = _0x1a7dd2.NAME);
+        var objType = Math.max(0x0, Math.min(0xff, parseInt(this.valType.value)));
+        var objParams = [];
+        for (var i=0;i<this.editor.objParamLimit;++i) {
+            var param = document.getElementById("editor-tool-object-param-"+i).value;
+            if (param === "") param = undefined;
+            objParams.push(param);
+        }
+        while (0<objParams.length && objParams[objParams.length-1] === undefined) objParams.pop();
+        if (isNaN(objType) || void 0x0 === objParams) throw "oof";
+        this.selected && (this.selected.type = objType, this.selected.param = objParams);
+        this.obj.type = objType;
+        this.obj.param = objParams;
+        this.updParamTools();
+        var _0x1a7dd2 = GameObject.OBJECT(objType);
     } catch (_0xf73151) {}
 };
-ObjectTool.prototype.select = function(_0x515869) {
-    this.selected = _0x515869;
-    this.obj.type = _0x515869.type;
-    this.obj.param = _0x515869.param;
-    this.valType.value = _0x515869.type;
-    this.valPos.innerHTML = _0x515869.pos;
-    this.valParam.value = _0x515869.param;
-    (_0x515869 = GameObject.OBJECT(_0x515869.type)) && _0x515869.NAME && (this.valName.innerHTML = _0x515869.NAME);
+ObjectTool.prototype.select = function(obj) {
+    this.selected = obj;
+    this.obj.type = obj.type;
+    this.obj.param = obj.param;
+    this.valType.value = obj.type;
+    var pos = shor2.decode(obj.pos);
+    this.valPos.innerHTML = [pos.x,pos.y];
+    for (var i=0;i<this.editor.objParamLimit;++i) {
+        var param = obj.param[i];
+        if (param === undefined) param = "";
+        document.getElementById("editor-tool-object-param-"+i).value = param;
+    }
+    this.updParamTools();
 };
 ObjectTool.prototype.move = function(dx, dy) {
+    if(!(document.activeElement.id==="body")) return;
     var pos = shor2.decode(this.selected.pos);
     pos = vec2.add(pos, vec2.make(dx, dy));
     if (0x0 > pos.x || pos.x > this.zone.width() - 0x1 || pos.y >= this.zone.height() || 0x0 > pos.y) {} else {
         this.selected.pos = shor2.encode(pos.x, pos.y);
+        this.valPos.innerHTML = [pos.x,pos.y];
         this.moveTimer = 0x4;
     }
 };
 ObjectTool.prototype.delete = function() {
+    if(!(document.activeElement.id==="body")) return;
     for (var _0x59fd56 = 0x0; _0x59fd56 < this.zone.obj.length; _0x59fd56++)
         if (this.zone.obj[_0x59fd56] === this.selected) {
             this.zone.obj.splice(_0x59fd56, 0x1);
@@ -1736,7 +1765,10 @@ ObjectTool.prototype.destroy = function() {
     this.element.style.display = "none";
     this.save();
     this.valType.onchange = void 0x0;
-    this.valParam.onchange = void 0x0;
+    for (var i=0; i<this.editor.objParamLimit; ++i) {
+        var valParam = document.getElementById("editor-tool-object-param-"+i);
+        valParam.onchange = void 0x0;
+    }
 };
 "use strict";
 
@@ -6355,11 +6387,38 @@ function Editor(data) {
         tileDef.appendChild(elem);
     }
     var tileDataObjId = document.getElementById("editor-tool-tile-data-objid");
-    for (var x in objDefs) {
-        var elem = document.createElement("option");
-        elem.value = x;
-        elem.innerText = x+" - "+objDefs[x].name;
-        tileDataObjId.appendChild(elem);
+    var objToolObjId = document.getElementById("editor-tool-object-type");
+    for (var list of [tileDataObjId,objToolObjId]) {
+        for (var x in objDefs) {
+            var elem = document.createElement("option");
+            elem.value = x;
+            elem.innerText = x+" - "+objDefs[x].name;
+            list.appendChild(elem);
+        }
+    }
+    var valParams = document.getElementById("editor-tool-object-params");
+    this.objParamLimit=Math.max(...Object.keys(objDefs).map(function(key, index) {  var p=objDefs[key].paramDefs; return p ? p.length : 0 }));
+    for (var i=0; i<this.objParamLimit; ++i) {
+        var box = document.createElement("div");
+        box.setAttribute("id", "editor-tool-object-param-box-"+i);
+        box.setAttribute("class", "tool-box");
+        valParams.appendChild(box);
+
+        var varParamNameLabel = document.createElement("div");
+        varParamNameLabel.setAttribute("id", "editor-tool-object-param-name-"+i);
+        varParamNameLabel.setAttribute("class", "tool-var");
+        varParamNameLabel.innerText = "Param"+(i+1);
+        box.appendChild(varParamNameLabel);
+        var varParamTypeLabel = document.createElement("div");
+        varParamTypeLabel.setAttribute("id", "editor-tool-object-param-type-"+i);
+        varParamTypeLabel.setAttribute("class", "tool-type");
+        varParamTypeLabel.innerText = "type"+(i+1);
+        box.appendChild(varParamTypeLabel);
+        var valParam = document.createElement("input");
+        valParam.setAttribute("id", "editor-tool-object-param-"+i);
+        valParam.setAttribute("class", "tool-val");
+        valParam.innerText = "type"+(i+1);
+        box.appendChild(valParam);
     }
     this.input = new Input(this, this.canvas);
     this.display = new EditorDisplay(this, this.container, this.canvas, data.resource);

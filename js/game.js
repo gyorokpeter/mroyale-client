@@ -531,6 +531,27 @@ td32.TILE_PROPERTIES = {
             }
         }
     },
+    /* Item Block Infinite */
+    25: {
+        COLLIDE: true,
+        HIDDEN: false,
+        ASYNC: false,
+        TRIGGER: function(game, pid, td, level, zone, x, y, type) {
+            if ((app.net.gameMode === 1 || app.net.gameMode === 2) && game.pid !== pid) return;
+            switch(type) {
+                /* Small bump */
+                /* Big bump */
+                case 0x10 :
+                case 0x11 : {
+                    if(game.pid === pid) { game.out.push(NET030.encode(level, zone, shor2.encode(x,y), type)); }
+                    game.createObject(td.data, level, zone, vec2.make(x,y), [shor2.encode(x,y)]);
+                    td32.GEN_FUNC.BUMP(game, pid, td, level, zone, x, y, type);
+                    game.world.getZone(level, zone).play(x,y,"item.wav",1.,0.04);
+                    break;
+                }
+            }
+        }
+    },
     /* Coin Block Standard */
     0x12: {
         COLLIDE: true,
@@ -1112,8 +1133,8 @@ var MERGE_BYTE = function(/* Uint8Array[] */ a) {
 "use strict";
 var squar = {};
 
-squar.intersection = function(_0x43a044, _0x59c3e0, _0x4eb9a3, _0x4741a0) {
-    return _0x4eb9a3.x < _0x43a044.x + _0x59c3e0.x && _0x4eb9a3.x + _0x4741a0.x > _0x43a044.x && _0x4eb9a3.y < _0x43a044.y + _0x59c3e0.y && _0x4eb9a3.y + _0x4741a0.y > _0x43a044.y;
+squar.intersection = function(astart, adim, bstart, bdim) {
+    return bstart.x < astart.x + adim.x && bstart.x + bdim.x > astart.x && bstart.y < astart.y + adim.y && bstart.y + bdim.y > astart.y;
 };
 squar.inside = function(_0x15c2a5, _0x1957cd, _0x4042e7) {
     return _0x1957cd.x < _0x15c2a5.x && _0x1957cd.x + _0x4042e7.x > _0x15c2a5.x && _0x1957cd.y < _0x15c2a5.y && _0x1957cd.y + _0x4042e7.y > _0x15c2a5.y;
@@ -3423,7 +3444,7 @@ PlayerObject.prototype.attack = function() {
     this.attackTimer = PlayerObject.ATTACK_DELAY;
     this.attackCharge -= PlayerObject.ATTACK_CHARGE;
     var dir = this.reverse ? vec2.add(this.pos, PlayerObject.PROJ_OFFSET) : vec2.add(this.pos, vec2.multiply(PlayerObject.PROJ_OFFSET, vec2.make(-0x1, 0x1)));
-    this.game.createObject(FireballObject.ID, this.level, this.zone, dir, [this.reverse, this.pid, this.skin]);
+    this.game.createObject(FireballObject.ID, this.level, this.zone, dir, [undefined, this.reverse, this.pid, this.skin]);
     this.play("fireball.wav", 0x1, 0.04);
 };
 PlayerObject.prototype.bounce = function() {
@@ -3806,11 +3827,11 @@ GoombaObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(GoombaObject);
 "use strict";
 
-function KoopaObject(_0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726, _0xe543eb, _0x547d60, _0xdab7ae) {
-    GameObject.call(this, _0xa97c33, _0x554349, _0x3fb5a3, _0x1fe726);
-    this.oid = _0xe543eb;
-    this.variant = isNaN(parseInt(_0xdab7ae)) ? 0x0 : parseInt(_0xdab7ae);
-    this.setState(parseInt(_0x547d60) ? KoopaObject.STATE.FLY : KoopaObject.STATE.RUN);
+function KoopaObject(game, level, zone, pos, oid, fly, variant) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.variant = isNaN(parseInt(variant)) ? 0x0 : parseInt(variant);
+    this.setState(parseInt(fly) ? KoopaObject.STATE.FLY : KoopaObject.STATE.RUN);
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
@@ -4064,13 +4085,13 @@ KoopaObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(KoopaObject);
 "use strict";
 
-function KoopaParatroopaObject(_0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183, _0xc898a6, _0x35c708, _0x10c5aa) {
-    GameObject.call(this, _0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183);
-    this.oid = _0xc898a6;
-    this.variant = isNaN(parseInt(_0x10c5aa)) ? 0x0 : parseInt(_0x10c5aa);
-    this.setState(parseInt(_0x35c708) ? KoopaParatroopaObject.STATE.FLY : KoopaParatroopaObject.STATE.RUN);
+function Koopa2Object(game, level, zone, pos, oid, fly, variant) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.variant = isNaN(parseInt(variant)) ? 0x0 : parseInt(variant);
+    this.setState(parseInt(fly) ? Koopa2Object.STATE.FLY : Koopa2Object.STATE.RUN);
     this.bonkTimer = this.anim = 0x0;
-    this.loc = [this.pos.y + 0.5 * KoopaParatroopaObject.FLY_DISTANCE, this.pos.y - 0.5 * KoopaParatroopaObject.FLY_DISTANCE];
+    this.loc = [this.pos.y + 0.5 * Koopa2Object.FLY_DISTANCE, this.pos.y - 0.5 * Koopa2Object.FLY_DISTANCE];
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
     this.disabled = this.grounded = false;
@@ -4081,15 +4102,15 @@ function KoopaParatroopaObject(_0x20fee6, _0x2e48c2, _0x2b82bb, _0x254183, _0xc8
     this.dir = true;
     this.disable();
 }
-KoopaParatroopaObject.ASYNC = false;
-KoopaParatroopaObject.ID = 0x13;
-KoopaParatroopaObject.NAME = "KOOPA TROOPA";
-KoopaParatroopaObject.FLY_DISTANCE = 0x3;
-KoopaParatroopaObject.FLY_ACCEL = 0.0025;
-KoopaParatroopaObject.FLY_SPEED_MAX = 0.075;
-KoopaParatroopaObject.CHECK_DIST = 0.1;
-KoopaParatroopaObject.SPRITE = {};
-KoopaParatroopaObject.SPRITE_LIST = [{
+Koopa2Object.ASYNC = false;
+Koopa2Object.ID = 0x13;
+Koopa2Object.NAME = "KOOPA TROOPA";
+Koopa2Object.FLY_DISTANCE = 0x3;
+Koopa2Object.FLY_ACCEL = 0.0025;
+Koopa2Object.FLY_SPEED_MAX = 0.075;
+Koopa2Object.CHECK_DIST = 0.1;
+Koopa2Object.SPRITE = {};
+Koopa2Object.SPRITE_LIST = [{
     'NAME': "FLY0",
     'ID': 0x0,
     'INDEX': [
@@ -4126,42 +4147,42 @@ KoopaParatroopaObject.SPRITE_LIST = [{
     'ID': 0x5,
     'INDEX': 0x60
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < KoopaParatroopaObject.SPRITE_LIST.length; _0x1bec55++) KoopaParatroopaObject.SPRITE[KoopaParatroopaObject.SPRITE_LIST[_0x1bec55].NAME] = KoopaParatroopaObject.SPRITE_LIST[_0x1bec55], KoopaParatroopaObject.SPRITE[KoopaParatroopaObject.SPRITE_LIST[_0x1bec55].ID] = KoopaParatroopaObject.SPRITE_LIST[_0x1bec55];
-KoopaParatroopaObject.STATE = {};
-KoopaParatroopaObject.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < Koopa2Object.SPRITE_LIST.length; _0x1bec55++) Koopa2Object.SPRITE[Koopa2Object.SPRITE_LIST[_0x1bec55].NAME] = Koopa2Object.SPRITE_LIST[_0x1bec55], Koopa2Object.SPRITE[Koopa2Object.SPRITE_LIST[_0x1bec55].ID] = Koopa2Object.SPRITE_LIST[_0x1bec55];
+Koopa2Object.STATE = {};
+Koopa2Object.STATE_LIST = [{
     'NAME': "FLY",
     'ID': 0x0,
-    'SPRITE': [KoopaParatroopaObject.SPRITE.FLY0, KoopaParatroopaObject.SPRITE.FLY1]
+    'SPRITE': [Koopa2Object.SPRITE.FLY0, Koopa2Object.SPRITE.FLY1]
 }, {
     'NAME': "RUN",
     'ID': 0x1,
-    'SPRITE': [KoopaParatroopaObject.SPRITE.RUN0, KoopaParatroopaObject.SPRITE.RUN1]
+    'SPRITE': [Koopa2Object.SPRITE.RUN0, Koopa2Object.SPRITE.RUN1]
 }, {
     'NAME': "TRANSFORM",
     'ID': 0x2,
-    'SPRITE': [KoopaParatroopaObject.SPRITE.SHELL, KoopaParatroopaObject.SPRITE.TRANSFORM]
+    'SPRITE': [Koopa2Object.SPRITE.SHELL, Koopa2Object.SPRITE.TRANSFORM]
 }, {
     'NAME': "SHELL",
     'ID': 0x3,
-    'SPRITE': [KoopaParatroopaObject.SPRITE.SHELL]
+    'SPRITE': [Koopa2Object.SPRITE.SHELL]
 }, {
     'NAME': "SPIN",
     'ID': 0x4,
-    'SPRITE': [KoopaParatroopaObject.SPRITE.SHELL]
+    'SPRITE': [Koopa2Object.SPRITE.SHELL]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < KoopaParatroopaObject.STATE_LIST.length; _0x1bec55++) KoopaParatroopaObject.STATE[KoopaParatroopaObject.STATE_LIST[_0x1bec55].NAME] = KoopaParatroopaObject.STATE_LIST[_0x1bec55], KoopaParatroopaObject.STATE[KoopaParatroopaObject.STATE_LIST[_0x1bec55].ID] = KoopaParatroopaObject.STATE_LIST[_0x1bec55];
-KoopaParatroopaObject.prototype.update = KoopaObject.prototype.update;
-KoopaParatroopaObject.prototype.step = function() {
+for (_0x1bec55 = 0x0; _0x1bec55 < Koopa2Object.STATE_LIST.length; _0x1bec55++) Koopa2Object.STATE[Koopa2Object.STATE_LIST[_0x1bec55].NAME] = Koopa2Object.STATE_LIST[_0x1bec55], Koopa2Object.STATE[Koopa2Object.STATE_LIST[_0x1bec55].ID] = Koopa2Object.STATE_LIST[_0x1bec55];
+Koopa2Object.prototype.update = KoopaObject.prototype.update;
+Koopa2Object.prototype.step = function() {
     if (this.disabled) this.proximity();
-    else if (0x0 < this.disabledTimer && this.disabledTimer--, this.state === KoopaParatroopaObject.STATE.BONK) this.bonkTimer++ > KoopaObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= KoopaObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.BONK_FALL_SPEED));
+    else if (0x0 < this.disabledTimer && this.disabledTimer--, this.state === Koopa2Object.STATE.BONK) this.bonkTimer++ > KoopaObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= KoopaObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.BONK_FALL_SPEED));
     else {
         this.anim++;
         this.sprite = this.state.SPRITE[parseInt(this.anim / KoopaObject.ANIMATION_RATE) % this.state.SPRITE.length];
-        if (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM) --this.transformTimer < KoopaObject.TRANSFORM_THRESHOLD && this.setState(KoopaParatroopaObject.STATE.TRANSFORM), 0x0 >= this.transformTimer && this.setState(KoopaParatroopaObject.STATE.RUN);
+        if (this.state === Koopa2Object.STATE.SHELL || this.state === Koopa2Object.STATE.TRANSFORM) --this.transformTimer < KoopaObject.TRANSFORM_THRESHOLD && this.setState(Koopa2Object.STATE.TRANSFORM), 0x0 >= this.transformTimer && this.setState(Koopa2Object.STATE.RUN);
         0x0 < this.immuneTimer && this.immuneTimer--;
         this.control();
         this.physics();
@@ -4170,14 +4191,14 @@ KoopaParatroopaObject.prototype.step = function() {
         0x0 > this.pos.y && this.destroy();
     }
 };
-KoopaParatroopaObject.prototype.control = function() {
-    this.state === KoopaParatroopaObject.STATE.FLY && (this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX);
-    this.state === KoopaParatroopaObject.STATE.RUN && (this.grounded && !this.checkGround() && (this.dir = !this.dir), this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX);
-    this.state === KoopaParatroopaObject.STATE.SPIN && (this.moveSpeed = this.dir ? -KoopaObject.SHELL_MOVE_SPEED_MAX : KoopaObject.SHELL_MOVE_SPEED_MAX);
-    if (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM) this.moveSpeed = 0x0;
+Koopa2Object.prototype.control = function() {
+    this.state === Koopa2Object.STATE.FLY && (this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX);
+    this.state === Koopa2Object.STATE.RUN && (this.grounded && !this.checkGround() && (this.dir = !this.dir), this.moveSpeed = this.dir ? -KoopaObject.MOVE_SPEED_MAX : KoopaObject.MOVE_SPEED_MAX);
+    this.state === Koopa2Object.STATE.SPIN && (this.moveSpeed = this.dir ? -KoopaObject.SHELL_MOVE_SPEED_MAX : KoopaObject.SHELL_MOVE_SPEED_MAX);
+    if (this.state === Koopa2Object.STATE.SHELL || this.state === Koopa2Object.STATE.TRANSFORM) this.moveSpeed = 0x0;
 };
-KoopaParatroopaObject.prototype.physics = function() {
-    if (this.state === KoopaParatroopaObject.STATE.FLY) this.rev ? (this.fallSpeed = Math.min(KoopaParatroopaObject.FLY_SPEED_MAX, this.fallSpeed + KoopaParatroopaObject.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y >= this.loc[0x0] && (this.rev = false)) : (this.fallSpeed = Math.max(-KoopaParatroopaObject.FLY_SPEED_MAX, this.fallSpeed - KoopaParatroopaObject.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y <= this.loc[0x1] && (this.rev = true));
+Koopa2Object.prototype.physics = function() {
+    if (this.state === Koopa2Object.STATE.FLY) this.rev ? (this.fallSpeed = Math.min(Koopa2Object.FLY_SPEED_MAX, this.fallSpeed + Koopa2Object.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y >= this.loc[0x0] && (this.rev = false)) : (this.fallSpeed = Math.max(-Koopa2Object.FLY_SPEED_MAX, this.fallSpeed - Koopa2Object.FLY_ACCEL), this.pos.y += this.fallSpeed, this.pos.y <= this.loc[0x1] && (this.rev = true));
     else {
         this.grounded && (this.fallSpeed = 0x0);
         this.fallSpeed = Math.max(this.fallSpeed - KoopaObject.FALL_SPEED_ACCEL, -KoopaObject.FALL_SPEED_MAX);
@@ -4198,46 +4219,46 @@ KoopaParatroopaObject.prototype.physics = function() {
         _0x58fc4d && (this.dir = !this.dir);
     }
 };
-KoopaParatroopaObject.prototype.interaction = function() {
-    if (this.state === KoopaParatroopaObject.STATE.SPIN)
+Koopa2Object.prototype.interaction = function() {
+    if (this.state === Koopa2Object.STATE.SPIN)
         for (var _0x55c0e3 = 0x0; _0x55c0e3 < this.game.objects.length; _0x55c0e3++) {
             var _0xa2c7b4 = this.game.objects[_0x55c0e3];
             _0xa2c7b4 === this || _0xa2c7b4 instanceof PlayerObject || !_0xa2c7b4.isTangible() || !_0xa2c7b4.damage || _0xa2c7b4.level === this.level && _0xa2c7b4.zone === this.zone && squar.intersection(_0xa2c7b4.pos, _0xa2c7b4.dim, this.pos, this.dim) && _0xa2c7b4.damage();
         }
 };
-KoopaParatroopaObject.prototype.sound = GameObject.prototype.sound;
-KoopaParatroopaObject.prototype.checkGround = function() {
-    var _0x1e7bcc = this.dir ? vec2.add(this.pos, vec2.make(-KoopaParatroopaObject.CHECK_DIST, 0x0)) : vec2.add(this.pos, vec2.make(KoopaParatroopaObject.CHECK_DIST + this.dim.x, 0x0));
+Koopa2Object.prototype.sound = GameObject.prototype.sound;
+Koopa2Object.prototype.checkGround = function() {
+    var _0x1e7bcc = this.dir ? vec2.add(this.pos, vec2.make(-Koopa2Object.CHECK_DIST, 0x0)) : vec2.add(this.pos, vec2.make(Koopa2Object.CHECK_DIST + this.dim.x, 0x0));
     _0x1e7bcc.y -= 1.5;
     return this.game.world.getZone(this.level, this.zone).getTile(_0x1e7bcc).definition.COLLIDE;
 };
-KoopaParatroopaObject.prototype.proximity = KoopaObject.prototype.proximity;
-KoopaParatroopaObject.prototype.enable = KoopaObject.prototype.enable;
-KoopaParatroopaObject.prototype.disable = KoopaObject.prototype.disable;
-KoopaParatroopaObject.prototype.damage = KoopaObject.prototype.damage;
-KoopaParatroopaObject.prototype.bonk = function() {
-    this.dead || (this.setState(KoopaParatroopaObject.STATE.BONK), this.moveSpeed = KoopaObject.BONK_IMP.x, this.fallSpeed = KoopaObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
+Koopa2Object.prototype.proximity = KoopaObject.prototype.proximity;
+Koopa2Object.prototype.enable = KoopaObject.prototype.enable;
+Koopa2Object.prototype.disable = KoopaObject.prototype.disable;
+Koopa2Object.prototype.damage = KoopaObject.prototype.damage;
+Koopa2Object.prototype.bonk = function() {
+    this.dead || (this.setState(Koopa2Object.STATE.BONK), this.moveSpeed = KoopaObject.BONK_IMP.x, this.fallSpeed = KoopaObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
-KoopaParatroopaObject.prototype.stomped = function(_0x2f1cbf) {
-    if (this.state === KoopaParatroopaObject.STATE.FLY) this.setState(KoopaParatroopaObject.STATE.RUN);
-    else if (this.state === KoopaParatroopaObject.STATE.RUN) this.setState(KoopaParatroopaObject.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
-    else if (this.state === KoopaParatroopaObject.STATE.SPIN) this.setState(KoopaParatroopaObject.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
-    else if (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM) this.setState(KoopaParatroopaObject.STATE.SPIN), this.dir = _0x2f1cbf;
+Koopa2Object.prototype.stomped = function(_0x2f1cbf) {
+    if (this.state === Koopa2Object.STATE.FLY) this.setState(Koopa2Object.STATE.RUN);
+    else if (this.state === Koopa2Object.STATE.RUN) this.setState(Koopa2Object.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
+    else if (this.state === Koopa2Object.STATE.SPIN) this.setState(Koopa2Object.STATE.SHELL), this.transformTimer = KoopaObject.TRANSFORM_TIME;
+    else if (this.state === Koopa2Object.STATE.SHELL || this.state === Koopa2Object.STATE.TRANSFORM) this.setState(Koopa2Object.STATE.SPIN), this.dir = _0x2f1cbf;
     this.play("stomp.wav", 0x1, 0.04);
 };
-KoopaParatroopaObject.prototype.playerCollide = function(_0x2665f3) {
-    this.dead || this.garbage || (this.state === KoopaParatroopaObject.STATE.SHELL || this.state === KoopaParatroopaObject.STATE.TRANSFORM ? (_0x2665f3 = 0x0 < _0x2665f3.pos.x - this.pos.x, this.stomped(_0x2665f3), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x2665f3 ? 0x10 : 0x11)), this.immuneTimer = KoopaObject.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x2665f3.damage(this));
+Koopa2Object.prototype.playerCollide = function(_0x2665f3) {
+    this.dead || this.garbage || (this.state === Koopa2Object.STATE.SHELL || this.state === Koopa2Object.STATE.TRANSFORM ? (_0x2665f3 = 0x0 < _0x2665f3.pos.x - this.pos.x, this.stomped(_0x2665f3), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, _0x2665f3 ? 0x10 : 0x11)), this.immuneTimer = KoopaObject.PLAYER_IMMUNE_TIME) : 0x0 >= this.immuneTimer && _0x2665f3.damage(this));
 };
-KoopaParatroopaObject.prototype.playerStomp = KoopaObject.prototype.playerStomp;
-KoopaParatroopaObject.prototype.playerBump = KoopaObject.prototype.playerBump;
-KoopaParatroopaObject.prototype.kill = KoopaObject.prototype.kill;
-KoopaParatroopaObject.prototype.destroy = KoopaObject.prototype.destroy;
-KoopaParatroopaObject.prototype.isTangible = KoopaObject.prototype.isTangible;
-KoopaParatroopaObject.prototype.setState = KoopaObject.prototype.setState;
-KoopaParatroopaObject.prototype.draw = function(_0x6357b4) {
+Koopa2Object.prototype.playerStomp = KoopaObject.prototype.playerStomp;
+Koopa2Object.prototype.playerBump = KoopaObject.prototype.playerBump;
+Koopa2Object.prototype.kill = KoopaObject.prototype.kill;
+Koopa2Object.prototype.destroy = KoopaObject.prototype.destroy;
+Koopa2Object.prototype.isTangible = KoopaObject.prototype.isTangible;
+Koopa2Object.prototype.setState = KoopaObject.prototype.setState;
+Koopa2Object.prototype.draw = function(_0x6357b4) {
     if (!this.disabled) {
         var _0x249e88;
-        _0x249e88 = this.state === KoopaParatroopaObject.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / KoopaObject.ENABLE_FADE_TIME)) : 0x0;
+        _0x249e88 = this.state === Koopa2Object.STATE.BONK ? 0x3 : 0x0 < this.disabledTimer ? 0xa0 + parseInt(0x20 * (0x1 - this.disabledTimer / KoopaObject.ENABLE_FADE_TIME)) : 0x0;
         if (this.sprite.INDEX instanceof Array)
             for (var _0xe3aa3a = this.sprite.INDEX, _0x331f7c = 0x0; _0x331f7c < _0xe3aa3a.length; _0x331f7c++)
                 for (var _0x55c5a9 = 0x0; _0x55c5a9 < _0xe3aa3a[_0x331f7c].length; _0x55c5a9++) {
@@ -4267,8 +4288,8 @@ KoopaParatroopaObject.prototype.draw = function(_0x6357b4) {
                 }
     }
 };
-KoopaParatroopaObject.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(KoopaParatroopaObject);
+Koopa2Object.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(Koopa2Object);
 "use strict";
 
 function PiranhaPlantObject(game, level, zone, pos, oid, variant, direction) {
@@ -4285,7 +4306,7 @@ function PiranhaPlantObject(game, level, zone, pos, oid, variant, direction) {
 }
 PiranhaPlantObject.ASYNC = false;
 PiranhaPlantObject.ID = 0x16;
-PiranhaPlantObject.NAME = "UNSPELLABLE PLANT";
+PiranhaPlantObject.NAME = "PIRANHA PLANT";
 PiranhaPlantObject.ANIMATION_RATE = 0x3;
 PiranhaPlantObject.VARIANT_OFFSET = 0x20;
 PiranhaPlantObject.SOFFSET = [vec2.make(-0.1, 0x0), vec2.make(-0.1, -0.75)];
@@ -4397,38 +4418,38 @@ PiranhaPlantObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(PiranhaPlantObject);
 "use strict";
 
-function _0x25ddce(_0x171be9, _0x49adc1, _0x3c512b, _0xf8ff83, _0x140a9f, _0x26dec7, _0x3b38a6) {
-    GameObject.call(this, _0x171be9, _0x49adc1, _0x3c512b, _0xf8ff83);
-    this.oid = _0x140a9f;
-    this.setState(_0x25ddce.STATE.IDLE);
-    this.delay = isNaN(parseInt(_0x26dec7)) ? _0x25ddce.DELAY_DEFAULT : parseInt(_0x26dec7);
-    this.impulse = isNaN(parseFloat(_0x3b38a6)) ? 0x1 : parseFloat(_0x3b38a6);
+function FlyingFishObject(game, level, zone, pos, oid, delay, impulse) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.setState(FlyingFishObject.STATE.IDLE);
+    this.delay = isNaN(parseInt(delay)) ? FlyingFishObject.DELAY_DEFAULT : parseInt(delay);
+    this.impulse = isNaN(parseFloat(impulse)) ? 0x1 : parseFloat(impulse);
     this.anim = 0x0;
     this.disabled = false;
     this.delayTimer = this.delay;
     this.bonkTimer = 0x0;
-    this.pos.x += _0x25ddce.SOFFSET.x;
+    this.pos.x += FlyingFishObject.SOFFSET.x;
     this.loc = vec2.copy(this.pos);
     this.moveSpeed = this.fallSpeed = 0x0;
     this.dim = vec2.make(0.7, 0.7);
     this.dir = true;
 }
-_0x25ddce.ASYNC = false;
-_0x25ddce.ID = 0x15;
-_0x25ddce.NAME = "FLYING FISH";
-_0x25ddce.ANIMATION_RATE = 0x3;
-_0x25ddce.BONK_TIME = 0x5a;
-_0x25ddce.BONK_IMP = vec2.make(0.25, 0.4);
-_0x25ddce.BONK_DECEL = 0.925;
-_0x25ddce.BONK_FALL_SPEED = 0.5;
-_0x25ddce.BONK_FALL_ACCEL = 0.085;
-_0x25ddce.DELAY_DEFAULT = 0x96;
-_0x25ddce.IMPULSE = vec2.make(0.225, 0.335);
-_0x25ddce.DRAG = 0.996;
-_0x25ddce.FALL_SPEED_ACCEL = 0.0055;
-_0x25ddce.SOFFSET = vec2.make(0.15, 0.15);
-_0x25ddce.SPRITE = {};
-_0x25ddce.SPRITE_LIST = [{
+FlyingFishObject.ASYNC = false;
+FlyingFishObject.ID = 0x15;
+FlyingFishObject.NAME = "FLYING FISH";
+FlyingFishObject.ANIMATION_RATE = 0x3;
+FlyingFishObject.BONK_TIME = 0x5a;
+FlyingFishObject.BONK_IMP = vec2.make(0.25, 0.4);
+FlyingFishObject.BONK_DECEL = 0.925;
+FlyingFishObject.BONK_FALL_SPEED = 0.5;
+FlyingFishObject.BONK_FALL_ACCEL = 0.085;
+FlyingFishObject.DELAY_DEFAULT = 0x96;
+FlyingFishObject.IMPULSE = vec2.make(0.225, 0.335);
+FlyingFishObject.DRAG = 0.996;
+FlyingFishObject.FALL_SPEED_ACCEL = 0.0055;
+FlyingFishObject.SOFFSET = vec2.make(0.15, 0.15);
+FlyingFishObject.SPRITE = {};
+FlyingFishObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
     'INDEX': 0xce
@@ -4437,84 +4458,84 @@ _0x25ddce.SPRITE_LIST = [{
     'ID': 0x1,
     'INDEX': 0xcf
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x25ddce.SPRITE_LIST.length; _0x1bec55++) _0x25ddce.SPRITE[_0x25ddce.SPRITE_LIST[_0x1bec55].NAME] = _0x25ddce.SPRITE_LIST[_0x1bec55], _0x25ddce.SPRITE[_0x25ddce.SPRITE_LIST[_0x1bec55].ID] = _0x25ddce.SPRITE_LIST[_0x1bec55];
-_0x25ddce.STATE = {};
-_0x25ddce.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < FlyingFishObject.SPRITE_LIST.length; _0x1bec55++) FlyingFishObject.SPRITE[FlyingFishObject.SPRITE_LIST[_0x1bec55].NAME] = FlyingFishObject.SPRITE_LIST[_0x1bec55], FlyingFishObject.SPRITE[FlyingFishObject.SPRITE_LIST[_0x1bec55].ID] = FlyingFishObject.SPRITE_LIST[_0x1bec55];
+FlyingFishObject.STATE = {};
+FlyingFishObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x25ddce.SPRITE.IDLE0, _0x25ddce.SPRITE.IDLE1]
+    'SPRITE': [FlyingFishObject.SPRITE.IDLE0, FlyingFishObject.SPRITE.IDLE1]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x25ddce.STATE_LIST.length; _0x1bec55++) _0x25ddce.STATE[_0x25ddce.STATE_LIST[_0x1bec55].NAME] = _0x25ddce.STATE_LIST[_0x1bec55], _0x25ddce.STATE[_0x25ddce.STATE_LIST[_0x1bec55].ID] = _0x25ddce.STATE_LIST[_0x1bec55];
-_0x25ddce.prototype.update = function(_0x31e5a7) {
+for (_0x1bec55 = 0x0; _0x1bec55 < FlyingFishObject.STATE_LIST.length; _0x1bec55++) FlyingFishObject.STATE[FlyingFishObject.STATE_LIST[_0x1bec55].NAME] = FlyingFishObject.STATE_LIST[_0x1bec55], FlyingFishObject.STATE[FlyingFishObject.STATE_LIST[_0x1bec55].ID] = FlyingFishObject.STATE_LIST[_0x1bec55];
+FlyingFishObject.prototype.update = function(_0x31e5a7) {
     switch (_0x31e5a7) {
         case 0x1:
             this.bonk();
     }
 };
-_0x25ddce.prototype.step = function() {
-    this.state === _0x25ddce.STATE.BONK ? this.bonkTimer++ > _0x25ddce.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0x25ddce.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0x25ddce.BONK_FALL_ACCEL, -_0x25ddce.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x25ddce.ANIMATION_RATE) % this.state.SPRITE.length], 0x0 < this.delayTimer ? this.delayTimer-- : this.jump(), this.physics(), this.sound());
+FlyingFishObject.prototype.step = function() {
+    this.state === FlyingFishObject.STATE.BONK ? this.bonkTimer++ > FlyingFishObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= FlyingFishObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - FlyingFishObject.BONK_FALL_ACCEL, -FlyingFishObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / FlyingFishObject.ANIMATION_RATE) % this.state.SPRITE.length], 0x0 < this.delayTimer ? this.delayTimer-- : this.jump(), this.physics(), this.sound());
 };
-_0x25ddce.prototype.physics = function() {
-    this.pos.y > this.loc.y || 0x0 < this.fallSpeed ? (this.fallSpeed = (this.fallSpeed - _0x25ddce.FALL_SPEED_ACCEL) * _0x25ddce.DRAG, this.pos.x += this.moveSpeed * _0x25ddce.DRAG, this.pos.y += this.fallSpeed) : this.disable();
+FlyingFishObject.prototype.physics = function() {
+    this.pos.y > this.loc.y || 0x0 < this.fallSpeed ? (this.fallSpeed = (this.fallSpeed - FlyingFishObject.FALL_SPEED_ACCEL) * FlyingFishObject.DRAG, this.pos.x += this.moveSpeed * FlyingFishObject.DRAG, this.pos.y += this.fallSpeed) : this.disable();
 };
-_0x25ddce.prototype.sound = GameObject.prototype.sound;
-_0x25ddce.prototype.jump = function() {
+FlyingFishObject.prototype.sound = GameObject.prototype.sound;
+FlyingFishObject.prototype.jump = function() {
     this.enable();
     this.pos = vec2.copy(this.loc);
-    this.fallSpeed = _0x25ddce.IMPULSE.y * this.impulse;
-    this.moveSpeed = _0x25ddce.IMPULSE.x * this.impulse;
+    this.fallSpeed = FlyingFishObject.IMPULSE.y * this.impulse;
+    this.moveSpeed = FlyingFishObject.IMPULSE.x * this.impulse;
     this.delayTimer = this.delay;
 };
-_0x25ddce.prototype.disable = function() {
+FlyingFishObject.prototype.disable = function() {
     this.disabled = true;
 };
-_0x25ddce.prototype.enable = function() {
+FlyingFishObject.prototype.enable = function() {
     this.disabled = false;
 };
-_0x25ddce.prototype.damage = function(_0x491a38) {
+FlyingFishObject.prototype.damage = function(_0x491a38) {
     this.dead || (this.bonk(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0x25ddce.prototype.bonk = function() {
-    this.dead || (this.setState(_0x25ddce.STATE.BONK), this.moveSpeed = _0x25ddce.BONK_IMP.x, this.fallSpeed = _0x25ddce.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
+FlyingFishObject.prototype.bonk = function() {
+    this.dead || (this.setState(FlyingFishObject.STATE.BONK), this.moveSpeed = FlyingFishObject.BONK_IMP.x, this.fallSpeed = FlyingFishObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
-_0x25ddce.prototype.playerCollide = function(_0x28a0cf) {
+FlyingFishObject.prototype.playerCollide = function(_0x28a0cf) {
     this.dead || this.garbage || _0x28a0cf.damage(this);
 };
-_0x25ddce.prototype.playerStomp = function(_0x2eb09b) {
+FlyingFishObject.prototype.playerStomp = function(_0x2eb09b) {
     this.dead || this.garbage || (this.bonk(), _0x2eb09b.bounce(), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0x25ddce.prototype.playerBump = function(_0x5e66c8) {
+FlyingFishObject.prototype.playerBump = function(_0x5e66c8) {
     this.playerCollide(_0x5e66c8);
 };
-_0x25ddce.prototype.kill = function() {};
-_0x25ddce.prototype.isTangible = GameObject.prototype.isTangible;
-_0x25ddce.prototype.destroy = GameObject.prototype.destroy;
-_0x25ddce.prototype.setState = function(_0x2afd8b) {
+FlyingFishObject.prototype.kill = function() {};
+FlyingFishObject.prototype.isTangible = GameObject.prototype.isTangible;
+FlyingFishObject.prototype.destroy = GameObject.prototype.destroy;
+FlyingFishObject.prototype.setState = function(_0x2afd8b) {
     _0x2afd8b !== this.state && (this.state = _0x2afd8b, 0x0 < _0x2afd8b.SPRITE.length && (this.sprite = _0x2afd8b.SPRITE[0x0]), this.anim = 0x0);
 };
-_0x25ddce.prototype.draw = function(_0x45125b) {
+FlyingFishObject.prototype.draw = function(_0x45125b) {
     if (!this.disabled) {
         var _0x455f65;
-        _0x455f65 = this.state === _0x25ddce.STATE.BONK ? 0x3 : 0x0;
+        _0x455f65 = this.state === FlyingFishObject.STATE.BONK ? 0x3 : 0x0;
         _0x45125b.push({
-            'pos': vec2.subtract(this.pos, _0x25ddce.SOFFSET),
+            'pos': vec2.subtract(this.pos, FlyingFishObject.SOFFSET),
             'reverse': this.dir,
             'index': this.sprite.INDEX,
             'mode': _0x455f65
         });
     }
 };
-_0x25ddce.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x25ddce);
+FlyingFishObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(FlyingFishObject);
 "use strict";
 
-function HammerBroObject(_0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8, _0x55466e, _0xde92bf) {
-    GameObject.call(this, _0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8);
-    this.oid = _0x55466e;
+function HammerBroObject(game, level, zone, pos, oid, phase) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.setState(HammerBroObject.STATE.IDLE);
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0x1, 1.5);
@@ -4523,7 +4544,7 @@ function HammerBroObject(_0x25bac6, _0xab1441, _0x1bd210, _0xd7b1a8, _0x55466e, 
     this.disabledTimer = 0x0;
     this.proxHit = false;
     this.hammer = undefined;
-    this.loc = 0x1 === parseInt(_0xde92bf) ? [this.pos.x + HammerBroObject.MOVE_AREA, this.pos.x] : [this.pos.x, this.pos.x - HammerBroObject.MOVE_AREA];
+    this.loc = 0x1 === parseInt(phase) ? [this.pos.x + HammerBroObject.MOVE_AREA, this.pos.x] : [this.pos.x, this.pos.x - HammerBroObject.MOVE_AREA];
     this.groundTimer = this.double = this.attackAnimTimer = this.attackTimer = 0x0;
     this.jumpTimer = -0x1;
     this.reverse = false;
@@ -4697,9 +4718,9 @@ HammerBroObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(HammerBroObject);
 "use strict";
 
-function BowserObject(game, level, zone, pos, oid, oprm) {
+function BowserObject(game, level, zone, pos, oid, attackType) {
     GameObject.call(this, game, level, zone, pos);
-    switch(parseInt(oprm)) {
+    switch(parseInt(attackType)) {
         case 1:
             this.fire = false;
             this.hammer = true;
@@ -4906,42 +4927,42 @@ BowserObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(BowserObject);
 "use strict";
 
-function _0x5bbb5e(_0x38f9a7, _0x27f352, _0x55bfab, _0x551362, _0x61ea43, _0x1b085a, _0x1d905f, _0x54af71, _0x46cdb7, _0x151f14, _0x271b52, _0x57f60d) {
-    GameObject.call(this, _0x38f9a7, _0x27f352, _0x55bfab, _0x551362);
-    this.oid = _0x61ea43;
-    this.setState(_0x5bbb5e.STATE.IDLE);
-    this.loc = 0x0 === parseInt(_0x57f60d) ? [_0x551362, vec2.add(_0x551362, vec2.make(parseInt(_0x1d905f), parseInt(_0x54af71)))] : [vec2.add(_0x551362, vec2.make(parseInt(_0x1d905f), parseInt(_0x54af71))), _0x551362];
+function MovingPlatformObject(game, level, zone, pos, oid, length, offX, offY, speed, loop, delay, direction) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.setState(MovingPlatformObject.STATE.IDLE);
+    this.loc = 0x0 === parseInt(direction) ? [pos, vec2.add(pos, vec2.make(parseInt(offX), parseInt(offY)))] : [vec2.add(pos, vec2.make(parseInt(offX), parseInt(offY))), pos];
     this.anim = 0x0;
-    this.dim = vec2.make(parseInt(_0x1b085a), 0.5);
-    this.speed = parseFloat(_0x46cdb7);
+    this.dim = vec2.make(parseInt(length), 0.5);
+    this.speed = parseFloat(speed);
     this.riders = [];
     this.dir = false;
-    this.loop = 0x0 === parseInt(_0x151f14) ? false : true;
-    this.delay = parseInt(_0x271b52);
+    this.loop = 0x0 === parseInt(loop) ? false : true;
+    this.delay = parseInt(delay);
 }
-_0x5bbb5e.ASYNC = true;
-_0x5bbb5e.ID = 0x91;
-_0x5bbb5e.NAME = "PLATFORM";
-_0x5bbb5e.ANIMATION_RATE = 0x3;
-_0x5bbb5e.SPRITE = {};
-_0x5bbb5e.SPRITE_LIST = [{
+MovingPlatformObject.ASYNC = true;
+MovingPlatformObject.ID = 0x91;
+MovingPlatformObject.NAME = "PLATFORM";
+MovingPlatformObject.ANIMATION_RATE = 0x3;
+MovingPlatformObject.SPRITE = {};
+MovingPlatformObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xa0
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x5bbb5e.SPRITE_LIST.length; _0x1bec55++) _0x5bbb5e.SPRITE[_0x5bbb5e.SPRITE_LIST[_0x1bec55].NAME] = _0x5bbb5e.SPRITE_LIST[_0x1bec55], _0x5bbb5e.SPRITE[_0x5bbb5e.SPRITE_LIST[_0x1bec55].ID] = _0x5bbb5e.SPRITE_LIST[_0x1bec55];
-_0x5bbb5e.STATE = {};
-_0x5bbb5e.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < MovingPlatformObject.SPRITE_LIST.length; _0x1bec55++) MovingPlatformObject.SPRITE[MovingPlatformObject.SPRITE_LIST[_0x1bec55].NAME] = MovingPlatformObject.SPRITE_LIST[_0x1bec55], MovingPlatformObject.SPRITE[MovingPlatformObject.SPRITE_LIST[_0x1bec55].ID] = MovingPlatformObject.SPRITE_LIST[_0x1bec55];
+MovingPlatformObject.STATE = {};
+MovingPlatformObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x5bbb5e.SPRITE.IDLE]
+    'SPRITE': [MovingPlatformObject.SPRITE.IDLE]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x5bbb5e.STATE_LIST.length; _0x1bec55++) _0x5bbb5e.STATE[_0x5bbb5e.STATE_LIST[_0x1bec55].NAME] = _0x5bbb5e.STATE_LIST[_0x1bec55], _0x5bbb5e.STATE[_0x5bbb5e.STATE_LIST[_0x1bec55].ID] = _0x5bbb5e.STATE_LIST[_0x1bec55];
-_0x5bbb5e.prototype.update = function(_0x1936ee) {};
-_0x5bbb5e.prototype.step = function() {
-    0x0 < this.delay-- || (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x5bbb5e.ANIMATION_RATE) % this.state.SPRITE.length], this.physics());
+for (_0x1bec55 = 0x0; _0x1bec55 < MovingPlatformObject.STATE_LIST.length; _0x1bec55++) MovingPlatformObject.STATE[MovingPlatformObject.STATE_LIST[_0x1bec55].NAME] = MovingPlatformObject.STATE_LIST[_0x1bec55], MovingPlatformObject.STATE[MovingPlatformObject.STATE_LIST[_0x1bec55].ID] = MovingPlatformObject.STATE_LIST[_0x1bec55];
+MovingPlatformObject.prototype.update = function(_0x1936ee) {};
+MovingPlatformObject.prototype.step = function() {
+    0x0 < this.delay-- || (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / MovingPlatformObject.ANIMATION_RATE) % this.state.SPRITE.length], this.physics());
 };
-_0x5bbb5e.prototype.physics = function() {
+MovingPlatformObject.prototype.physics = function() {
     var _0x4f56e4 = vec2.normalize(vec2.subtract(this.loc[this.dir ? 0x0 : 0x1], this.pos)),
         _0xa92877 = vec2.distance(this.pos, this.loc[this.dir ? 0x0 : 0x1]);
     if (_0xa92877 < this.speed)
@@ -4958,16 +4979,16 @@ _0x5bbb5e.prototype.physics = function() {
     }
     this.riders = [];
 };
-_0x5bbb5e.prototype.riding = function(_0x3f225a) {
+MovingPlatformObject.prototype.riding = function(_0x3f225a) {
     this.riders.push(_0x3f225a);
 };
-_0x5bbb5e.prototype.kill = function() {};
-_0x5bbb5e.prototype.destroy = GameObject.prototype.destroy;
-_0x5bbb5e.prototype.isTangible = GameObject.prototype.isTangible;
-_0x5bbb5e.prototype.setState = function(_0x1d8cb4) {
+MovingPlatformObject.prototype.kill = function() {};
+MovingPlatformObject.prototype.destroy = GameObject.prototype.destroy;
+MovingPlatformObject.prototype.isTangible = GameObject.prototype.isTangible;
+MovingPlatformObject.prototype.setState = function(_0x1d8cb4) {
     _0x1d8cb4 !== this.state && (this.state = _0x1d8cb4, this.sprite = _0x1d8cb4.SPRITE[0x0], this.anim = 0x0);
 };
-_0x5bbb5e.prototype.draw = function(_0x3a5658) {
+MovingPlatformObject.prototype.draw = function(_0x3a5658) {
     if (!(0x0 < this.delay))
         for (var _0x3f7f2b = 0x0; _0x3f7f2b < this.dim.x; _0x3f7f2b++) _0x3a5658.push({
             'pos': vec2.add(this.pos, vec2.make(_0x3f7f2b, 0x0)),
@@ -4976,50 +4997,50 @@ _0x5bbb5e.prototype.draw = function(_0x3a5658) {
             'mode': 0x0
         });
 };
-GameObject.REGISTER_OBJECT(_0x5bbb5e);
+GameObject.REGISTER_OBJECT(MovingPlatformObject);
 "use strict";
 
-function _0x4b6e2c(_0x1d4931, _0xe3dc6, _0x10f6a5, _0x3813e7, _0x1e87d2, _0x1f931e, _0x31e281, _0x3347d6, _0x53c646) {
-    GameObject.call(this, _0x1d4931, _0xe3dc6, _0x10f6a5, _0x3813e7);
-    this.oid = _0x1e87d2;
-    this.setState(_0x4b6e2c.STATE.IDLE);
-    this.loc = [_0x3813e7, vec2.add(_0x3813e7, vec2.make(parseInt(_0x31e281), parseInt(_0x3347d6)))];
+function BusPlatformObject(game, level, zone, pos, oid, length, offX, offY, speed) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.setState(BusPlatformObject.STATE.IDLE);
+    this.loc = [pos, vec2.add(pos, vec2.make(parseInt(offX), parseInt(offY)))];
     this.anim = 0x0;
-    this.dim = vec2.make(parseInt(_0x1f931e), 0.5);
-    this.speed = parseFloat(_0x53c646);
+    this.dim = vec2.make(parseInt(length), 0.5);
+    this.speed = parseFloat(speed);
     this.riders = [];
     this.dir = this.go = false;
 }
-_0x4b6e2c.ASYNC = false;
-_0x4b6e2c.ID = 0x92;
-_0x4b6e2c.NAME = "BUS PLATFORM";
-_0x4b6e2c.ANIMATION_RATE = 0x3;
-_0x4b6e2c.SPRITE = {};
-_0x4b6e2c.SPRITE_LIST = [{
+BusPlatformObject.ASYNC = false;
+BusPlatformObject.ID = 0x92;
+BusPlatformObject.NAME = "BUS PLATFORM";
+BusPlatformObject.ANIMATION_RATE = 0x3;
+BusPlatformObject.SPRITE = {};
+BusPlatformObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xa0
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x4b6e2c.SPRITE_LIST.length; _0x1bec55++) _0x4b6e2c.SPRITE[_0x4b6e2c.SPRITE_LIST[_0x1bec55].NAME] = _0x4b6e2c.SPRITE_LIST[_0x1bec55], _0x4b6e2c.SPRITE[_0x4b6e2c.SPRITE_LIST[_0x1bec55].ID] = _0x4b6e2c.SPRITE_LIST[_0x1bec55];
-_0x4b6e2c.STATE = {};
-_0x4b6e2c.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < BusPlatformObject.SPRITE_LIST.length; _0x1bec55++) BusPlatformObject.SPRITE[BusPlatformObject.SPRITE_LIST[_0x1bec55].NAME] = BusPlatformObject.SPRITE_LIST[_0x1bec55], BusPlatformObject.SPRITE[BusPlatformObject.SPRITE_LIST[_0x1bec55].ID] = BusPlatformObject.SPRITE_LIST[_0x1bec55];
+BusPlatformObject.STATE = {};
+BusPlatformObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x4b6e2c.SPRITE.IDLE]
+    'SPRITE': [BusPlatformObject.SPRITE.IDLE]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x4b6e2c.STATE_LIST.length; _0x1bec55++) _0x4b6e2c.STATE[_0x4b6e2c.STATE_LIST[_0x1bec55].NAME] = _0x4b6e2c.STATE_LIST[_0x1bec55], _0x4b6e2c.STATE[_0x4b6e2c.STATE_LIST[_0x1bec55].ID] = _0x4b6e2c.STATE_LIST[_0x1bec55];
-_0x4b6e2c.prototype.update = function(_0x3bfe45) {
+for (_0x1bec55 = 0x0; _0x1bec55 < BusPlatformObject.STATE_LIST.length; _0x1bec55++) BusPlatformObject.STATE[BusPlatformObject.STATE_LIST[_0x1bec55].NAME] = BusPlatformObject.STATE_LIST[_0x1bec55], BusPlatformObject.STATE[BusPlatformObject.STATE_LIST[_0x1bec55].ID] = BusPlatformObject.STATE_LIST[_0x1bec55];
+BusPlatformObject.prototype.update = function(_0x3bfe45) {
     switch (_0x3bfe45) {
         case 0xa1:
             this.start();
     }
 };
-_0x4b6e2c.prototype.step = function() {
+BusPlatformObject.prototype.step = function() {
     this.anim++;
-    this.sprite = this.state.SPRITE[parseInt(this.anim / _0x4b6e2c.ANIMATION_RATE) % this.state.SPRITE.length];
+    this.sprite = this.state.SPRITE[parseInt(this.anim / BusPlatformObject.ANIMATION_RATE) % this.state.SPRITE.length];
     this.physics();
 };
-_0x4b6e2c.prototype.physics = function() {
+BusPlatformObject.prototype.physics = function() {
     if (this.go) {
         var _0x48a68f = vec2.normalize(vec2.subtract(this.loc[this.dir ? 0x0 : 0x1], this.pos)),
             _0x2b99c6 = vec2.distance(this.pos, this.loc[this.dir ? 0x0 : 0x1]),
@@ -5032,20 +5053,20 @@ _0x4b6e2c.prototype.physics = function() {
     }
     this.riders = [];
 };
-_0x4b6e2c.prototype.start = function() {
+BusPlatformObject.prototype.start = function() {
     this.go = true;
 };
-_0x4b6e2c.prototype.riding = function(_0x4a3b82) {
+BusPlatformObject.prototype.riding = function(_0x4a3b82) {
     _0x4a3b82.pid !== this.game.pid || this.go || this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa1));
     this.riders.push(_0x4a3b82);
 };
-_0x4b6e2c.prototype.kill = function() {};
-_0x4b6e2c.prototype.isTangible = GameObject.prototype.isTangible;
-_0x4b6e2c.prototype.destroy = GameObject.prototype.destroy;
-_0x4b6e2c.prototype.setState = function(_0x2cdc10) {
+BusPlatformObject.prototype.kill = function() {};
+BusPlatformObject.prototype.isTangible = GameObject.prototype.isTangible;
+BusPlatformObject.prototype.destroy = GameObject.prototype.destroy;
+BusPlatformObject.prototype.setState = function(_0x2cdc10) {
     _0x2cdc10 !== this.state && (this.state = _0x2cdc10, this.sprite = _0x2cdc10.SPRITE[0x0], this.anim = 0x0);
 };
-_0x4b6e2c.prototype.draw = function(_0x53d78c) {
+BusPlatformObject.prototype.draw = function(_0x53d78c) {
     if (!(0x0 < this.delay))
         for (var _0x3ce6ce = 0x0; _0x3ce6ce < this.dim.x; _0x3ce6ce++) _0x53d78c.push({
             'pos': vec2.add(this.pos, vec2.make(_0x3ce6ce, 0x0)),
@@ -5054,12 +5075,12 @@ _0x4b6e2c.prototype.draw = function(_0x53d78c) {
             'mode': 0x0
         });
 };
-GameObject.REGISTER_OBJECT(_0x4b6e2c);
+GameObject.REGISTER_OBJECT(BusPlatformObject);
 "use strict";
 
-function SpringObject(_0x9d9b10, _0x5d6af4, _0x14b8a1, _0x25d330, _0x2899a3) {
-    GameObject.call(this, _0x9d9b10, _0x5d6af4, _0x14b8a1, _0x25d330);
-    this.oid = _0x2899a3;
+function SpringObject(game, level, zone, pos, oid) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.setState(SpringObject.STATE.EXTEND);
     this.anim = 0x0;
     this.pos = vec2.add(this.pos, SpringObject.SOFFSET);
@@ -5170,9 +5191,9 @@ SpringObject.prototype.draw = function(_0x132bc0) {
 GameObject.REGISTER_OBJECT(SpringObject);
 "use strict";
 
-function FlagpoleObject(_0x5642ff, _0x3d3a00, _0x34f17d, _0x57e7a3, _0x93cf94) {
-    GameObject.call(this, _0x5642ff, _0x3d3a00, _0x34f17d, _0x57e7a3);
-    this.oid = _0x93cf94;
+function FlagpoleObject(game, level, zone, pos, oid) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.setState(FlagpoleObject.STATE.IDLE);
     this.anim = 0x0;
 }
@@ -5217,25 +5238,25 @@ FlagpoleObject.prototype.draw = function(_0x33d2c9) {
 GameObject.REGISTER_OBJECT(FlagpoleObject);
 "use strict";
 
-function _0x35ddf4(_0x5067e9, _0x471c11, _0x4c3d45, _0x5b45aa, _0x5f9e08, _0x62b44d, _0x119674) {
-    GameObject.call(this, _0x5067e9, _0x471c11, _0x4c3d45, _0x5b45aa);
-    this.oid = _0x5f9e08;
-    this.state = _0x35ddf4.STATE.IDLE;
+function FireBarObject(game, level, zone, pos, oid, phase, length) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.state = FireBarObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
-    this.anim = 0x1 === parseInt(_0x62b44d) ? 0x2 * _0x35ddf4.SPIN_RATE : 0x0;
+    this.anim = 0x1 === parseInt(phase) ? 0x2 * FireBarObject.SPIN_RATE : 0x0;
     this.dim = vec2.make(0.5, 0.5);
-    this.size = isNaN(parseInt(_0x119674)) ? _0x35ddf4.PARTS : parseInt(_0x119674);
+    this.size = isNaN(parseInt(length)) ? FireBarObject.PARTS : parseInt(length);
 }
-_0x35ddf4.ASYNC = true;
-_0x35ddf4.ID = 0x21;
-_0x35ddf4.NAME = "FIRE TRAP";
-_0x35ddf4.ANIMATION_RATE = 0x2;
-_0x35ddf4.OFFSET = vec2.make(0.25, 0.25);
-_0x35ddf4.PARTS = 0x6;
-_0x35ddf4.SPACING = 0.5;
-_0x35ddf4.SPIN_RATE = 0x17;
-_0x35ddf4.SPRITE = {};
-_0x35ddf4.SPRITE_LIST = [{
+FireBarObject.ASYNC = true;
+FireBarObject.ID = 0x21;
+FireBarObject.NAME = "FIRE BAR";
+FireBarObject.ANIMATION_RATE = 0x2;
+FireBarObject.OFFSET = vec2.make(0.25, 0.25);
+FireBarObject.PARTS = 0x6;
+FireBarObject.SPACING = 0.5;
+FireBarObject.SPIN_RATE = 0x17;
+FireBarObject.SPRITE = {};
+FireBarObject.SPRITE_LIST = [{
     'NAME': "IDLE0",
     'ID': 0x0,
     'INDEX': 0xd0
@@ -5252,270 +5273,270 @@ _0x35ddf4.SPRITE_LIST = [{
     'ID': 0x3,
     'INDEX': 0xd3
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x35ddf4.SPRITE_LIST.length; _0x1bec55++) _0x35ddf4.SPRITE[_0x35ddf4.SPRITE_LIST[_0x1bec55].NAME] = _0x35ddf4.SPRITE_LIST[_0x1bec55], _0x35ddf4.SPRITE[_0x35ddf4.SPRITE_LIST[_0x1bec55].ID] = _0x35ddf4.SPRITE_LIST[_0x1bec55];
-_0x35ddf4.STATE = {};
-_0x35ddf4.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < FireBarObject.SPRITE_LIST.length; _0x1bec55++) FireBarObject.SPRITE[FireBarObject.SPRITE_LIST[_0x1bec55].NAME] = FireBarObject.SPRITE_LIST[_0x1bec55], FireBarObject.SPRITE[FireBarObject.SPRITE_LIST[_0x1bec55].ID] = FireBarObject.SPRITE_LIST[_0x1bec55];
+FireBarObject.STATE = {};
+FireBarObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x35ddf4.SPRITE.IDLE0, _0x35ddf4.SPRITE.IDLE1, _0x35ddf4.SPRITE.IDLE2, _0x35ddf4.SPRITE.IDLE3]
+    'SPRITE': [FireBarObject.SPRITE.IDLE0, FireBarObject.SPRITE.IDLE1, FireBarObject.SPRITE.IDLE2, FireBarObject.SPRITE.IDLE3]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x35ddf4.STATE_LIST.length; _0x1bec55++) _0x35ddf4.STATE[_0x35ddf4.STATE_LIST[_0x1bec55].NAME] = _0x35ddf4.STATE_LIST[_0x1bec55], _0x35ddf4.STATE[_0x35ddf4.STATE_LIST[_0x1bec55].ID] = _0x35ddf4.STATE_LIST[_0x1bec55];
-_0x35ddf4.prototype.update = function() {};
-_0x35ddf4.prototype.step = function() {
+for (_0x1bec55 = 0x0; _0x1bec55 < FireBarObject.STATE_LIST.length; _0x1bec55++) FireBarObject.STATE[FireBarObject.STATE_LIST[_0x1bec55].NAME] = FireBarObject.STATE_LIST[_0x1bec55], FireBarObject.STATE[FireBarObject.STATE_LIST[_0x1bec55].ID] = FireBarObject.STATE_LIST[_0x1bec55];
+FireBarObject.prototype.update = function() {};
+FireBarObject.prototype.step = function() {
     this.anim++;
-    this.sprite = this.state.SPRITE[parseInt(this.anim / _0x35ddf4.ANIMATION_RATE) % this.state.SPRITE.length];
+    this.sprite = this.state.SPRITE[parseInt(this.anim / FireBarObject.ANIMATION_RATE) % this.state.SPRITE.length];
     this.control();
     this.interaction();
 };
-_0x35ddf4.prototype.control = function() {
-    this.rot += _0x35ddf4.SPIN_RATE;
+FireBarObject.prototype.control = function() {
+    this.rot += FireBarObject.SPIN_RATE;
 };
-_0x35ddf4.prototype.interaction = function() {
-    var _0x7617b0 = vec2.normalize(vec2.make(Math.sin(-this.anim / _0x35ddf4.SPIN_RATE), Math.cos(-this.anim / _0x35ddf4.SPIN_RATE))),
+FireBarObject.prototype.interaction = function() {
+    var _0x7617b0 = vec2.normalize(vec2.make(Math.sin(-this.anim / FireBarObject.SPIN_RATE), Math.cos(-this.anim / FireBarObject.SPIN_RATE))),
         _0x258ff9 = this.game.getPlayer();
     if (_0x258ff9 && _0x258ff9.isTangible() && _0x258ff9.level === this.level && _0x258ff9.zone === this.zone)
         for (var _0x373060 = 0x0; _0x373060 < this.size; _0x373060++) {
-            var _0x2ff265 = vec2.add(vec2.add(this.pos, _0x35ddf4.OFFSET), vec2.scale(_0x7617b0, _0x35ddf4.SPACING * _0x373060));
+            var _0x2ff265 = vec2.add(vec2.add(this.pos, FireBarObject.OFFSET), vec2.scale(_0x7617b0, FireBarObject.SPACING * _0x373060));
             squar.intersection(_0x258ff9.pos, _0x258ff9.dim, _0x2ff265, this.dim) && _0x258ff9.damage(this);
         }
 };
-_0x35ddf4.prototype.playerCollide = function(_0x385f5f) {};
-_0x35ddf4.prototype.playerStomp = function(_0x4454be) {};
-_0x35ddf4.prototype.playerBump = function(_0x4c1cbf) {};
-_0x35ddf4.prototype.kill = function() {};
-_0x35ddf4.prototype.isTangible = GameObject.prototype.isTangible;
-_0x35ddf4.prototype.destroy = GameObject.prototype.destroy;
-_0x35ddf4.prototype.setState = function(_0xaf8a26) {
+FireBarObject.prototype.playerCollide = function(_0x385f5f) {};
+FireBarObject.prototype.playerStomp = function(_0x4454be) {};
+FireBarObject.prototype.playerBump = function(_0x4c1cbf) {};
+FireBarObject.prototype.kill = function() {};
+FireBarObject.prototype.isTangible = GameObject.prototype.isTangible;
+FireBarObject.prototype.destroy = GameObject.prototype.destroy;
+FireBarObject.prototype.setState = function(_0xaf8a26) {
     _0xaf8a26 !== this.state && (this.state = _0xaf8a26, this.sprite = _0xaf8a26.SPRITE[0x0], this.anim = 0x0);
 };
-_0x35ddf4.prototype.draw = function(_0x4e240c) {
-    for (var _0x40d21a = vec2.normalize(vec2.make(Math.sin(-this.anim / _0x35ddf4.SPIN_RATE), Math.cos(-this.anim / _0x35ddf4.SPIN_RATE))), _0x4e0952 = 0x0; _0x4e0952 < this.size; _0x4e0952++) _0x4e240c.push({
-        'pos': vec2.add(this.pos, vec2.scale(_0x40d21a, _0x35ddf4.SPACING * _0x4e0952)),
+FireBarObject.prototype.draw = function(_0x4e240c) {
+    for (var _0x40d21a = vec2.normalize(vec2.make(Math.sin(-this.anim / FireBarObject.SPIN_RATE), Math.cos(-this.anim / FireBarObject.SPIN_RATE))), _0x4e0952 = 0x0; _0x4e0952 < this.size; _0x4e0952++) _0x4e240c.push({
+        'pos': vec2.add(this.pos, vec2.scale(_0x40d21a, FireBarObject.SPACING * _0x4e0952)),
         'reverse': false,
         'index': this.sprite.INDEX,
         'mode': 0x0
     });
 };
-GameObject.REGISTER_OBJECT(_0x35ddf4);
+GameObject.REGISTER_OBJECT(FireBarObject);
 "use strict";
 
-function _0x4a8773(_0x23df7f, _0x31f095, _0x2a1fe9, _0x53aba8, _0x3d90ca, _0x213ff9, _0x2d1dbb) {
-    GameObject.call(this, _0x23df7f, _0x31f095, _0x2a1fe9, _0x53aba8);
-    this.oid = _0x3d90ca;
-    this.setState(_0x4a8773.STATE.IDLE);
-    this.delay = isNaN(parseInt(_0x213ff9)) ? _0x4a8773.DELAY_DEFAULT : parseInt(_0x213ff9);
-    this.impulse = isNaN(parseFloat(_0x2d1dbb)) ? 0x1 : parseFloat(_0x2d1dbb);
+function LavaBubbleObject(game, level, zone, pos, oid, delay, impulse) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.setState(LavaBubbleObject.STATE.IDLE);
+    this.delay = isNaN(parseInt(delay)) ? LavaBubbleObject.DELAY_DEFAULT : parseInt(delay);
+    this.impulse = isNaN(parseFloat(impulse)) ? 0x1 : parseFloat(impulse);
     this.anim = 0x0;
     this.delayTimer = this.delay;
-    this.pos.x += _0x4a8773.SOFFSET.x;
+    this.pos.x += LavaBubbleObject.SOFFSET.x;
     this.loc = vec2.copy(this.pos);
     this.fallSpeed = 0x0;
     this.dim = vec2.make(0.7, 0.7);
 }
-_0x4a8773.ASYNC = true;
-_0x4a8773.ID = 0x22;
-_0x4a8773.NAME = "FIRE BLAST";
-_0x4a8773.ANIMATION_RATE = 0x3;
-_0x4a8773.DELAY_DEFAULT = 0x5a;
-_0x4a8773.IMPULSE = 1.35;
-_0x4a8773.DRAG = 0.95;
-_0x4a8773.FALL_SPEED_ACCEL = 0.055;
-_0x4a8773.SOFFSET = vec2.make(0.15, 0.15);
-_0x4a8773.SPRITE = {};
-_0x4a8773.SPRITE_LIST = [{
+LavaBubbleObject.ASYNC = true;
+LavaBubbleObject.ID = 0x22;
+LavaBubbleObject.NAME = "LAVA BUBBLE";
+LavaBubbleObject.ANIMATION_RATE = 0x3;
+LavaBubbleObject.DELAY_DEFAULT = 0x5a;
+LavaBubbleObject.IMPULSE = 1.35;
+LavaBubbleObject.DRAG = 0.95;
+LavaBubbleObject.FALL_SPEED_ACCEL = 0.055;
+LavaBubbleObject.SOFFSET = vec2.make(0.15, 0.15);
+LavaBubbleObject.SPRITE = {};
+LavaBubbleObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xdb
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x4a8773.SPRITE_LIST.length; _0x1bec55++) _0x4a8773.SPRITE[_0x4a8773.SPRITE_LIST[_0x1bec55].NAME] = _0x4a8773.SPRITE_LIST[_0x1bec55], _0x4a8773.SPRITE[_0x4a8773.SPRITE_LIST[_0x1bec55].ID] = _0x4a8773.SPRITE_LIST[_0x1bec55];
-_0x4a8773.STATE = {};
-_0x4a8773.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < LavaBubbleObject.SPRITE_LIST.length; _0x1bec55++) LavaBubbleObject.SPRITE[LavaBubbleObject.SPRITE_LIST[_0x1bec55].NAME] = LavaBubbleObject.SPRITE_LIST[_0x1bec55], LavaBubbleObject.SPRITE[LavaBubbleObject.SPRITE_LIST[_0x1bec55].ID] = LavaBubbleObject.SPRITE_LIST[_0x1bec55];
+LavaBubbleObject.STATE = {};
+LavaBubbleObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x4a8773.SPRITE.IDLE]
+    'SPRITE': [LavaBubbleObject.SPRITE.IDLE]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x4a8773.STATE_LIST.length; _0x1bec55++) _0x4a8773.STATE[_0x4a8773.STATE_LIST[_0x1bec55].NAME] = _0x4a8773.STATE_LIST[_0x1bec55], _0x4a8773.STATE[_0x4a8773.STATE_LIST[_0x1bec55].ID] = _0x4a8773.STATE_LIST[_0x1bec55];
-_0x4a8773.prototype.update = function(_0x1cfeaa) {};
-_0x4a8773.prototype.step = function() {
+for (_0x1bec55 = 0x0; _0x1bec55 < LavaBubbleObject.STATE_LIST.length; _0x1bec55++) LavaBubbleObject.STATE[LavaBubbleObject.STATE_LIST[_0x1bec55].NAME] = LavaBubbleObject.STATE_LIST[_0x1bec55], LavaBubbleObject.STATE[LavaBubbleObject.STATE_LIST[_0x1bec55].ID] = LavaBubbleObject.STATE_LIST[_0x1bec55];
+LavaBubbleObject.prototype.update = function(_0x1cfeaa) {};
+LavaBubbleObject.prototype.step = function() {
     this.anim++;
-    this.sprite = this.state.SPRITE[parseInt(this.anim / _0x4a8773.ANIMATION_RATE) % this.state.SPRITE.length];
+    this.sprite = this.state.SPRITE[parseInt(this.anim / LavaBubbleObject.ANIMATION_RATE) % this.state.SPRITE.length];
     0x0 < this.delayTimer ? this.delayTimer-- : this.blast();
     this.physics();
 };
-_0x4a8773.prototype.physics = function() {
-    if (this.pos.y > this.loc.y || 0x0 < this.fallSpeed) this.fallSpeed = (this.fallSpeed - _0x4a8773.FALL_SPEED_ACCEL) * _0x4a8773.DRAG, this.pos.y += this.fallSpeed;
+LavaBubbleObject.prototype.physics = function() {
+    if (this.pos.y > this.loc.y || 0x0 < this.fallSpeed) this.fallSpeed = (this.fallSpeed - LavaBubbleObject.FALL_SPEED_ACCEL) * LavaBubbleObject.DRAG, this.pos.y += this.fallSpeed;
 };
-_0x4a8773.prototype.blast = function() {
+LavaBubbleObject.prototype.blast = function() {
     this.pos = vec2.copy(this.loc);
-    this.fallSpeed = _0x4a8773.IMPULSE * this.impulse;
+    this.fallSpeed = LavaBubbleObject.IMPULSE * this.impulse;
     this.delayTimer = this.delay;
 };
-_0x4a8773.prototype.playerCollide = function(_0x14d8e8) {
+LavaBubbleObject.prototype.playerCollide = function(_0x14d8e8) {
     this.dead || this.garbage || _0x14d8e8.damage(this);
 };
-_0x4a8773.prototype.playerStomp = function(_0x4caac0) {
+LavaBubbleObject.prototype.playerStomp = function(_0x4caac0) {
     this.playerCollide(_0x4caac0);
 };
-_0x4a8773.prototype.playerBump = function(_0xad36f2) {
+LavaBubbleObject.prototype.playerBump = function(_0xad36f2) {
     this.playerCollide(_0xad36f2);
 };
-_0x4a8773.prototype.kill = function() {};
-_0x4a8773.prototype.isTangible = GameObject.prototype.isTangible;
-_0x4a8773.prototype.destroy = GameObject.prototype.destroy;
-_0x4a8773.prototype.setState = function(_0x3a217a) {
+LavaBubbleObject.prototype.kill = function() {};
+LavaBubbleObject.prototype.isTangible = GameObject.prototype.isTangible;
+LavaBubbleObject.prototype.destroy = GameObject.prototype.destroy;
+LavaBubbleObject.prototype.setState = function(_0x3a217a) {
     _0x3a217a !== this.state && (this.state = _0x3a217a, this.sprite = _0x3a217a.SPRITE[0x0], this.anim = 0x0);
 };
-_0x4a8773.prototype.draw = function(_0x39c7cf) {
+LavaBubbleObject.prototype.draw = function(_0x39c7cf) {
     var _0x5ecf74 = 0x0 <= this.fallSpeed ? 0x0 : 0x3;
     _0x39c7cf.push({
-        'pos': vec2.subtract(this.pos, _0x4a8773.SOFFSET),
+        'pos': vec2.subtract(this.pos, LavaBubbleObject.SOFFSET),
         'reverse': false,
         'index': this.sprite.INDEX,
         'mode': _0x5ecf74
     });
 };
-GameObject.REGISTER_OBJECT(_0x4a8773);
+GameObject.REGISTER_OBJECT(LavaBubbleObject);
 "use strict";
 
-function _0x458a57(_0x278773, _0xa84297, _0x156cd9, _0x3a6374, _0x2a748a, _0x429175, direction) {
-    GameObject.call(this, _0x278773, _0xa84297, _0x156cd9, _0x3a6374);
-    this.oid = _0x2a748a;
-    this.setState(_0x458a57.STATE.IDLE);
+function BillBlasterObject(game, level, zone, pos, oid, delay, direction) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.setState(BillBlasterObject.STATE.IDLE);
     this.fireTimer = 0x0;
-    this.delay = isNaN(parseInt(_0x429175)) ? _0x458a57.FIRE_DELAY_DEFAULT : parseInt(_0x429175);
+    this.delay = isNaN(parseInt(delay)) ? BillBlasterObject.FIRE_DELAY_DEFAULT : parseInt(delay);
     this.shootDirection = isNaN(parseInt(direction)) ? 0 : parseInt(direction);
 }
-_0x458a57.ASYNC = true;
-_0x458a57.ID = 0x23;
-_0x458a57.NAME = "LAUNCHER";
-_0x458a57.ANIMATION_RATE = 0x3;
-_0x458a57.FIRE_DELAY_DEFAULT = 0x96;
-_0x458a57.SPRITE = {};
-_0x458a57.SPRITE_LIST = [{
+BillBlasterObject.ASYNC = true;
+BillBlasterObject.ID = 0x23;
+BillBlasterObject.NAME = "BILL BLASTER";
+BillBlasterObject.ANIMATION_RATE = 0x3;
+BillBlasterObject.FIRE_DELAY_DEFAULT = 0x96;
+BillBlasterObject.SPRITE = {};
+BillBlasterObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xff
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x458a57.SPRITE_LIST.length; _0x1bec55++) _0x458a57.SPRITE[_0x458a57.SPRITE_LIST[_0x1bec55].NAME] = _0x458a57.SPRITE_LIST[_0x1bec55], _0x458a57.SPRITE[_0x458a57.SPRITE_LIST[_0x1bec55].ID] = _0x458a57.SPRITE_LIST[_0x1bec55];
-_0x458a57.STATE = {};
-_0x458a57.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < BillBlasterObject.SPRITE_LIST.length; _0x1bec55++) BillBlasterObject.SPRITE[BillBlasterObject.SPRITE_LIST[_0x1bec55].NAME] = BillBlasterObject.SPRITE_LIST[_0x1bec55], BillBlasterObject.SPRITE[BillBlasterObject.SPRITE_LIST[_0x1bec55].ID] = BillBlasterObject.SPRITE_LIST[_0x1bec55];
+BillBlasterObject.STATE = {};
+BillBlasterObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x458a57.SPRITE.IDLE]
+    'SPRITE': [BillBlasterObject.SPRITE.IDLE]
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x458a57.STATE_LIST.length; _0x1bec55++) _0x458a57.STATE[_0x458a57.STATE_LIST[_0x1bec55].NAME] = _0x458a57.STATE_LIST[_0x1bec55], _0x458a57.STATE[_0x458a57.STATE_LIST[_0x1bec55].ID] = _0x458a57.STATE_LIST[_0x1bec55];
-_0x458a57.prototype.update = function(_0x5a56fe) {};
-_0x458a57.prototype.step = function() {
+for (_0x1bec55 = 0x0; _0x1bec55 < BillBlasterObject.STATE_LIST.length; _0x1bec55++) BillBlasterObject.STATE[BillBlasterObject.STATE_LIST[_0x1bec55].NAME] = BillBlasterObject.STATE_LIST[_0x1bec55], BillBlasterObject.STATE[BillBlasterObject.STATE_LIST[_0x1bec55].ID] = BillBlasterObject.STATE_LIST[_0x1bec55];
+BillBlasterObject.prototype.update = function(_0x5a56fe) {};
+BillBlasterObject.prototype.step = function() {
     ++this.fireTimer > this.delay && this.fire();
     this.sound();
 };
-_0x458a57.prototype.sound = GameObject.prototype.sound;
-_0x458a57.prototype.fire = function() {
+BillBlasterObject.prototype.sound = GameObject.prototype.sound;
+BillBlasterObject.prototype.fire = function() {
     this.fireTimer = 0x0;
-    this.game.createObject(_0x30df09.ID, this.level, this.zone, vec2.copy(this.pos), [undefined, this.shootDirection]);
+    this.game.createObject(BulletBillObject.ID, this.level, this.zone, vec2.copy(this.pos), [undefined, this.shootDirection]);
     this.play("firework.wav", 0x1, 0.04);
 };
-_0x458a57.prototype.kill = function() {};
-_0x458a57.prototype.isTangible = GameObject.prototype.isTangible;
-_0x458a57.prototype.destroy = GameObject.prototype.destroy;
-_0x458a57.prototype.setState = function(_0xf1ae11) {
+BillBlasterObject.prototype.kill = function() {};
+BillBlasterObject.prototype.isTangible = GameObject.prototype.isTangible;
+BillBlasterObject.prototype.destroy = GameObject.prototype.destroy;
+BillBlasterObject.prototype.setState = function(_0xf1ae11) {
     _0xf1ae11 !== this.state && (this.state = _0xf1ae11, this.sprite = _0xf1ae11.SPRITE[0x0], this.anim = 0x0);
 };
-_0x458a57.prototype.draw = function(_0x281060) {};
-_0x458a57.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x458a57);
+BillBlasterObject.prototype.draw = function(_0x281060) {};
+BillBlasterObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(BillBlasterObject);
 "use strict";
 
-function _0x30df09(_0x3877d1, _0x3182b8, _0xa0e13f, _0xe81bce, _0x1d56a5, direction) {
-    GameObject.call(this, _0x3877d1, _0x3182b8, _0xa0e13f, _0xe81bce);
-    this.oid = _0x1d56a5;
-    this.setState(_0x30df09.STATE.IDLE);
+function BulletBillObject(game, level, zone, pos, oid, direction) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.setState(BulletBillObject.STATE.IDLE);
     this.bonkTimer = this.anim = 0x0;
     this.dim = vec2.make(0.8, 0.8);
     this.fallSpeed = this.moveSpeed = 0x0;
     this.direction = isNaN(parseInt(direction)) ? 0 : parseInt(direction);
 }
-_0x30df09.ASYNC = true;
-_0x30df09.ID = 0x24;
-_0x30df09.NAME = "BULLET";
-_0x30df09.ANIMATION_RATE = 0x3;
-_0x30df09.SPEED = 0.215;
-_0x30df09.BONK_TIME = 0x5a;
-_0x30df09.BONK_IMP = vec2.make(0, 0.4);
-_0x30df09.BONK_DECEL = 0.925;
-_0x30df09.BONK_FALL_SPEED = 0.5;
-_0x30df09.BONK_FALL_ACCEL = 0.085;
-_0x30df09.DELAY_DEFAULT = 0x113;
-_0x30df09.IMPULSE = vec2.make(0.225, 0.335);
-_0x30df09.DRAG = 0.996;
-_0x30df09.FALL_SPEED_ACCEL = 0.0055;
-_0x30df09.SOFFSET = vec2.make(0.15, 0.15);
-_0x30df09.SPRITE = {};
-_0x30df09.SPRITE_LIST = [{
+BulletBillObject.ASYNC = true;
+BulletBillObject.ID = 0x24;
+BulletBillObject.NAME = "BULLET";
+BulletBillObject.ANIMATION_RATE = 0x3;
+BulletBillObject.SPEED = 0.215;
+BulletBillObject.BONK_TIME = 0x5a;
+BulletBillObject.BONK_IMP = vec2.make(0, 0.4);
+BulletBillObject.BONK_DECEL = 0.925;
+BulletBillObject.BONK_FALL_SPEED = 0.5;
+BulletBillObject.BONK_FALL_ACCEL = 0.085;
+BulletBillObject.DELAY_DEFAULT = 0x113;
+BulletBillObject.IMPULSE = vec2.make(0.225, 0.335);
+BulletBillObject.DRAG = 0.996;
+BulletBillObject.FALL_SPEED_ACCEL = 0.0055;
+BulletBillObject.SOFFSET = vec2.make(0.15, 0.15);
+BulletBillObject.SPRITE = {};
+BulletBillObject.SPRITE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
     'INDEX': 0xcd
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x30df09.SPRITE_LIST.length; _0x1bec55++) _0x30df09.SPRITE[_0x30df09.SPRITE_LIST[_0x1bec55].NAME] = _0x30df09.SPRITE_LIST[_0x1bec55], _0x30df09.SPRITE[_0x30df09.SPRITE_LIST[_0x1bec55].ID] = _0x30df09.SPRITE_LIST[_0x1bec55];
-_0x30df09.STATE = {};
-_0x30df09.STATE_LIST = [{
+for (_0x1bec55 = 0x0; _0x1bec55 < BulletBillObject.SPRITE_LIST.length; _0x1bec55++) BulletBillObject.SPRITE[BulletBillObject.SPRITE_LIST[_0x1bec55].NAME] = BulletBillObject.SPRITE_LIST[_0x1bec55], BulletBillObject.SPRITE[BulletBillObject.SPRITE_LIST[_0x1bec55].ID] = BulletBillObject.SPRITE_LIST[_0x1bec55];
+BulletBillObject.STATE = {};
+BulletBillObject.STATE_LIST = [{
     'NAME': "IDLE",
     'ID': 0x0,
-    'SPRITE': [_0x30df09.SPRITE.IDLE]
+    'SPRITE': [BulletBillObject.SPRITE.IDLE]
 }, {
     'NAME': "BONK",
     'ID': 0x51,
     'SPRITE': []
 }];
-for (_0x1bec55 = 0x0; _0x1bec55 < _0x30df09.STATE_LIST.length; _0x1bec55++) _0x30df09.STATE[_0x30df09.STATE_LIST[_0x1bec55].NAME] = _0x30df09.STATE_LIST[_0x1bec55], _0x30df09.STATE[_0x30df09.STATE_LIST[_0x1bec55].ID] = _0x30df09.STATE_LIST[_0x1bec55];
-_0x30df09.prototype.update = function(_0xebda49) {};
-_0x30df09.prototype.step = function() {
-    this.state === _0x30df09.STATE.BONK ? this.bonkTimer++ > _0x30df09.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= _0x30df09.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - _0x30df09.BONK_FALL_ACCEL, -_0x30df09.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / _0x30df09.ANIMATION_RATE) % this.state.SPRITE.length], this.physics(), this.sound());
+for (_0x1bec55 = 0x0; _0x1bec55 < BulletBillObject.STATE_LIST.length; _0x1bec55++) BulletBillObject.STATE[BulletBillObject.STATE_LIST[_0x1bec55].NAME] = BulletBillObject.STATE_LIST[_0x1bec55], BulletBillObject.STATE[BulletBillObject.STATE_LIST[_0x1bec55].ID] = BulletBillObject.STATE_LIST[_0x1bec55];
+BulletBillObject.prototype.update = function(_0xebda49) {};
+BulletBillObject.prototype.step = function() {
+    this.state === BulletBillObject.STATE.BONK ? this.bonkTimer++ > BulletBillObject.BONK_TIME || 0x0 > this.pos.y + this.dim.y ? this.destroy() : (this.pos = vec2.add(this.pos, vec2.make(this.moveSpeed, this.fallSpeed)), this.moveSpeed *= BulletBillObject.BONK_DECEL, this.fallSpeed = Math.max(this.fallSpeed - BulletBillObject.BONK_FALL_ACCEL, -BulletBillObject.BONK_FALL_SPEED)) : (this.anim++, this.sprite = this.state.SPRITE[parseInt(this.anim / BulletBillObject.ANIMATION_RATE) % this.state.SPRITE.length], this.physics(), this.sound());
 };
-_0x30df09.prototype.physics = function() {
-    0x0 < this.pos.x ? (this.direction === 0 ? (this.pos.x -= _0x30df09.SPEED) : (this.pos.x += _0x30df09.SPEED)) : this.destroy();
+BulletBillObject.prototype.physics = function() {
+    0x0 < this.pos.x ? (this.direction === 0 ? (this.pos.x -= BulletBillObject.SPEED) : (this.pos.x += BulletBillObject.SPEED)) : this.destroy();
 };
-_0x30df09.prototype.sound = GameObject.prototype.sound;
-_0x30df09.prototype.disable = function() {
+BulletBillObject.prototype.sound = GameObject.prototype.sound;
+BulletBillObject.prototype.disable = function() {
     this.disabled = true;
 };
-_0x30df09.prototype.enable = function() {
+BulletBillObject.prototype.enable = function() {
     this.disabled = false;
 };
-_0x30df09.prototype.damage = function(_0x582020) {};
-_0x30df09.prototype.bonk = function() {
-    this.dead || (this.setState(_0x30df09.STATE.BONK), this.moveSpeed = _0x30df09.BONK_IMP.x, this.fallSpeed = _0x30df09.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
+BulletBillObject.prototype.damage = function(_0x582020) {};
+BulletBillObject.prototype.bonk = function() {
+    this.dead || (this.setState(BulletBillObject.STATE.BONK), this.moveSpeed = BulletBillObject.BONK_IMP.x, this.fallSpeed = BulletBillObject.BONK_IMP.y, this.dead = true, this.play("kick.wav", 0x1, 0.04));
 };
-_0x30df09.prototype.playerCollide = function(_0x15f7e9) {
+BulletBillObject.prototype.playerCollide = function(_0x15f7e9) {
     this.dead || this.garbage || _0x15f7e9.damage(this);
 };
-_0x30df09.prototype.playerStomp = function(_0x53a4e6) {
+BulletBillObject.prototype.playerStomp = function(_0x53a4e6) {
     this.dead || this.garbage || (this.bonk(), _0x53a4e6.bounce(), this.play("stomp.wav", 0x1, 0.04), this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0x1)));
 };
-_0x30df09.prototype.playerBump = function(_0x5a4a67) {
+BulletBillObject.prototype.playerBump = function(_0x5a4a67) {
     this.playerCollide(_0x5a4a67);
 };
-_0x30df09.prototype.kill = function() {};
-_0x30df09.prototype.isTangible = GameObject.prototype.isTangible;
-_0x30df09.prototype.destroy = GameObject.prototype.destroy;
-_0x30df09.prototype.setState = function(_0x7fea24) {
+BulletBillObject.prototype.kill = function() {};
+BulletBillObject.prototype.isTangible = GameObject.prototype.isTangible;
+BulletBillObject.prototype.destroy = GameObject.prototype.destroy;
+BulletBillObject.prototype.setState = function(_0x7fea24) {
     _0x7fea24 !== this.state && (this.state = _0x7fea24, 0x0 < _0x7fea24.SPRITE.length && (this.sprite = _0x7fea24.SPRITE[0x0]), this.anim = 0x0);
 };
-_0x30df09.prototype.draw = function(_0x3d4441) {
+BulletBillObject.prototype.draw = function(_0x3d4441) {
     var _0x15ff87;
-    _0x15ff87 = this.state === _0x30df09.STATE.BONK ? 0x3 : 0x0;
+    _0x15ff87 = this.state === BulletBillObject.STATE.BONK ? 0x3 : 0x0;
     _0x3d4441.push({
-        'pos': vec2.subtract(this.pos, _0x30df09.SOFFSET),
+        'pos': vec2.subtract(this.pos, BulletBillObject.SOFFSET),
         'reverse': this.direction !== 0,
         'index': this.sprite.INDEX,
         'mode': _0x15ff87
     });
 };
-_0x30df09.prototype.play = GameObject.prototype.play;
-GameObject.REGISTER_OBJECT(_0x30df09);
+BulletBillObject.prototype.play = GameObject.prototype.play;
+GameObject.REGISTER_OBJECT(BulletBillObject);
 "use strict";
 
-function FireballObject(game, level, zone, pos, dir, owner, skin) {
+function FireballObject(game, level, zone, pos, oid, dir, owner, skin) {
     GameObject.call(this, game, level, zone, pos);
     this.owner = owner;
     this.skin = skin;
@@ -5634,8 +5655,8 @@ FireballObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(FireballObject);
 "use strict";
 
-function FireBreathObject(_0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8) {
-    GameObject.call(this, _0x5b625c, _0x4b1c85, _0x5d2f9e, _0x337be8);
+function FireBreathObject(game, level, zone, pos) {
+    GameObject.call(this, game, level, zone, pos);
     this.state = FireBreathObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.anim = 0x0;
@@ -5835,17 +5856,17 @@ HammerObject.prototype.draw = function(_0x4db511) {
 GameObject.REGISTER_OBJECT(HammerObject);
 "use strict";
 
-function PowerUpObject(_0x23b738, _0x46c7a3, _0x118fd6, _0xb55197, _0x48d8ac) {
-    GameObject.call(this, _0x23b738, _0x46c7a3, _0x118fd6, _0xb55197);
-    this.oid = _0x48d8ac;
+function PowerUpObject(game, level, zone, pos, oid) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.anim = 0x0;
     this.dim = vec2.make(0x1, 0x1);
     this.fallSpeed = this.moveSpeed = 0x0;
     this.rise = this.grounded = false;
-    _0x23b738 = vec2.make(0x1, 0x1);
-    _0x46c7a3 = this.game.world.getZone(this.level, this.zone).getTiles(this.pos, this.dim);
-    for (_0x118fd6 = 0x0; _0x118fd6 < _0x46c7a3.length; _0x118fd6++)
-        if (squar.intersection(_0x46c7a3[_0x118fd6].pos, _0x23b738, this.pos, this.dim)) {
+    var size = vec2.make(0x1, 0x1);
+    var zoneTiles = this.game.world.getZone(this.level, this.zone).getTiles(this.pos, this.dim);
+    for (var i = 0x0; i < zoneTiles.length; i++)
+        if (squar.intersection(zoneTiles[i].pos, size, this.pos, this.dim)) {
             this.rise = true;
             break;
         } this.dir = false;
@@ -5935,8 +5956,8 @@ PowerUpObject.prototype.draw = function(_0x2ea1b4) {
 };
 "use strict";
 
-function MushroomObject(_0x1d612b, _0x30e50f, _0x5ea008, _0xaa5aa6, _0x2e3285) {
-    PowerUpObject.call(this, _0x1d612b, _0x30e50f, _0x5ea008, _0xaa5aa6, _0x2e3285);
+function MushroomObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = MushroomObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -5976,8 +5997,8 @@ MushroomObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(MushroomObject);
 "use strict";
 
-function FlowerObject(_0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437) {
-    PowerUpObject.call(this, _0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437);
+function FlowerObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = FlowerObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -6025,8 +6046,8 @@ FlowerObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(FlowerObject);
 "use strict";
 
-function GoldFlowerObject(_0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437) {
-    PowerUpObject.call(this, _0x4e64ba, _0x1fe145, _0x5b661a, _0x556dbf, _0x4f6437);
+function GoldFlowerObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = GoldFlowerObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -6080,8 +6101,8 @@ GoldFlowerObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(GoldFlowerObject);
 "use strict";
 
-function StarObject(_0x375784, _0x5a5c7c, _0xa508b, _0x131d1e, _0x44782e) {
-    PowerUpObject.call(this, _0x375784, _0x5a5c7c, _0xa508b, _0x131d1e, _0x44782e);
+function StarObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = StarObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.groundTimer = 0x0;
@@ -6137,8 +6158,8 @@ StarObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(StarObject);
 "use strict";
 
-function LifeObject(_0x1fd5d8, _0x3fd6ae, _0x16274e, _0x3cab6e, _0x53f924) {
-    PowerUpObject.call(this, _0x1fd5d8, _0x3fd6ae, _0x16274e, _0x3cab6e, _0x53f924);
+function LifeObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = LifeObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -6178,8 +6199,8 @@ LifeObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(LifeObject);
 "use strict";
 
-function AxeObject(_0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e) {
-    PowerUpObject.call(this, _0x2e51a9, _0x26a37d, _0x357dfc, _0x5ac831, _0x5aad3e);
+function AxeObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = AxeObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
     this.used = false;
@@ -6238,8 +6259,8 @@ AxeObject.prototype.draw = PowerUpObject.prototype.draw;
 GameObject.REGISTER_OBJECT(AxeObject);
 "use strict";
 
-function PoisonMushroomObject(_0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4) {
-    PowerUpObject.call(this, _0x3b57db, _0x117631, _0x59afa6, _0x252b6f, _0x50c0b4);
+function PoisonMushroomObject(game, level, zone, pos, oid) {
+    PowerUpObject.call(this, game, level, zone, pos, oid);
     this.state = PoisonMushroomObject.STATE.IDLE;
     this.sprite = this.state.SPRITE[0x0];
 }
@@ -6360,9 +6381,9 @@ CoinObject.prototype.draw = function(_0x157dc2) {
 GameObject.REGISTER_OBJECT(CoinObject);
 "use strict";
 
-function CheckObject(_0x13f285, _0x12549b, _0x2d8560, _0x18e975, _0x3c4894) {
-    GameObject.call(this, _0x13f285, _0x12549b, _0x2d8560, _0x18e975);
-    this.oid = _0x3c4894;
+function CheckObject(game, level, zone, pos, oid) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.setState(CheckObject.STATE.IDLE);
     this.anim = 0x0;
 }
@@ -6406,14 +6427,14 @@ CheckObject.prototype.draw = function(_0x197f04) {
 GameObject.REGISTER_OBJECT(CheckObject);
 "use strict";
 
-function TextObject(_0x289121, _0x27327c, _0x2b1dd0, _0x19f16d, _0x347488, _0xbb37f7, _0x23940a, _0x457c51, _0x10fe68) {
-    GameObject.call(this, _0x289121, _0x27327c, _0x2b1dd0, _0x19f16d);
-    this.oid = _0x347488;
+function TextObject(game, level, zone, pos, oid, offset, size, color, text) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
     this.setState(TextObject.STATE.IDLE);
-    this.offset = vec2.make(0x0, parseFloat(_0xbb37f7));
-    this.size = parseFloat(_0x23940a);
-    this.color = _0x457c51;
-    this.text = _0x10fe68;
+    this.offset = vec2.make(0x0, parseFloat(offset));
+    this.size = parseFloat(size);
+    this.color = color;
+    this.text = text;
 }
 TextObject.ASYNC = true;
 TextObject.ID = 0xfd;
@@ -8331,7 +8352,7 @@ Game.prototype.getText = function(_0x684bab, _0x1988a8, _0x26b734) {
 Game.prototype.getPlatforms = function() {
     for (var _0x224f04 = this.getZone(), _0x4bb33b = [], _0x26e8ba = 0x0; _0x26e8ba < this.objects.length; _0x26e8ba++) {
         var _0x510c40 = this.objects[_0x26e8ba];
-        (_0x510c40 instanceof _0x5bbb5e || _0x510c40 instanceof _0x4b6e2c) && _0x510c40.level === _0x224f04.level && _0x510c40.zone === _0x224f04.id && _0x4bb33b.push(_0x510c40);
+        (_0x510c40 instanceof MovingPlatformObject || _0x510c40 instanceof BusPlatformObject) && _0x510c40.level === _0x224f04.level && _0x510c40.zone === _0x224f04.id && _0x4bb33b.push(_0x510c40);
     }
     return _0x4bb33b;
 };

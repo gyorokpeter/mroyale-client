@@ -212,21 +212,14 @@
           <div id='editor-tool-object' class='tool-container' style='display: none'>
             <div class='tool-box'>
               <div class='tool-var'>Type</div><div class='tool-type'>byte</div>
-              <input id='editor-tool-object-type' type='text' class="tool-val"/>
-            </div>
-            <div class='tool-box'>
-              <div class='tool-var'>Name</div><div class='tool-type'>string</div>
-              <div id='editor-tool-object-name' class="tool-val-im"></div>
+              <select id='editor-tool-object-type' class="tool-val"></select>
             </div>
             <div class='tool-box'>
               <div class='tool-var'>Position</div><div class='tool-type'>shor2</div>
               <div id='editor-tool-object-pos' class="tool-val-im"></div>
             </div>
             <div class='tool-div'></div>
-            <div class='tool-box'>
-              <div class='tool-var'>Params</div><div class='tool-type'>string[]</div>
-              <input id='editor-tool-object-param' type='text' class="tool-val"/>
-            </div>
+            <div class='tool-box' id='editor-tool-object-params'></div>
             <div class='tool-div'></div>
             <div class='tool-box'>
               <div class="tool-val-im">Left click selects, middle click creates new, wasd keys to move, delete to delete.</div>
