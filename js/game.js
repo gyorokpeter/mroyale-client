@@ -6387,6 +6387,9 @@ CoinObject.prototype.update = function(type) {
         case 0x0:
             this.kill();
             break;
+        case 160:
+            this.kill();
+            break;
     }
 };
 CoinObject.prototype.step = function() {
