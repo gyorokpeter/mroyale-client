@@ -2663,15 +2663,15 @@ GameObject.prototype.play = function(_0x5c61d3, _0x1cd15d, _0x457912) {
     if (this.zone === _0x2fc4c1.id && this.level === _0x2fc4c1.level) return _0x5c61d3 = app.audio.getSpatialAudio(_0x5c61d3, _0x1cd15d, _0x457912, "effect"), _0x5c61d3.play(this.pos), this.sounds.push(_0x5c61d3), _0x5c61d3;
 };
 GameObject.OBJECT_LIST = [];
-GameObject.REGISTER_OBJECT = function(_0x4058c1) {
-    GameObject.OBJECT_LIST.push(_0x4058c1);
+GameObject.REGISTER_OBJECT = function(objClass) {
+    GameObject.OBJECT_LIST.push(objClass);
 };
 GameObject.OBJECT = function(classId) {
     for (var i = 0x0; i < GameObject.OBJECT_LIST.length; i++) {
         var obj = GameObject.OBJECT_LIST[i];
         if (obj.ID === classId) return obj;
     }
-    app.menu.warn.show("Invalid Object Class ID: " + _0x42193c);
+    app.menu.warn.show("Invalid Object Class ID: " + classId);
 };
 "use strict";
 
@@ -5445,7 +5445,6 @@ BillBlasterObject.prototype.setState = function(_0xf1ae11) {
 BillBlasterObject.prototype.draw = function(_0x281060) {};
 BillBlasterObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(BillBlasterObject);
-"use strict";
 
 function BulletBillObject(game, level, zone, pos, oid, direction) {
     GameObject.call(this, game, level, zone, pos);
@@ -5535,6 +5534,51 @@ BulletBillObject.prototype.draw = function(_0x3d4441) {
 BulletBillObject.prototype.play = GameObject.prototype.play;
 GameObject.REGISTER_OBJECT(BulletBillObject);
 "use strict";
+
+function SpawnerObject(game, level, zone, pos, oid, objectType, delay, direction) {
+    GameObject.call(this, game, level, zone, pos);
+    this.oid = oid;
+    this.objectType = parseInt(objectType);
+    //this.setState(BillBlasterObject.STATE.IDLE);
+    this.fireTimer = 0x0;
+    this.delay = isNaN(parseInt(delay)) ? SpawnerObject.FIRE_DELAY_DEFAULT : parseInt(delay);
+    this.shootDirection = isNaN(parseInt(direction)) ? 0 : parseInt(direction);
+    this.disable();
+}
+SpawnerObject.ID = 37;
+SpawnerObject.FIRE_DELAY_DEFAULT = 150;
+SpawnerObject.ENABLE_DIST = 26;
+SpawnerObject.prototype.update = function(mode) {
+    switch (mode) {
+        case 0xa0:
+            this.enable();
+            break;
+    }
+};
+SpawnerObject.prototype.disable = function() {
+    this.disabled = true;
+};
+SpawnerObject.prototype.enable = function() {
+    this.disabled = false;
+};
+SpawnerObject.prototype.proximity = function() {
+    var player = this.game.getPlayer();
+    player && !player.dead && player.level === this.level && player.zone === this.zone && !this.proxHit && vec2.distance(player.pos, this.pos) < GoombaObject.ENABLE_DIST && (this.game.out.push(NET020.encode(this.level, this.zone, this.oid, 0xa0)), this.proxHit = true);
+};
+SpawnerObject.prototype.step = function() {
+    if (this.disabled) return this.proximity();
+    if (++this.fireTimer> this.delay) this.fire();
+};
+SpawnerObject.prototype.fire = function() {
+    this.fireTimer = 0;
+    var obj = this.game.createObject(this.objectType, this.level, this.zone, vec2.copy(this.pos), [this.game.world.getZone(this.level, this.zone).maxOid+=1]);
+    obj.enable();
+    if (this.shootDirection) obj.dir = !obj.dir;
+    this.disable();
+    this.proxHit = false;
+};
+SpawnerObject.prototype.isTangible = function() { return false; };
+GameObject.REGISTER_OBJECT(SpawnerObject);
 
 function FireballObject(game, level, zone, pos, oid, dir, owner, skin) {
     GameObject.call(this, game, level, zone, pos);
@@ -7875,9 +7919,11 @@ Game.prototype.load = function(data) {
             var zn = lvl.zones[j];
             for (var k=0;k<zn.obj.length;k++) {
                 var obj = zn.obj[k];
-                var pgen = [obj.pos]; // obj.pos here is a shor2, we use it as the oid for this object
+                var oid = obj.pos;
+                var pgen = [oid]; // obj.pos here is a shor2, we use it as the oid for this object
                 for (var l=0;l<obj.param.length;l++) { pgen.push(obj.param[l]); }
-                this.createObject(obj.type, lvl.id, zn.id, shor2.decode(obj.pos), pgen)
+                if (zn.maxOid===undefined || oid > zn.maxOid) zn.maxOid = oid;
+                this.createObject(obj.type, lvl.id, zn.id, shor2.decode(obj.pos), pgen);
             }
         }
     }
@@ -8315,8 +8361,9 @@ Game.prototype.doPush = function() {
 Game.prototype.createObject = function(id, level, zoneId, pos, extraArgs) {
     var args = [undefined, this, level, zoneId, pos];
     for (var i = 0x0; i < extraArgs.length; i++) args.push(extraArgs[i]);
-    GameObject.OBJECT(id);
-    var object = new(Function.prototype.bind.apply(GameObject.OBJECT(id), args))();
+    var objtype = GameObject.OBJECT(id);
+    if (!objtype) return undefined;
+    var object = new(Function.prototype.bind.apply(objtype, args))();
     this.objects.push(object);
     return object;
 };

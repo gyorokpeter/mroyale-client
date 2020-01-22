@@ -39,6 +39,7 @@ var objDefs = {
     34:  {'name': 'LAVA BUBBLE', 'paramDefs': [{'name': 'delay'}, {'name': 'impulse'}]},
     35:  {'name': 'BILL BLASTER', 'paramDefs': [{'name': 'delay'}, {'name': 'direction'}]},
     36:  {'name': 'BULLET', 'paramDefs': [{'name': 'direction'}]},
+    37:  {'name': 'OBJECT SPAWNER', 'paramDefs': [{'name': 'objectType'}, {'name': 'delay'}, {'name': 'direction'}]},
     49:  {'name': 'HAMMER BRO', 'paramDefs': [{'name': 'phase'}]},
     81:  {'name': 'MUSHROOM'},
     82:  {'name': 'FIRE FLOWER'},

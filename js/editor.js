@@ -2094,7 +2094,6 @@ GameObject.OBJECT = function(_0x4c8b3b) {
         var _0x379dcc = GameObject.OBJECT_LIST[_0x500c0f];
         if (_0x379dcc.ID === _0x4c8b3b) return _0x379dcc;
     }
-    app.menu.warn.show("Invalid Object Class ID: " + _0x4c8b3b);
 };
 "use strict";
 
