@@ -1325,13 +1325,20 @@ function ZoneTool(editor) {
     this.editor = editor;
     this.element = document.getElementById("editor-tool-zone");
     this.valId = document.getElementById("editor-tool-zone-id");
-    this.valInitial = document.getElementById("editor-tool-zone-initial");
+    var that = this;
+    this.valInitialX = document.getElementById("editor-tool-zone-initial-x");
+    this.valInitialX.onchange = function() {
+        that.update();
+    };
+    this.valInitialY = document.getElementById("editor-tool-zone-initial-y");
+    this.valInitialY.onchange = function() {
+        that.update();
+    };
     this.valColor = document.getElementById("editor-tool-zone-color");
     this.valMusic = document.getElementById("editor-tool-zone-music");
     this.valWinMusic = document.getElementById("editor-tool-zone-winmusic");
     this.valWidth = document.getElementById("editor-tool-zone-width");
     this.valHeight = document.getElementById("editor-tool-zone-height");
-    var that = this;
     this.btnApply = document.getElementById("editor-tool-zone-apply");
     this.btnApply.onclick = function() {
         that.reload();
@@ -1362,6 +1369,7 @@ function ZoneTool(editor) {
     document.getElementById("editor-tool-zone-dellayer").onclick = function() {
         that.deleteLayer();
     }
+    this.showLevelStart = true;
 }
 ZoneTool.prototype.addLayer = function() {
     var z = parseInt(window.prompt("Z (negative=background, positive=foreground)"));
@@ -1461,6 +1469,12 @@ ZoneTool.prototype.unshiftY = function() {
         zoneData.unshift(newRow);
     }
 };
+ZoneTool.prototype.update = function() {
+    var x = parseInt(this.valInitialX.value)
+    var y = parseInt(this.valInitialY.value)
+    if (isNaN(x) || isNaN(y)) return;
+    this.zone.initial = shor2.encode(x,y);
+};
 ZoneTool.prototype.reload = function() {
     this.save();
     this.load();
@@ -1468,7 +1482,9 @@ ZoneTool.prototype.reload = function() {
 ZoneTool.prototype.load = function() {
     this.zone = this.editor.currentZone;
     this.valId.value = this.zone.id;
-    this.valInitial.value = this.zone.initial;
+    var xy = shor2.decode(this.zone.initial);
+    this.valInitialX.value = xy.x;
+    this.valInitialY.value = xy.y;
     this.valColor.value = this.zone.color;
     this.valMusic.value = this.zone.music;
     this.valWinMusic.value = this.zone.winmusic || "";
@@ -1479,11 +1495,12 @@ ZoneTool.prototype.load = function() {
 };
 ZoneTool.prototype.save = function() {
     try {
-        var id = parseInt(this.valId.value),
-            initial = parseInt(this.valInitial.value);
-        if (isNaN(id) || isNaN(initial)) throw "oof";
+        var x = parseInt(this.valInitialX.value)
+        var y = parseInt(this.valInitialY.value)
+        var id = parseInt(this.valId.value);
+        if (isNaN(id) || isNaN(x) || isNaN(y)) throw "input is not a number";
         this.zone.id = id;
-        this.zone.initial = initial;
+        this.zone.initial = shor2.encode(x,y);
         this.zone.color = this.valColor.value;
         this.zone.music = this.valMusic.value;
         this.zone.winmusic = this.valWinMusic.value;
@@ -1772,18 +1789,18 @@ ObjectTool.prototype.destroy = function() {
 };
 "use strict";
 
-function WarpTool(_0x3db2f7) {
-    this.editor = _0x3db2f7;
+function WarpTool(editor) {
+    this.editor = editor;
     this.element = document.getElementById("editor-tool-warp");
     this.valId = document.getElementById("editor-tool-warp-id");
     this.valPos = document.getElementById("editor-tool-warp-pos");
     this.valData = document.getElementById("editor-tool-warp-data");
-    var _0x1f16e8 = this;
+    var that = this;
     this.valId.onchange = function() {
-        _0x1f16e8.update();
+        that.update();
     };
     this.valData.onchange = function() {
-        _0x1f16e8.update();
+        that.update();
     };
     this.moveTimer = 0x0;
     this.mmbx = false;
@@ -1845,11 +1862,12 @@ WarpTool.prototype.update = function() {
         this.selected && (this.selected.id = _0x20fe57, this.selected.data = _0x17d535);
     } catch (_0x3e9769) {}
 };
-WarpTool.prototype.select = function(_0x295c2c) {
-    this.selected = _0x295c2c;
-    this.valId.value = _0x295c2c.id;
-    this.valPos.innerHTML = _0x295c2c.pos;
-    this.valData.value = _0x295c2c.data;
+WarpTool.prototype.select = function(warp) {
+    this.selected = warp;
+    this.valId.value = warp.id;
+    var pos = shor2.decode(warp.pos);
+    this.valPos.innerHTML = pos.x+","+pos.y;
+    this.valData.value = warp.data;
 };
 WarpTool.prototype.move = function(dx, dy) {
     var pos = shor2.decode(this.selected.pos),
@@ -5885,31 +5903,7 @@ Display.prototype.clear = function() {
     _0x8880ce.imageSmoothingEnabled = false;
 };
 Display.prototype.draw = function() {
-    var context = this.context;
-    this.clear();
-    context.fillStyle = this.game.getZone().color;
-    context.fillRect(0x0, 0x0, this.canvas.width, this.canvas.height);
-    if (this.resource.ready()) {
-        this.game.getZone().dimensions();
-        context.save();
-        context.translate(parseInt(0.5 * this.canvas.width), parseInt(0.5 * this.canvas.height));
-        context.scale(this.camera.scale, this.camera.scale);
-        context.translate(parseInt(-this.camera.pos.x * Display.TEXRES), parseInt(-this.camera.pos.y * Display.TEXRES));
-        var zone = this.game.getZone();
-        for (var i=0; i<zone.layers.length; i++) {
-            this.drawMap(zone.layers[i].data, false);
-            if (zone.layers[i].z == 0) {
-                this.drawObject();
-                this.drawMap(zone.layers[i].data, true);
-            }
-        }
-        this.drawEffect();
-        context.restore();
-        this.drawTouch();
-        this.drawUI();
-    } else {
-        this.drawLoad();
-    }
+    "unused in the editor";
 };
 Display.prototype.drawMap = function(data, depth) {
     var drawAll = data.z != 0;
@@ -6085,6 +6079,7 @@ EditorDisplay.prototype.draw = function() {
         }
         this.drawBorder();
         this.drawCursor();
+        this.drawLevelStart();
         this.drawCopyBlock();
         this.drawObjectTool();
         this.drawWarp();
@@ -6189,6 +6184,14 @@ EditorDisplay.prototype.drawWarp = function() {
             context.fillRect(pos.x * Display.TEXRES, (zone.height() - pos.y - 0x1) * Display.TEXRES, Display.TEXRES, Display.TEXRES);
         }
     }
+};
+EditorDisplay.prototype.drawLevelStart = function() {
+    if (!(this.game.tool && this.game.tool.showLevelStart)) return;
+    var context = this.context;
+    var zone = this.game.getZone();
+    var pos = shor2.decode(zone.initial);
+    context.fillStyle = "rgba(255,0,0,0.5)";
+    context.fillRect(pos.x * Display.TEXRES, (zone.height() - pos.y - 0x1) * Display.TEXRES, Display.TEXRES, Display.TEXRES);
 };
 EditorDisplay.prototype.drawLoad = Display.prototype.drawLoad;
 "use strict";
