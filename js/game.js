@@ -3571,6 +3571,7 @@ PlayerObject.prototype.isTangible = function() {
     return GameObject.prototype.isTangible.call(this) && !this.isState(PlayerObject.SNAME.HIDE) && 0x0 >= this.pipeDelay;
 };
 PlayerObject.prototype.setState = function(stName) {
+    if (!stName) throw "unknwon state name";
     var state = this.getStateByPowerIndex(stName, this.power);
     if (state !== this.state) {
         this.state = state;
@@ -8296,9 +8297,9 @@ Game.prototype.doStep = function() {
         } else
             this.gameOverTimer = 0x0;
     } else if ((0x0 < this.lives) && 0x0 >= this.victory) {
-        _0x504fb1 = this.getZone().level;
+        var level = this.getZone().level;
         this.doSpawn();
-        this.levelWarp(_0x504fb1);
+        this.levelWarp(level);
         this.lives--;
     } else if (0x2d < ++this.gameOverTimer && !(this instanceof JailGame)) {
         this.gameOver = true;
@@ -8440,8 +8441,8 @@ Game.prototype.play = function(path, gainValue, playbackRateDeviation) {
     this.sounds.push(audio);
 };
 
-Game.prototype.levelWarp = function(_0x4fb258) {
-    this.levelWarpId = _0x4fb258;
+Game.prototype.levelWarp = function(level) {
+    this.levelWarpId = level;
     this.levelWarpTimer = Game.LEVEL_WARP_TIME;
     this.getPlayer().hide();
 };
@@ -8504,6 +8505,7 @@ Game.prototype.destroy = function() {
     clearTimeout(this.loopReq);
     this.input.destroy();
     this.display.destroy();
+    for (var obj of this.objects) obj.destroy && obj.destroy();
 };
 "use strict";
 
