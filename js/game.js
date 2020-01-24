@@ -2972,6 +2972,7 @@ PlayerObject.SNAME.DEAD = "DEAD";
 PlayerObject.SNAME.HIDE = "HIDE";
 PlayerObject.SNAME.GHOST = "GHOST";
 PlayerObject.SNAME.DEADGHOST = "DEADGHOST";
+PlayerObject.HideSprite = 0x70;
 var _0x4a74c1 = vec2.make(0.9, 0.95),
     _0x124f5a = vec2.make(0.9, 1.9);
 PlayerObject.STATE = [{
@@ -3107,7 +3108,7 @@ PlayerObject.STATE = [{
 }, {
     'NAME': PlayerObject.SNAME.HIDE,
     'DIM': _0x4a74c1,
-    'ID': 0x70,
+    'ID': PlayerObject.HideSprite,
     'SPRITE': [PlayerObject.SPRITE.G_HIDE]
 }, {
     'NAME': PlayerObject.SNAME.GHOST,
@@ -3122,7 +3123,7 @@ PlayerObject.STATE = [{
 }];
 PlayerObject.prototype.update = function(data) {
     if (!(this.dead || this.garbage)) {
-        this.setState(PlayerObject.SNAME.GHOST);
+        this.setState(data.sprite == PlayerObject.HideSprite ? PlayerObject.SNAME.HIDE : PlayerObject.SNAME.GHOST);
         this.level = data.level;
         this.zone = data.zone;
         this.pos = data.pos;
