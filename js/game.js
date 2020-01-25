@@ -5574,7 +5574,7 @@ SpawnerObject.prototype.step = function() {
 SpawnerObject.prototype.fire = function() {
     this.fireTimer = 0;
     var obj = this.game.createObject(this.objectType, this.level, this.zone, vec2.copy(this.pos), [this.game.world.getZone(this.level, this.zone).maxOid+=1]);
-    obj.enable();
+    obj.enable && obj.enable();
     if (this.shootDirection) obj.dir = !obj.dir;
     this.disable();
     this.proxHit = false;
