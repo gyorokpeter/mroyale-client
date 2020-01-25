@@ -246,6 +246,7 @@
 
       <!-- Private match settings -->
       <div id='privLobby' class='container-privLobby' style='display: none;'>
+        <div class='dis-sm-r' id="privLobbyClose">x</div>
         <div class='dis-lg'>World Select</div>
         <div id="levelSelectStandard" class="levelSelectRow">
         </div>
@@ -261,6 +262,9 @@
         <div class='dis-lg'>Settings</div>
         <div class="levelSelectRow">
             <span id='settings-return-main' onclick='location.reload();'>Return to Main</span>
+        </div>
+        <div class="levelSelectRow">
+            <span id='settings-show-privLobby' display="none">Private Lobby Options</span>
         </div>
         <div class="levelSelectRow">
             <div onclick="window.open('./control.html?v=3.6.3')">Controls</div>

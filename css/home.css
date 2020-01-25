@@ -329,6 +329,11 @@ img {
   white-space: normal;
 }
 
+.dis-sm-r {
+  font-size: 12px;
+  text-align: right;
+}
+
 @media only screen and (max-width: 769px) {
   .dis-lg {
     font-size: 8px;

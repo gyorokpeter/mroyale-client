@@ -2272,6 +2272,7 @@ Network.prototype.openWs = function(args) {
     this.webSocket.onclose = function(e) {
         net.webSocket = undefined;
         document.getElementById("privLobby").style.display = "none";
+        document.getElementById("settings-show-privLobby").style.display = "none";
         app.menu.error.show("Connection Interrupted");
     };
 };
@@ -2569,7 +2570,16 @@ GameState.prototype.receiveLevelList = function(data) {
         document.getElementById("levelSelectStandard").appendChild(elem);
         levelSelectors[i].elem = elem;
     }
+    document.getElementById("privLobbyClose").onclick = function() {
+        document.getElementById("privLobby").style.display = "none";
+    };
+    document.getElementById("settings-show-privLobby").onclick = function() {
+        document.getElementById("privLobby").style.display = "";
+        app.settings.showSettings = false;
+        document.getElementById("settingsPanel").style.display = "none";
+    };
     document.getElementById("privLobby").style.display = "";
+    document.getElementById("settings-show-privLobby").style.display = "";
 }
 GameState.prototype.recieveLevelSelectResult = function(data) {
     if(data.status == "error") {
@@ -7455,8 +7465,9 @@ ingameGuiButtons = [    //right to left
             });
         }},
     {"name": "showSettings",  "iconIndex": [0xeb], "padMode": false, 'click': function() {
-        app.settings.showSettings = !app.settings.showSettings;
-        document.getElementById("settingsPanel").style.display = app.settings.showSettings?"":"none";
+        var ss = app.settings.showSettings = !app.settings.showSettings;
+        document.getElementById("settingsPanel").style.display = ss?"":"none";
+        if (ss) document.getElementById("privLobby").style.display = "none";
     }},
     {"name": "pad",           "iconIndex": [0xf8],       "padMode": true }
 ];
@@ -7831,6 +7842,7 @@ Zone.prototype.getEffects = function(displayList, textList) {
 
 function Game(data) {
     document.getElementById("privLobby").style.display = "none";
+    document.getElementById("settings-show-privLobby").style.display = "none";
     this.container = document.getElementById("game");
     this.canvas = document.getElementById("game-canvas");
     this.input = new Input(this, this.canvas);
