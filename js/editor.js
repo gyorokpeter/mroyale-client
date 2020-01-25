@@ -1389,17 +1389,18 @@ ZoneTool.prototype.addLayer = function() {
     app.editor.setLayer(layer);
 }
 ZoneTool.prototype.deleteLayer = function() {
-    var z = app.editor.currentLayer;
+    var z = app.editor.currentLayer.z;
     if (z == 0) return alert("can't delete the primary layer");
     if (!z) return alert("no layer selected?!");
     var i=0;
     for(; i<this.zone.layers.length; ++i) {
         if (this.zone.layers[i].z == z) break;
     }
+
     if (i == this.zone.layers.length) return alert("non-existing layer selected?!");
     if(!window.confirm("really delete layer "+z+"?")) return;
     this.zone.layers.splice(i,1)
-    app.editor.setLayer(app.editor.zone.getLayer(0));
+    app.editor.setLayer(app.editor.currentZone.getLayer(0));
     app.menu.list.updateLayerList();
 };
 ZoneTool.prototype.resize = function() {
