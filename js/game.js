@@ -3521,8 +3521,15 @@ PlayerObject.prototype.tfm = function(_0x538c99) {
     this.tfmTimer = PlayerObject.TRANSFORM_TIME;
     this.setState(PlayerObject.SNAME.TRANSFORM);
 };
-PlayerObject.prototype.warp = function(_0x3f75ed) {
-    if (_0x3f75ed = this.game.world.getLevel(this.level).getWarp(_0x3f75ed)) this.level = _0x3f75ed.level, this.zone = _0x3f75ed.zone, this.pos = _0x3f75ed.pos, this.autoTarget = undefined, this.grounded = false;
+PlayerObject.prototype.warp = function(warpId) {
+    var warp = this.game.world.getLevel(this.level).getWarp(warpId);
+    if (warp) {
+        this.level = warp.level;
+        this.zone = warp.zone;
+        this.pos = warp.pos;
+        this.autoTarget = undefined;
+        this.grounded = false;
+    }
 };
 PlayerObject.prototype.pipe = function(pipeDir, warp, delay) {
     this.moveSpeed = 0;
@@ -8274,6 +8281,8 @@ Game.prototype.doStep = function() {
         player.pos = shor2.decode(initialLevel.initial);
         player.autoTarget = undefined;
         player.grounded = false;
+        player.moveSpeed = 0;
+        player.fallSpeed = 0;
         player.show();
         player.invuln();
         this.levelWarpId = undefined;
